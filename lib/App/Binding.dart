@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
+import '../Authentication/Login/Controller/Controller.dart';
 import '../Presentation/Features/AddTransactions/Controller/Controller.dart';
 import '../Presentation/Features/Dashboard/Controller/Controller.dart';
 import '../Presentation/Features/Setting/Controller/Controller.dart';
 import '../Presentation/Features/Transcations/Controller/Controller.dart';
 import '../Presentation/Features/debts/Controller/Controller.dart';
+import '../Presentation/Splash/Controller/Controller.dart';
 import '../Presentation/navbar/Controller/Controller.dart';
 
 
@@ -16,6 +18,8 @@ class InitialBinding extends Bindings {
     Get.lazyPut<debtsController>(() => debtsController(), fenix: true);
     Get.lazyPut<dashboardController>(() => dashboardController(), fenix: true);
     Get.lazyPut<addTranscationsController>(() => addTranscationsController(), fenix: true);
+    Get.lazyPut<SplashController>(() => SplashController(), fenix: true);
+    Get.lazyPut<loginController>(() => loginController(), fenix: true);
 
 
   }

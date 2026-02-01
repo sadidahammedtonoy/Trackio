@@ -45,6 +45,8 @@ dependencies:
   flutter_screenutil: ^5.9.3
   intl: ^0.19.0
   fl_chart: ^0.66.2
+  video_player: ^2.8.2
+  lottie: ^3.3.2
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +73,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/fonts/
+    - assets/Video/
+    - assets/json/
+
   fonts:
     - family: Montserrat
       fonts:
