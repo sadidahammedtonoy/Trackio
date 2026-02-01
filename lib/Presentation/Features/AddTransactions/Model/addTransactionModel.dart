@@ -4,6 +4,7 @@ class addTranModel {
   String amount;
   String wallet;
   String category;
+  String note;
 
   //<editor-fold desc="Data Methods">
   addTranModel({
@@ -12,6 +13,7 @@ class addTranModel {
     required this.amount,
     required this.wallet,
     required this.category,
+    required this.note,
   });
 
   @override
@@ -23,7 +25,8 @@ class addTranModel {
           date == other.date &&
           amount == other.amount &&
           wallet == other.wallet &&
-          category == other.category);
+          category == other.category &&
+          note == other.note);
 
   @override
   int get hashCode =>
@@ -31,7 +34,8 @@ class addTranModel {
       date.hashCode ^
       amount.hashCode ^
       wallet.hashCode ^
-      category.hashCode;
+      category.hashCode ^
+      note.hashCode;
 
   @override
   String toString() {
@@ -41,6 +45,7 @@ class addTranModel {
         ' amount: $amount,' +
         ' wallet: $wallet,' +
         ' category: $category,' +
+        ' note: $note,' +
         '}';
   }
 
@@ -50,6 +55,7 @@ class addTranModel {
     String? amount,
     String? wallet,
     String? category,
+    String? note,
   }) {
     return addTranModel(
       type: type ?? this.type,
@@ -57,6 +63,7 @@ class addTranModel {
       amount: amount ?? this.amount,
       wallet: wallet ?? this.wallet,
       category: category ?? this.category,
+      note: note ?? this.note,
     );
   }
 
@@ -67,6 +74,7 @@ class addTranModel {
       'amount': this.amount,
       'wallet': this.wallet,
       'category': this.category,
+      'note': this.note,
     };
   }
 
@@ -77,6 +85,7 @@ class addTranModel {
       amount: map['amount'] as String,
       wallet: map['wallet'] as String,
       category: map['category'] as String,
+      note: map['note'] as String,
     );
   }
 

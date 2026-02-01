@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sadid/Core/loading.dart';
+import 'package:sadid/Core/snakbar.dart';
 import 'package:sadid/Presentation/Features/AddTransactions/Model/addTransactionModel.dart';
 
 class addTranscationsController extends GetxController {
@@ -39,35 +42,57 @@ class addTranscationsController extends GetxController {
     }
   }
 
-  Future<String> addMonthlyTransaction({
+  Future<String?> addMonthlyTransaction({
     required addTranModel model,
   }) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) throw Exception("User not logged in");
+    AppLoader.show(message: "Adding transaction...");
 
-    // 🔑 Month key → 2026-01
-    final monthKey =
-        "${model.date.year}-${model.date.month.toString().padLeft(2, '0')}";
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception("User not logged in");
 
-    final ref = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions')
-        .doc(monthKey)
-        .collection('items')
-        .doc(); // auto id
+      final monthKey =
+          "${model.date.year}-${model.date.month.toString().padLeft(2, '0')}";
 
-    await ref.set({
-      "type": model.type,
-      "date": Timestamp.fromDate(model.date),
-      "amount": model.amount,
-      "wallet": model.wallet,
-      "category": model.category,
-      "createdAt": FieldValue.serverTimestamp(),
-    });
+      final monthRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('monthly_transactions')
+          .doc(monthKey);
 
-    return ref.id;
+      // ✅ IMPORTANT: ensure the month doc exists
+      await monthRef.set({
+        "monthKey": monthKey,
+        "updatedAt": FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      final ref = monthRef.collection('items').doc();
+
+      await ref.set({
+        "type": model.type,
+        "date": Timestamp.fromDate(model.date),
+        "amount": model.amount,
+        "wallet": model.wallet,
+        "category": model.category,
+        "note": (model.note).trim(),
+        "monthKey": monthKey, // ✅ ADD THIS
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+
+
+      AppLoader.hide();
+      Get.back();
+      AppSnackbar.show("Transaction added successfully");
+
+      return ref.id;
+    } catch (e) {
+      AppLoader.hide();
+      AppSnackbar.show("Fail to add Transaction");
+      return null;
+    }
   }
+
+
 
 
 

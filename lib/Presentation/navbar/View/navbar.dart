@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Features/Dashboard/View/dashboard.dart';
-import '../../Features/Saving/View/saving.dart';
 import '../../Features/Setting/View/setting.dart';
 import '../../Features/Transcations/View/transactions.dart';
+import '../../Features/debts/View/debts.dart';
 import '../Controller/Controller.dart';
 
 class navbar extends StatelessWidget {
@@ -15,7 +15,7 @@ class navbar extends StatelessWidget {
   final pages = [
     dashboardPage(),
     transcations_page(),
-    savingPage(),
+    deptsPage(),
     setting_page()
   ];
 
@@ -27,34 +27,62 @@ class navbar extends StatelessWidget {
           child: pages[nav.currentIndex.value],
         ),
 
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: nav.currentIndex.value,
-          onTap: nav.changeTab,
-          type: BottomNavigationBarType.fixed,
-          showUnselectedLabels: true,
+        bottomNavigationBar: Container(
+          padding: EdgeInsets.only(
+            top: 1,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: Colors.blue,
+            border: Border.all(
+              color: Colors.blue,
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(5, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+            child: BottomNavigationBar(
+              currentIndex: nav.currentIndex.value,
+              onTap: nav.changeTab,
+              type: BottomNavigationBarType.fixed,
+              showUnselectedLabels: true,
+              backgroundColor: Colors.white,
+              selectedItemColor: Colors.blue,
 
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_outlined),
-              activeIcon: Icon(Icons.dashboard),
-              label: "Dashboard",
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.dashboard_outlined),
+                  activeIcon: Icon(Icons.dashboard),
+                  label: "Dashboard",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.receipt_long_outlined),
+                  activeIcon: Icon(Icons.receipt_long),
+                  label: "Transactions",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.balance_outlined),
+                  activeIcon: Icon(Icons.balance_rounded),
+                  label: "Debts",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings_outlined),
+                  activeIcon: Icon(Icons.settings),
+                  label: "Settings",
+                ),
+              ],
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long_outlined),
-              activeIcon: Icon(Icons.receipt_long),
-              label: "Transactions",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.savings_outlined),
-              activeIcon: Icon(Icons.savings),
-              label: "Savings",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
-              label: "Settings",
-            ),
-          ],
+          ),
         ),
       );
     });

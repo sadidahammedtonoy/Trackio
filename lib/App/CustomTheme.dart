@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'AppColors.dart';
 
 final ThemeData customTheme = ThemeData(
-  // scaffoldBackgroundColor: Colors.transparent,
-  // fontFamily: 'Outfit',
-  // appBarTheme: AppBarTheme(
-  //   backgroundColor: AppColors.scaffold_background,
-  //   scrolledUnderElevation: 0,
-  //   centerTitle: false,
-  // ),
+  scaffoldBackgroundColor: Colors.white,
+  fontFamily: 'Montserrat',
+  appBarTheme: AppBarTheme(
+    backgroundColor: Colors.white,
+    scrolledUnderElevation: 0,
+    centerTitle: false,
+  ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       minimumSize: const Size(double.infinity, 49),

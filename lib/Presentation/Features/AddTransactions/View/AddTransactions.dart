@@ -7,6 +7,8 @@ class addTranscations extends StatelessWidget {
   addTranscations({super.key});
   final addTranscationsController controller = Get.find<addTranscationsController>();
   TextEditingController amountController = TextEditingController();
+  TextEditingController noteController = TextEditingController();
+  TextEditingController personNameController = TextEditingController();
 
 
   @override
@@ -151,47 +153,86 @@ class addTranscations extends StatelessWidget {
                   ),
                 ),
               )),
-              Text("Transaction Category", style: TextStyle(fontSize: 16),),
-              Obx(() => DropdownButtonFormField<String>(
-                value: controller.categories.any((e) => e["id"] == controller.selectedCategoryId.value)
-                    ? controller.selectedCategoryId.value
-                    : null,
-          
-                hint: const Text("Select category", style: TextStyle(color: Colors.grey)),
-                dropdownColor: Colors.white,
-                icon: const Icon(Icons.arrow_drop_down, color: Colors.purple),
-          
-                items: controller.categories.map((cat) {
-                  final id = cat["id"].toString();
-                  final name = (cat["name"] ?? "").toString();
-          
-                  return DropdownMenuItem<String>(
-                    value: id,
-                    child: Text(name, style: const TextStyle(color: Colors.black)),
-                  );
-                }).toList(),
-          
-                onChanged: (value) {
-                  controller.selectedCategoryId.value = value;
-                },
-          
-                decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-          
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple, width: 2),
-                  ),
+
+              Obx(() => controller.selectedType.value == "Lent" || controller.selectedType.value == "Borrow" ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("${controller.selectedType.value} Person Name", style: TextStyle(fontSize: 16),),
+                  TextFormField(
+                    controller: personNameController,
+                    decoration: InputDecoration(
+                      hintText: "Type here..",
+                    ),
+                  )
+                ],
+              ) : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Transaction Category", style: TextStyle(fontSize: 16),),
+                  Obx(() => DropdownButtonFormField<String>(
+                    value: controller.categories.any(
+                            (e) => e["name"] == controller.selectedCategoryId.value)
+                        ? controller.selectedCategoryId.value
+                        : null,
+
+                    hint: const Text(
+                      "Select category",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+
+                    dropdownColor: Colors.white,
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.purple),
+
+                    items: controller.categories.map((cat) {
+                      final name = (cat["name"] ?? "").toString();
+
+                      return DropdownMenuItem<String>(
+                        value: name, // ⭐ store TEXT
+                        child: Text(
+                          name,
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                      );
+                    }).toList(),
+
+                    onChanged: (value) {
+                      controller.selectedCategoryId.value = value ?? '';
+                      print(controller.selectedCategoryId.value);
+                    },
+
+                    decoration: const InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.purple),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.purple, width: 2),
+                      ),
+                    ),
+                  )),
+                ],
+              ),),
+
+              Text("Remark", style: TextStyle(fontSize: 16),),
+              TextFormField(
+                minLines: 4,
+                maxLines: 5,
+                controller: noteController,
+                decoration: InputDecoration(
+                  hintText: "You can leave a note here...",
                 ),
-              )),
+              ),
               ElevatedButton(onPressed: (){
-                addTranModel model = addTranModel(type: controller.selectedType.value, date: controller.selectedDate.value, amount: amountController.text, wallet: controller.selectedWallet.value, category: controller.selectedCategoryId.value ?? "");
-                controller.addMonthlyTransaction(model: model);
+                if(controller.selectedType.value == "Lent" || controller.selectedType.value == "Borrow"){
+                  addTranModel model = addTranModel(type: controller.selectedType.value, date: controller.selectedDate.value, amount: amountController.text, wallet: controller.selectedWallet.value, category: personNameController.text, note: noteController.text);
+                  controller.addMonthlyTransaction(model: model);
+                }else{
+                  addTranModel model = addTranModel(type: controller.selectedType.value, date: controller.selectedDate.value, amount: amountController.text, wallet: controller.selectedWallet.value, category: controller.selectedCategoryId.value ?? "", note: noteController.text);
+                  controller.addMonthlyTransaction(model: model);
+                }
               }, child: Obx(() => Text("Add ${controller.selectedType.value}", style: TextStyle(color: Colors.white),)))
               
             ],

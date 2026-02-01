@@ -14,6 +14,15 @@
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>This app needs access to save images to your photo library.</string>
 
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>This app needs local network access for Flutter debugging.</string>
+
+    <key>NSBonjourServices</key>
+    <array>
+      <string>_dartVmService._tcp</string>
+    </array>
+
+
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
