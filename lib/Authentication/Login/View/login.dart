@@ -18,7 +18,6 @@ class login extends StatelessWidget {
           spacing: 20,
           children: [
             ElevatedButton(onPressed: () => controller.loginAsGuest(), child: Text("Continue as Guest", style: TextStyle(color: Colors.white),)),
-            ElevatedButton(onPressed: () => controller.logout(), child: Text("Log Out", style: TextStyle(color: Colors.white),)),
           ],
         ),
       ),

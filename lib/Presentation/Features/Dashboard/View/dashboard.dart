@@ -183,10 +183,12 @@ class dashboardPage extends StatelessWidget {
                               ],
                             ),
                           ),
+                      StreamBuilder<double>(
+                        stream: controller.streamOverallSavingOnly(),
+                        builder: (context, snapshot) {
+                          final saving = snapshot.data ?? 0.0;
 
-
-
-                          Container(
+                          return Container(
                             padding: EdgeInsets.all(15),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
@@ -215,11 +217,18 @@ class dashboardPage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 20, width: 110,),
                                 Text("Saving", style: TextStyle(fontSize: 16.sp),),
-                                Text("৳2500", style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w500),),
+                                Text("৳$saving", style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w500),),
 
                               ],
                             ),
-                          ),
+                          );
+                        },
+                      ),
+
+
+
+
+
 
                         ],
                       ),

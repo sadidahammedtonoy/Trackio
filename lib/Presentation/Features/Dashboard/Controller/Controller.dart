@@ -249,6 +249,29 @@ class dashboardController extends GetxController {
     }
   }
 
+  Stream<double> streamOverallSavingOnly() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return const Stream.empty();
+
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('stats')
+        .doc('summary')
+        .snapshots()
+        .map((doc) {
+      if (!doc.exists) return 0.0;
+
+      final data = doc.data() as Map<String, dynamic>;
+      final raw = data['overallSaving'];
+
+      return (raw is String)
+          ? double.tryParse(raw) ?? 0.0
+          : (raw as num?)?.toDouble() ?? 0.0;
+    });
+  }
+
+
 
 
 

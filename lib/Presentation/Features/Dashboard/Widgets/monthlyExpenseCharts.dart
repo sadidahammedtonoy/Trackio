@@ -40,7 +40,7 @@ class CategoryPieChart extends StatelessWidget {
         }
 
         if (data.isEmpty) {
-          return const Center(child: Text("No data for pie chart"));
+          return const Center(child: Text("No Transactions for analysis"));
         }
 
         final total = data.values.fold<double>(0.0, (a, b) => a + b);

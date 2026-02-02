@@ -1,11 +1,15 @@
 import 'package:get/get.dart';
 import '../Authentication/Login/Controller/Controller.dart';
 import '../Presentation/Features/AddTransactions/Controller/Controller.dart';
+import '../Presentation/Features/Change Password/Controller/Controller.dart';
 import '../Presentation/Features/Dashboard/Controller/Controller.dart';
 import '../Presentation/Features/Setting/Controller/Controller.dart';
 import '../Presentation/Features/Transcations/Controller/Controller.dart';
+import '../Presentation/Features/caregories/Controller/Controller.dart';
 import '../Presentation/Features/debts/Controller/Controller.dart';
+import '../Presentation/Features/saving/Controller/Controller.dart';
 import '../Presentation/Splash/Controller/Controller.dart';
+import '../Presentation/helpSupport/Controller/Controller.dart';
 import '../Presentation/navbar/Controller/Controller.dart';
 
 
@@ -20,6 +24,10 @@ class InitialBinding extends Bindings {
     Get.lazyPut<addTranscationsController>(() => addTranscationsController(), fenix: true);
     Get.lazyPut<SplashController>(() => SplashController(), fenix: true);
     Get.lazyPut<loginController>(() => loginController(), fenix: true);
+    Get.lazyPut<changePasswordController>(() => changePasswordController(), fenix: true);
+    Get.lazyPut<HelpSupportController>(() => HelpSupportController(), fenix: true);
+    Get.lazyPut<caregoriesController>(() => caregoriesController(), fenix: true);
+    Get.lazyPut<savingController>(() => savingController(), fenix: true);
 
 
   }
