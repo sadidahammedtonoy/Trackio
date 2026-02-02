@@ -12,6 +12,7 @@ class categories extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Categories"),
+        titleSpacing: -10,
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/Presentation/Features/AddTransactions/Model/addTransactionModel.dart';
 
+import '../../saving/View/calculator.dart';
 import '../Controller/Controller.dart';
 class addTranscations extends StatelessWidget {
   addTranscations({super.key});
@@ -19,6 +20,17 @@ class addTranscations extends StatelessWidget {
         backgroundColor: Colors.white,
         title: Text("Add Transactions"),
         centerTitle: true,
+      ),
+      floatingActionButton: FloatingActionButton(
+        shape: CircleBorder(),
+        backgroundColor: Colors.white,
+        onPressed: () {
+          Get.dialog(
+            CalculatorDialog(),
+            barrierDismissible: true,
+          );
+        },
+        child: const Icon(Icons.calculate),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),

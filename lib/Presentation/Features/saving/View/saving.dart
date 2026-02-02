@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../Controller/Controller.dart';
 import '../Model/savingModel.dart';
+import 'calculator.dart';
 
 class saving extends StatelessWidget {
   final controller = Get.put(savingController());
@@ -104,6 +105,18 @@ class saving extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Savings"),
+        titleSpacing: -10,
+      ),
+      floatingActionButton: FloatingActionButton(
+        shape: CircleBorder(),
+        backgroundColor: Colors.white,
+        onPressed: () {
+          Get.dialog(
+            CalculatorDialog(),
+            barrierDismissible: true,
+          );
+        },
+        child: const Icon(Icons.calculate),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),

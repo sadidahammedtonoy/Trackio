@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../Authentication/Login/View/login.dart';
+import '../Authentication/Signup/View/Signup.dart';
 import '../Presentation/Documentation/privacy.dart';
 import '../Presentation/Documentation/terms.dart';
 import '../Presentation/Features/AddTransactions/View/AddTransactions.dart';
@@ -22,6 +23,7 @@ class routes {
   static const String HelpSupportPage_screen = '/HelpSupportPage';
   static const String categories_screen = '/categories';
   static const String saving_screen = '/saving';
+  static const String signup_screen = '/signup';
 
 
   static final pages = [
@@ -35,6 +37,7 @@ class routes {
     GetPage( name: HelpSupportPage_screen, binding: InitialBinding(), page: () => HelpSupportPage()),
     GetPage( name: categories_screen, binding: InitialBinding(), page: () => categories()),
     GetPage( name: saving_screen, binding: InitialBinding(), page: () => saving()),
+    GetPage( name: signup_screen, binding: InitialBinding(), page: () => signup()),
 
 
 

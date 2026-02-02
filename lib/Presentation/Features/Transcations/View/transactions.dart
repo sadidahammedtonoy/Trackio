@@ -147,6 +147,7 @@ class transcations_page extends StatelessWidget {
         );
       }),
       floatingActionButton: FloatingActionButton(
+        shape: CircleBorder(),
         onPressed: () {
           Get.toNamed(routes.addTranscations_screen);
         },

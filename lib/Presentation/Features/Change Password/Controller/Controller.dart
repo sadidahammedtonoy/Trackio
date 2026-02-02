@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:sadid/Core/loading.dart';
 
 import '../../../../Core/snakbar.dart';
 
@@ -15,20 +16,33 @@ class changePasswordController extends GetxController {
     required String currentPassword,
     required String newPassword,
   }) async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      throw Exception("No user is logged in.");
+    // Optional: basic validation (avoid Firebase call)
+    if (currentPassword.trim().isEmpty || newPassword.trim().isEmpty) {
+      AppSnackbar.show("Please fill in all fields.");
+      return;
     }
 
-    // Only email/password users can change password
-    final email = user.email;
-    if (email == null || email.isEmpty) {
-      throw Exception("Password change not available for this account.");
+    if (newPassword.trim().length < 6) {
+      AppSnackbar.show("New password must be at least 6 characters.");
+      return;
     }
+
+    AppLoader.show(message: "Updating password...");
 
     try {
-      // 🔐 Re-authenticate user (required by Firebase)
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        AppSnackbar.show("No user is logged in.");
+        return;
+      }
+
+      final email = user.email;
+      if (email == null || email.isEmpty) {
+        AppSnackbar.show("Password change not available for this account.");
+        return;
+      }
+
+      // 🔐 Re-authenticate
       final credential = EmailAuthProvider.credential(
         email: email,
         password: currentPassword,
@@ -37,26 +51,41 @@ class changePasswordController extends GetxController {
       await user.reauthenticateWithCredential(credential);
 
       // 🔁 Update password
-      await user.updatePassword(newPassword);
+      await user.updatePassword(newPassword.trim());
+
+      // ✅ Success: close loader first, then go back, then show message
+      AppLoader.hide();
+      Get.back(); // go back only on success
       AppSnackbar.show("Password changed successfully");
-      Get.back();
 
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'wrong-password') {
-        AppSnackbar.show("Current password is incorrect.");
-        throw Exception("Current password is incorrect.");
-      } else if (e.code == 'weak-password') {
-        AppSnackbar.show("New password is too weak.");
-        throw Exception("New password is too weak.");
-      } else if (e.code == 'requires-recent-login') {
-        AppSnackbar.show("Please log in again and retry.");
-        throw Exception("Please log in again and retry.");
-      } else {
-        AppSnackbar.show(e.message ?? "Password update failed.");
-        throw Exception(e.message ?? "Password update failed.");
+      AppLoader.hide();
+
+      // Wrong current password (reauth)
+      if (e.code == 'wrong-password' ||
+          e.code == 'invalid-credential' ||
+          e.code == 'INVALID_LOGIN_CREDENTIALS') {
+        AppSnackbar.show("Current password doesn't match. Please try again.");
+        return;
       }
+
+      if (e.code == 'weak-password') {
+        AppSnackbar.show("New password is too weak (min 6 characters).");
+        return;
+      }
+
+      if (e.code == 'requires-recent-login') {
+        AppSnackbar.show("Session expired. Please log in again and retry.");
+        return;
+      }
+
+      AppSnackbar.show(e.message ?? "Password update failed. Please try again.");
+    } catch (_) {
+      AppLoader.hide();
+      AppSnackbar.show("Something went wrong. Please try again.");
     }
   }
+
 
 
 
