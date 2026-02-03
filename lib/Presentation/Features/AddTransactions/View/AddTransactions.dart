@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -20,7 +23,7 @@ class addTranscations extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text("Add Transactions"),
+        title: Text("Add Transactions".tr),
         centerTitle: false,
         titleSpacing: -10,
       ),
@@ -48,14 +51,14 @@ class addTranscations extends StatelessWidget {
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Type of Transaction", style: TextStyle(fontSize: 16),),
+              Text("Type of Transaction".tr, style: TextStyle(fontSize: 16),),
               Obx(() => DropdownButtonFormField<String>(
                 value: controller.types.contains(controller.selectedType.value)
                     ? controller.selectedType.value
                     : null,
           
-                hint: const Text(
-                  "Select type",
+                hint: Text(
+                  "Select type".tr,
                   style: TextStyle(color: Colors.grey),
                 ),
           
@@ -66,7 +69,7 @@ class addTranscations extends StatelessWidget {
                   return DropdownMenuItem<String>(
                     value: item,
                     child: Text(
-                      item,
+                      item.tr,
                       style: const TextStyle(color: Colors.black),
                     ),
                   );
@@ -81,26 +84,88 @@ class addTranscations extends StatelessWidget {
                   fillColor: Colors.white,
                 ),
               )),
-              Text("Payment Processed On", style: TextStyle(fontSize: 16),),
+              Text("Payment Processed On".tr, style: TextStyle(fontSize: 16),),
               Obx(() => InkWell(
                 onTap: () async {
-                  final pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: controller.selectedDate.value, // 👈 today by default
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-          
-                  if (pickedDate != null) {
-                    controller.selectedDate.value = pickedDate;
+                  if (Platform.isIOS) {
+                    // ✅ iOS: Cupertino picker in bottom sheet
+                    DateTime temp = controller.selectedDate.value;
+
+                    await showCupertinoModalPopup(
+                      context: context,
+                      builder: (_) => Container(
+                        height: 320,
+                        color: Colors.white, // ✅ white background
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              color: Colors.white,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  CupertinoButton(
+                                    padding: EdgeInsets.zero,
+                                    child: const Text("Cancel"),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  CupertinoButton(
+                                    padding: EdgeInsets.zero,
+                                    child: const Text("Done"),
+                                    onPressed: () {
+                                      controller.selectedDate.value = temp;
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            Expanded(
+                              child: CupertinoDatePicker(
+                                mode: CupertinoDatePickerMode.date,
+                                initialDateTime: controller.selectedDate.value,
+                                minimumDate: DateTime(2000),
+                                maximumDate: DateTime(2100),
+                                onDateTimeChanged: (d) => temp = d,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    // ✅ Android: Material date picker with white background
+                    final pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: controller.selectedDate.value,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            dialogBackgroundColor: Colors.white, // ✅ white background
+                            colorScheme: const ColorScheme.light(
+                              primary: Colors.black, // header / buttons color
+                              onPrimary: Colors.white,
+                              onSurface: Colors.black,
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+
+                    if (pickedDate != null) {
+                      controller.selectedDate.value = pickedDate;
+                    }
                   }
                 },
                 child: InputDecorator(
                   decoration: const InputDecoration(
                     filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.calendar_month, color: Colors.black87,),
-
+                    fillColor: Colors.white, // ✅ field background already white
+                    suffixIcon: Icon(Icons.calendar_month, color: Colors.black87),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide(color: Colors.black),
@@ -118,22 +183,22 @@ class addTranscations extends StatelessWidget {
                   ),
                 ),
               )),
-              Text("Amount", style: TextStyle(fontSize: 16),),
+              Text("Amount".tr, style: TextStyle(fontSize: 16),),
               TextFormField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  hintText: "Enter Amount",
+                  hintText: "Enter Amount".tr,
                 ),
               ),
-              Text("Wallet", style: TextStyle(fontSize: 16),),
+              Text("Wallet".tr, style: TextStyle(fontSize: 16),),
               Obx(() => DropdownButtonFormField<String>(
                 dropdownColor: Colors.white,
                 value: controller.selectedWallet.value,
                 items: controller.wallets.map((item) {
                   return DropdownMenuItem<String>(
                     value: item,
-                    child: Text(item),
+                    child: Text(item.tr),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -151,22 +216,22 @@ class addTranscations extends StatelessWidget {
                   TextFormField(
                     controller: personNameController,
                     decoration: InputDecoration(
-                      hintText: "Type here..",
+                      hintText: "Type here..".tr,
                     ),
                   )
                 ],
               ) : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Transaction Category", style: TextStyle(fontSize: 16),),
+                  Text("Transaction Category".tr, style: TextStyle(fontSize: 16),),
                   Obx(() => DropdownButtonFormField<String>(
                     value: controller.categories.any(
                             (e) => e["name"] == controller.selectedCategoryId.value)
                         ? controller.selectedCategoryId.value
                         : null,
 
-                    hint: const Text(
-                      "Select category",
+                    hint: Text(
+                      "Select category".tr,
                       style: TextStyle(color: Colors.grey),
                     ),
 
@@ -197,13 +262,13 @@ class addTranscations extends StatelessWidget {
                 ],
               ),),
 
-              Text("Remark", style: TextStyle(fontSize: 16),),
+              Text("Remark".tr, style: TextStyle(fontSize: 16),),
               TextFormField(
                 minLines: 4,
                 maxLines: 5,
                 controller: noteController,
                 decoration: InputDecoration(
-                  hintText: "You can leave a note here...",
+                  hintText: "You can leave a note here...".tr,
                 ),
               ),
               ElevatedButton(onPressed: (){
@@ -214,7 +279,7 @@ class addTranscations extends StatelessWidget {
                   addTranModel model = addTranModel(type: controller.selectedType.value, date: controller.selectedDate.value, amount: amountController.text, wallet: controller.selectedWallet.value, category: controller.selectedCategoryId.value ?? "", note: noteController.text);
                   controller.addMonthlyTransaction(model: model);
                 }
-              }, child: Obx(() => Text("Add ${controller.selectedType.value}", style: TextStyle(color: Colors.white),)))
+              }, child: Obx(() => Text("Add ${controller.selectedType.value}".tr, style: TextStyle(color: Colors.white),)))
               
             ],
           ),

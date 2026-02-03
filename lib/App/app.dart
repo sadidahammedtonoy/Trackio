@@ -18,8 +18,14 @@ class MyApp extends StatelessWidget {
       builder: (_, __) => GetMaterialApp(
         debugShowCheckedModeBanner: false,
         translations: AppTranslation(),
-        locale: Locale('en', 'US'),
-        fallbackLocale: Locale('en', 'US'),
+        locale: const Locale('bn', 'BD'),
+        fallbackLocale: const Locale('bn', 'BD'),
+
+
+
+
+        // locale: Locale('en', 'US'),
+        // fallbackLocale: Locale('en', 'US'),
         theme: customTheme,
         initialBinding: InitialBinding(),
         getPages: routes.pages,

@@ -14,7 +14,7 @@ class changePassword extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Change Password"),
+        title: Text("Change Password".tr),
         centerTitle: true,
       ),
       body: Padding(
@@ -24,13 +24,13 @@ class changePassword extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Current Password"),
+              Text("Current Password".tr),
               Obx(() => TextFormField(
                 obscureText: controller.oldPassword.value,
                 controller: currentPasswordController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your current password';
+                    return 'Please enter your current password'.tr;
                   }
                   return null;
                 },
@@ -40,17 +40,17 @@ class changePassword extends StatelessWidget {
                         controller.oldPassword.value = !controller.oldPassword.value;
                       },
                       child: Icon(controller.oldPassword.value ? Icons.visibility_off : Icons.remove_red_eye)),
-                  hintText: "Current password"
+                  hintText: "Current password".tr
                 ),
               ),),
               const SizedBox(height: 10,),
-              Text("New Password"),
+              Text("New Password".tr),
               Obx(() => TextFormField(
                 obscureText: controller.newPassword.value,
                 controller: newPasswordController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your new password';
+                    return 'Please enter your new password'.tr;
                   }
                   return null;
                 },
@@ -60,22 +60,22 @@ class changePassword extends StatelessWidget {
                         controller.newPassword.value = !controller.newPassword.value;
                       },
                       child: Icon(controller.newPassword.value ? Icons.visibility_off : Icons.remove_red_eye)),
-                  hintText: "New password"
+                  hintText: "New password".tr
                 ),
               ),),
               const SizedBox(height: 10,),
-              Text("Confirm New Password"),
+              Text("Confirm New Password".tr),
               Obx(() => TextFormField(
                 obscureText: controller.confirmPassword.value,
                 controller: confirmPasswordController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please confirm your new password';
+                    return 'Please confirm your new password'.tr;
                   } else if(value != newPasswordController.text){
-                    return 'Passwords do not match';
+                    return 'Passwords do not match'.tr;
                   }
                   else if(value == newPasswordController){
-                    return 'Passwords must be different';
+                    return 'Passwords must be different'.tr;
                   }
                   return null;
                 },
@@ -85,13 +85,13 @@ class changePassword extends StatelessWidget {
                         controller.confirmPassword.value = !controller.confirmPassword.value;
                       },
                       child: Icon(controller.confirmPassword.value ? Icons.visibility_off : Icons.remove_red_eye)),
-                  hintText: "Confirm password"
+                  hintText: "Confirm Password".tr
                 ),
               ),),
               const SizedBox(height: 20,),
               ElevatedButton(onPressed: (){
                 controller.changePassword(currentPassword: currentPasswordController.text, newPassword: newPasswordController.text);
-              }, child: Text("Change Password", style: TextStyle(color: Colors.white),))
+              }, child: Text("Change Password".tr, style: TextStyle(color: Colors.white),))
             ],
           ),
         ),

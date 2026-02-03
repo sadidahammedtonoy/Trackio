@@ -9,7 +9,7 @@ import 'package:sadid/Presentation/Features/AddTransactions/Model/addTransaction
 class addTranscationsController extends GetxController {
   final wallets = ["Cash", "Mobile Banking", "Bank", "Others"];
   final selectedWallet = "Cash".obs;
-  final types = ["Expense", "Income", "Saving", "Lent", "Borrow"];
+  final types = ["Expense", "Income", "Lent", "Borrow"];
   final selectedType = "Expense".obs;
   final selectedDate = DateTime.now().obs;
   final categories = <Map<String, dynamic>>[].obs;
@@ -60,7 +60,6 @@ class addTranscationsController extends GetxController {
           .collection('monthly_transactions')
           .doc(monthKey);
 
-      // ✅ IMPORTANT: ensure the month doc exists
       await monthRef.set({
         "monthKey": monthKey,
         "updatedAt": FieldValue.serverTimestamp(),
@@ -75,10 +74,9 @@ class addTranscationsController extends GetxController {
         "wallet": model.wallet,
         "category": model.category,
         "note": (model.note).trim(),
-        "monthKey": monthKey, // ✅ ADD THIS
+        "monthKey": monthKey,
         "createdAt": FieldValue.serverTimestamp(),
       });
-
 
       AppLoader.hide();
       Get.back();
@@ -92,14 +90,6 @@ class addTranscationsController extends GetxController {
     }
   }
 
-
-
-
-
-
-
-
-
   @override
   void onInit() {
     // TODO: implement onInit
@@ -108,33 +98,3 @@ class addTranscationsController extends GetxController {
   }
 
 }
-
-
-// Future<String> addCategory({
-//   required String name,
-// }) async {
-//   final user = FirebaseAuth.instance.currentUser;
-//   if (user == null) throw Exception("User not logged in");
-//
-//   final cleanName = name.trim();
-//   if (cleanName.isEmpty) throw Exception("Category name is empty");
-//
-//   final ref = FirebaseFirestore.instance
-//       .collection('users')
-//       .doc(user.uid)
-//       .collection('categories')
-//       .doc(); // auto id
-//
-//   await ref.set({
-//     "name": cleanName,
-//     "createdAt": FieldValue.serverTimestamp(),
-//     "updatedAt": FieldValue.serverTimestamp(),
-//   });
-//
-//   return ref.id;
-// }
-// ElevatedButton(onPressed: () async {
-// await controller.addCategory(name: "Salary");
-// await controller.fetchCategories();
-// }
-// , child: Text("Add Category"))

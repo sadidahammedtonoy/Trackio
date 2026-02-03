@@ -1,56 +1,133 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sadid/App/routes.dart';
+
 import '../../../Core/loading.dart';
 import '../../../Core/snakbar.dart';
 
 class loginController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   var passswprd = true.obs;
 
+  /// UI toggle (English / বাংলা)
+  var language = "English".obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    final code = Get.locale?.languageCode ?? 'en';
+
+    language = (code == 'bn')
+        ? "বাংলা".obs
+        : "English".obs;
+  }
+
+  /// Optional loader flag (you already use it in google sign-in)
+  final isLoading = false.obs;
+
+  // -------------------- Language Helpers --------------------
+
+  void toggleLanguage() {
+    if (language.value == "English") {
+      language.value = "বাংলা";
+    } else {
+      language.value = "English";
+    }
+
+    // Update only locally (no firebase here, because user may not be logged in yet)
+    Get.updateLocale(
+      language.value == "English"
+          ? const Locale('en', 'US')
+          : const Locale('bn', 'BD'),
+    );
+  }
+
+  DocumentReference<Map<String, dynamic>> _langDoc(String uid) {
+    return _db
+        .collection('users')
+        .doc(uid)
+        .collection('settings')
+        .doc('app');
+  }
+
+  Locale _localeFromToggle() {
+    return (language.value == "বাংলা")
+        ? const Locale('bn', 'BD')
+        : const Locale('en', 'US');
+  }
+
+  /// ✅ After successful login:
+  /// 1) If firebase has saved language -> apply it
+  /// 2) else -> save current toggle language
+  /// 3) Navigate to home
+  Future<void> applyOrSaveLanguageAndContinue(User user) async {
+    final fallbackLocale = _localeFromToggle();
+
+    try {
+      final doc = await _langDoc(user.uid).get();
+
+      if (doc.exists) {
+        final data = doc.data() ?? {};
+        final langCode = (data["languageCode"] ?? "en").toString();
+        final countryCode = (data["countryCode"] ?? "US").toString();
+
+        Get.updateLocale(Locale(langCode, countryCode));
+      } else {
+        // No saved language -> save current toggle selection
+        Get.updateLocale(fallbackLocale);
+
+        await _langDoc(user.uid).set({
+          "languageCode": fallbackLocale.languageCode,
+          "countryCode": fallbackLocale.countryCode,
+          "updatedAt": FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+    } catch (_) {
+      // If firebase fails, just apply local toggle
+      Get.updateLocale(fallbackLocale);
+    }
+
+    // Continue
+    Get.offAllNamed(routes.navbar_screen);
+  }
+
+  // -------------------- Guest Login --------------------
 
   Future<void> loginAsGuest() async {
     try {
       AppLoader.show(message: "Signing in as guest...");
 
-      final UserCredential credential =
-      await _auth.signInAnonymously();
-
+      final UserCredential credential = await _auth.signInAnonymously();
       final User? user = credential.user;
 
-      if (user == null) {
-        throw Exception("Anonymous user is null");
-      }
+      if (user == null) throw Exception("Anonymous user is null");
+      if (!user.isAnonymous) throw Exception("User is not anonymous");
 
-      if (!user.isAnonymous) {
-        throw Exception("User is not anonymous");
-      }
-      AppSnackbar.show("Guest login success");
-
-      print("Guest login success: ${user.uid}");
-
-      // Small delay to avoid navigation race condition
-      await Future.delayed(const Duration(milliseconds: 100));
+      // Apply local language immediately (guest has no firebase settings)
+      Get.updateLocale(_localeFromToggle());
 
       AppLoader.hide();
-
-      // Navigate safely
-      Get.offAllNamed(routes.navbar_screen);
-
       AppSnackbar.show("Logged in as guest");
+
+      // Navigate
+      Get.offAllNamed(routes.navbar_screen);
     } catch (e, s) {
       AppLoader.hide();
-
       print("Guest login error: $e");
       print(s);
-
-      AppSnackbar.show(
-        "Unable to continue as guest. Please try again.",
-      );
+      AppSnackbar.show("Unable to continue as guest. Please try again.");
     }
   }
+
+  // -------------------- Email/Password Login --------------------
 
   Future<User?> loginWithEmailPassword({
     required String email,
@@ -67,25 +144,25 @@ class loginController extends GetxController {
         return null;
       }
 
-      final result = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final result = await _auth.signInWithEmailAndPassword(
         email: e,
         password: p,
       );
 
       final user = result.user;
       if (user == null) {
-        AppLoader.hide();
         AppSnackbar.show("Login failed. Please try again.");
         return null;
       }
 
       AppSnackbar.show("Logged in successfully");
-      Get.offAllNamed(routes.navbar_screen);
-      return user;
 
+      // ✅ Apply saved language or save current toggle, then navigate
+      await applyOrSaveLanguageAndContinue(user);
+
+      return user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        AppLoader.hide();
         AppSnackbar.show("No user found with this email.");
         return null;
       }
@@ -93,70 +170,51 @@ class loginController extends GetxController {
       if (e.code == 'wrong-password' ||
           e.code == 'invalid-credential' ||
           e.code == 'INVALID_LOGIN_CREDENTIALS') {
-        AppLoader.hide();
         AppSnackbar.show("Incorrect password.");
         return null;
       }
 
       if (e.code == 'invalid-email') {
-        AppLoader.hide();
         AppSnackbar.show("Invalid email address.");
         return null;
       }
 
       if (e.code == 'user-disabled') {
-        AppLoader.hide();
         AppSnackbar.show("This account has been disabled.");
         return null;
       }
 
       if (e.code == 'too-many-requests') {
-        AppLoader.hide();
         AppSnackbar.show("Too many attempts. Try again later.");
         return null;
       }
 
       if (e.code == 'network-request-failed') {
-        AppLoader.hide();
         AppSnackbar.show("No internet connection.");
         return null;
       }
 
-      AppLoader.hide();
       AppSnackbar.show(e.message ?? "Login failed.");
       return null;
-
     } catch (_) {
-      AppLoader.hide();
       AppSnackbar.show("Something went wrong. Please try again.");
       return null;
-
     } finally {
-      AppLoader.hide();
       AppLoader.hide();
     }
   }
 
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-
-  final isLoading = false.obs;
+  // -------------------- Google Sign-in --------------------
 
   Future<UserCredential?> signInWithGoogle() async {
     isLoading.value = true;
 
     try {
-      // 1️⃣ Trigger Google Sign-In
-      final GoogleSignInAccount? googleUser =
-      await _googleSignIn.signIn();
+      // 1) Trigger Google Sign-In
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return null; // user cancelled
 
-      if (googleUser == null) {
-        // User cancelled
-        // Get.snackbar("Cancelled", "Google sign-in cancelled");
-        return null;
-      }
-
-      // 2️⃣ Get auth details
+      // 2) Get auth details
       final GoogleSignInAuthentication googleAuth =
       await googleUser.authentication;
 
@@ -165,17 +223,16 @@ class loginController extends GetxController {
         idToken: googleAuth.idToken,
       );
 
-      // 3️⃣ Sign in to Firebase
-      final userCredential =
-      await _auth.signInWithCredential(credential);
+      // 3) Sign in to Firebase
+      final userCredential = await _auth.signInWithCredential(credential);
 
       final user = userCredential.user;
       if (user == null) {
-        AppSnackbar.show("Google sign-in failed");
-        throw Exception("Google sign-in failed");
+        AppSnackbar.show("Google sign-in failed.");
+        return null;
       }
 
-      // 4️⃣ Save / update user in Firestore
+      // 4) Save / update user in Firestore
       await _db.collection("users").doc(user.uid).set({
         "uid": user.uid,
         "name": user.displayName ?? "",
@@ -187,14 +244,15 @@ class loginController extends GetxController {
       }, SetOptions(merge: true));
 
       AppSnackbar.show("Signed in with Google 🎉");
-      Get.offAllNamed(routes.navbar_screen);
 
+      // ✅ Apply saved language or save current toggle, then navigate
+      await applyOrSaveLanguageAndContinue(user);
 
       return userCredential;
     } on FirebaseAuthException catch (e) {
       Get.snackbar("Google Sign-In Failed", _authError(e));
       return null;
-    } catch (e) {
+    } catch (_) {
       Get.snackbar("Error", "Something went wrong. Try again.");
       return null;
     } finally {
@@ -214,6 +272,4 @@ class loginController extends GetxController {
         return e.message ?? "Google sign-in failed.";
     }
   }
-
-
 }

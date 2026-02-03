@@ -28,55 +28,55 @@ class signup extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 10),
-                const Text(
-                  "Create your account",
+                Text(
+                  "Create your account".tr,
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  "Sign up to start tracking your expenses.",
+                Text(
+                  "Sign up to start tracking your expenses.".tr,
                   style: TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 24),
-                Text("Your Name", style: TextStyle(fontWeight: FontWeight.w500),),
+                Text("Your Name".tr, style: TextStyle(fontWeight: FontWeight.w500),),
 
                 // Name
                 TextFormField(
                   controller: nameController,
                   keyboardType: TextInputType.name,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: "Enter your name",
+                  decoration: InputDecoration(
+                    hintText: "Enter your name".tr,
                     border: OutlineInputBorder(),
                   ),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return "Name is required";
-                    if (v.trim().length < 2) return "Enter a valid name";
+                    if (v == null || v.trim().isEmpty) return "Name is required".tr;
+                    if (v.trim().length < 2) return "Enter a valid name".tr;
                     return null;
                   },
                 ),
                 const SizedBox(height: 14),
-                Text("Email Address", style: TextStyle(fontWeight: FontWeight.w500),),
+                Text("Email Address".tr, style: TextStyle(fontWeight: FontWeight.w500),),
 
                 // Email
                 TextFormField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: "Enter your email",
+                  decoration:  InputDecoration(
+                    hintText: "Enter your email".tr,
                     border: OutlineInputBorder(),
                   ),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return "Email is required";
+                    if (v == null || v.trim().isEmpty) return "Email is required".tr;
                     final email = v.trim();
                     final ok = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email);
-                    if (!ok) return "Enter a valid email";
+                    if (!ok) return "Enter a valid email".tr;
                     return null;
                   },
                 ),
                 const SizedBox(height: 14),
-                Text("Password", style: TextStyle(fontWeight: FontWeight.w500),),
+                Text("Password".tr, style: TextStyle(fontWeight: FontWeight.w500),),
 
                 // Password
                 Obx(() {
@@ -85,7 +85,7 @@ class signup extends StatelessWidget {
                     obscureText: controller.password.value,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      hintText: "Password",
+                      hintText: "Password".tr,
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         onPressed: controller.togglePassword,
@@ -97,14 +97,14 @@ class signup extends StatelessWidget {
                       ),
                     ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return "Password is required";
-                      if (v.length < 6) return "Password must be at least 6 characters";
+                      if (v == null || v.isEmpty) return "Password is required".tr;
+                      if (v.length < 6) return "Password must be at least 6 characters".tr;
                       return null;
                     },
                   );
                 }),
                 const SizedBox(height: 14),
-                Text("Confirm Password", style: TextStyle(fontWeight: FontWeight.w500),),
+                Text("Confirm Password".tr, style: TextStyle(fontWeight: FontWeight.w500),),
 
 
                 // Confirm Password
@@ -114,7 +114,7 @@ class signup extends StatelessWidget {
                     obscureText: controller.confirmPassword.value,
                     textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
-                      hintText: "Confirm Password",
+                      hintText: "Confirm Password".tr,
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         onPressed: controller.toggleConfirmPassword,
@@ -126,8 +126,8 @@ class signup extends StatelessWidget {
                       ),
                     ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return "Confirm your password";
-                      if (v != passwordController.text) return "Passwords do not match";
+                      if (v == null || v.isEmpty) return "Confirm your password".tr;
+                      if (v != passwordController.text) return "Passwords do not match".tr;
                       return null;
                     },
                   );
@@ -145,8 +145,8 @@ class signup extends StatelessWidget {
                       signUpModel model = signUpModel(name: nameController.text, email: emailController.text, password: passwordController.text);
                       controller.createAccountWithEmail(model);
                     },
-                    child: const Text(
-                      "Create Account",
+                    child: Text(
+                      "Create Account".tr,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                     ),
                   ),
@@ -157,16 +157,16 @@ class signup extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Already have an account? ",
+                    Text(
+                      "Already have an account? ".tr,
                       style: TextStyle(color: Colors.grey),
                     ),
                     GestureDetector(
                       onTap: () {
                         Get.back(); // or Get.to(LoginPage());
                       },
-                      child: const Text(
-                        "Login",
+                      child: Text(
+                        "Login".tr,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           decoration: TextDecoration.underline,
@@ -181,16 +181,16 @@ class signup extends StatelessWidget {
                   child: Wrap(
                     alignment: WrapAlignment.center,
                     children: [
-                      const Text(
-                        "By creating an account, you agree to our ",
+                      Text(
+                        "By creating an account, you agree to our ".tr,
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       GestureDetector(
                         onTap: () {
                           Get.toNamed(routes.TermsConditionsPage_screen);
                         },
-                        child: const Text(
-                          "Terms & Conditions",
+                        child: Text(
+                          "Terms & Conditions".tr,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -198,16 +198,16 @@ class signup extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const Text(
-                        " and ",
+                      Text(
+                        " and ".tr,
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       GestureDetector(
                         onTap: () {
                           Get.toNamed(routes.PrivacyPolicyPage_screen);
                         },
-                        child: const Text(
-                          "Privacy Policy",
+                        child: Text(
+                          "Privacy Policy".tr,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,

@@ -24,8 +24,8 @@ class CalculatorDialog extends StatelessWidget {
               // Header row
               Row(
                 children: [
-                  const Text(
-                    "Calculator",
+                  Text(
+                    "Calculator".tr,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   const Spacer(),

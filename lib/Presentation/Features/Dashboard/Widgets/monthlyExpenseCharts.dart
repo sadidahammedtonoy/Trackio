@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../Core/numberTranslation.dart';
 import '../Controller/Controller.dart';
 
 class CategoryPieChart extends StatelessWidget {
@@ -41,9 +42,9 @@ class CategoryPieChart extends StatelessWidget {
       final data = controller.cachedCategoryMap;
 
       if (data.isEmpty) {
-        return const Center(
+        return Center(
           child: Text(
-            "No Transactions for analysis",
+            "No Transactions for analysis".tr,
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
         );
@@ -110,7 +111,7 @@ class CategoryPieChart extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      "${entry.key}: ${entry.value.toStringAsFixed(0)}",
+                      "${entry.key}: ${numberTranslation.toBnDigits(entry.value.toStringAsFixed(0))}৳",
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ],

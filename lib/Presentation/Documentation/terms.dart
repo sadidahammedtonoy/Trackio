@@ -9,63 +9,64 @@ class TermsConditionsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text("Terms & Conditions"),
+        title: Text("Terms & Conditions".tr),
+        titleSpacing: -10,
         backgroundColor: Colors.white,
         elevation: 0.5,
         foregroundColor: Colors.black,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: const [
+        children: [
           _Header(),
 
           _Section(
-            title: "Using the App",
+            title: "Using Trackio".tr,
             points: [
-              "You must use this app for lawful and personal financial tracking purposes only.",
-              "You are responsible for the accuracy of the data you enter.",
+              "You must use this app for lawful and personal financial tracking purposes only.".tr,
+              "You are responsible for the accuracy of the data you enter.".tr,
             ],
           ),
 
           _Section(
-            title: "Accounts & Access",
+            title: "Accounts & Access".tr,
             points: [
-              "Accounts are managed through Firebase Authentication.",
-              "Guest users may lose data if they log out or delete the account.",
-              "You are responsible for keeping your login method secure.",
+              "Accounts are managed through Firebase Authentication.".tr,
+              "Guest users may lose data if they log out or delete the account.".tr,
+              "You are responsible for keeping your login method secure.".tr,
             ],
           ),
 
           _Section(
-            title: "Financial Disclaimer",
+            title: "Financial Disclaimer".tr,
             points: [
-              "This app does not provide financial, tax, or legal advice.",
-              "All reports and summaries are for informational purposes only.",
+              "This app does not provide financial, tax, or legal advice.".tr,
+              "All reports and summaries are for informational purposes only.".tr,
             ],
           ),
 
           _Section(
-            title: "Service Availability",
+            title: "Service Availability".tr,
             points: [
-              "We strive to keep the app available at all times.",
-              "Internet connectivity is required for syncing data.",
-              "Features may change or be updated without notice.",
+              "We strive to keep the app available at all times.".tr,
+              "Internet connectivity is required for syncing data.".tr,
+              "Features may change or be updated without notice.".tr,
             ],
           ),
 
           _Section(
-            title: "Limitation of Liability",
+            title: "Limitation of Liability".tr,
             points: [
-              "We are not responsible for losses due to incorrect data entry.",
-              "We are not liable for service interruptions or data loss beyond our control.",
+              "We are not responsible for losses due to incorrect data entry.".tr,
+              "We are not liable for service interruptions or data loss beyond our control.".tr,
             ],
           ),
 
           _Section(
-            title: "Account Termination",
+            title: "Account Termination".tr,
             points: [
-              "You may delete your account at any time from the app.",
-              "Deleting an account may permanently remove associated data.",
+              "You may delete your account at any time from the app.".tr,
+              "Deleting an account may permanently remove associated data.".tr,
             ],
           ),
 
@@ -86,14 +87,14 @@ class _Header extends StatelessWidget {
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Text(
-            "Terms & Conditions",
+            "Terms & Conditions".tr,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 8),
           Text(
-            "By using this app, you agree to these terms.",
+            "By using this app, you agree to these terms.".tr,
             style: TextStyle(fontSize: 14, color: Colors.black54),
           ),
           SizedBox(height: 10),
@@ -144,19 +145,19 @@ class _Footer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Acceptance of Terms",
+          Text(
+            "Acceptance of Terms".tr,
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
-          const Text(
-            "If you do not agree with these terms, please stop using the app.",
+          Text(
+            "If you do not agree with these terms, please stop using the app.".tr,
             style: TextStyle(color: Colors.black54),
           ),
           const SizedBox(height: 12),
           ElevatedButton(
             onPressed: () => Get.back(),
-            child: const Text("Back", style: TextStyle(color: Colors.white),),
+            child: Text("Back".tr, style: TextStyle(color: Colors.white),),
           ),
         ],
       ),

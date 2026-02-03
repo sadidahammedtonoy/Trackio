@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,7 +13,7 @@ class settingController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   Future<void> logout() async {
     try {
-      AppLoader.show(message: "Logging out...");
+      AppLoader.show(message: "Logging out...".tr);
 
       final user = _auth.currentUser;
 
@@ -29,15 +30,12 @@ class settingController extends GetxController {
 
       Get.offAllNamed(routes.login_screen);
 
-      AppSnackbar.show("Logged out successfully");
+      AppSnackbar.show("Logged out successfully".tr);
     } catch (e, s) {
       AppLoader.hide();
 
-      print("Logout error: $e");
-      print(s);
-
       AppSnackbar.show(
-        "Unable to logout. Please try again.",
+        "Unable to logout. Please try again.".tr,
       );
     }
   }
@@ -48,8 +46,8 @@ class settingController extends GetxController {
     await Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text("Logout"),
-        content: const Text("Are you sure you want to logout?"),
+        title: Text("Logout".tr),
+        content: Text("Are you sure you want to logout?".tr),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         actions: [
           Row(
@@ -58,7 +56,7 @@ class settingController extends GetxController {
               Expanded(
                 child: TextButton(
                   onPressed: () => Get.back(), // close dialog
-                  child: const Text("Cancel", style: TextStyle(color: Colors.black),),
+                  child: Text("Cancel".tr, style: TextStyle(color: Colors.black),),
                 ),
               ),
               Expanded(
@@ -71,7 +69,7 @@ class settingController extends GetxController {
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text("Log Out"),
+                  child: Text("Log Out".tr),
                 ),
               ),
             ],
@@ -182,7 +180,7 @@ class settingController extends GetxController {
     final user = _auth.currentUser;
 
     if (user == null) {
-      AppSnackbar.show("No user found.");
+      AppSnackbar.show("No user found.".tr);
       return;
     }
 
@@ -195,17 +193,17 @@ class settingController extends GetxController {
     await Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text("Delete Account"),
+        title: Text("Delete Account".tr),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "⚠️ Warning",
+              Text(
+                "⚠️ Warning".tr,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 "This action is permanent.\n\n"
                     "• Your account will be deleted.\n"
                     "• Your saved data may be removed.\n"
@@ -215,31 +213,31 @@ class settingController extends GetxController {
 
               // Only ask password if email/password user
               if (isEmailUser) ...[
-                const Text(
-                  "To confirm, enter your current password:",
+                Text(
+                  "To confirm, enter your current password:".tr,
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: passCtrl,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    hintText: "Current password",
+                    hintText: "Current password".tr,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  "Note: Password is required to delete an email/password account.",
+                Text(
+                  "Note: Password is required to delete an email/password account.".tr,
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ] else if (user.isAnonymous) ...[
-                const Text(
+                Text(
                   "You are using a Guest account. Deleting will remove this guest profile.",
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ] else ...[
-                const Text(
+                Text(
                   "You are signed in with Google/Apple/other provider.\n"
                       "If deletion fails, you may need to re-login and try again.",
                   style: TextStyle(fontSize: 12, color: Colors.grey),
@@ -254,7 +252,7 @@ class settingController extends GetxController {
               Expanded(
                 child: TextButton(
                   onPressed: () => Get.back(),
-                  child: Text("Cancel", style: TextStyle(color: Colors.black),),
+                  child: Text("Cancel".tr, style: TextStyle(color: Colors.black),),
                 ),
               ),
               Expanded(
@@ -269,7 +267,7 @@ class settingController extends GetxController {
                     final password = passCtrl.text.trim();
                     await deleteAccount(currentPassword: password);
                   },
-                  child: const Text("Delete"),
+                  child: Text("Delete".tr),
                 ),
               ),
             ],
@@ -281,23 +279,21 @@ class settingController extends GetxController {
     );
   }
 
-  /// Deletes the current user.
-  /// For email/password users, pass currentPassword (required).
   Future<void> deleteAccount({String currentPassword = ""}) async {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        AppSnackbar.show("No user found.");
+        AppSnackbar.show("No user found.".tr);
         return;
       }
 
-      AppLoader.show(message: "Deleting account...");
+      AppLoader.show(message: "Deleting account...".tr);
 
       // 👤 Guest account: delete directly
       if (user.isAnonymous) {
         await user.delete();
         AppLoader.hide();
-        AppSnackbar.show("Guest account deleted.");
+        AppSnackbar.show("Guest account deleted.".tr);
         Get.offAllNamed(routes.login_screen);
         return;
       }
@@ -318,7 +314,7 @@ class settingController extends GetxController {
 
         if (currentPassword.isEmpty) {
           AppLoader.hide();
-          AppSnackbar.show("Please enter your current password.");
+          AppSnackbar.show("Please enter your current password.".tr);
           return;
         }
 
@@ -331,7 +327,7 @@ class settingController extends GetxController {
         await user.delete();
 
         AppLoader.hide();
-        AppSnackbar.show("Account deleted successfully.");
+        AppSnackbar.show("Account deleted successfully.".tr);
         Get.offAllNamed(routes.login_screen);
         return;
       }
@@ -341,24 +337,24 @@ class settingController extends GetxController {
       await user.delete();
 
       AppLoader.hide();
-      AppSnackbar.show("Account deleted successfully.");
+      AppSnackbar.show("Account deleted successfully.".tr);
       Get.offAllNamed(routes.login_screen);
     } on FirebaseAuthException catch (e) {
       AppLoader.hide();
 
       // Common Firebase cases
       if (e.code == 'wrong-password') {
-        AppSnackbar.show("Current password is incorrect.");
+        AppSnackbar.show("Current password is incorrect.".tr);
       } else if (e.code == 'requires-recent-login') {
         AppSnackbar.show(
-                "For security, please login again and then delete your account.",
+                "For security, please login again and then delete your account.".tr,
         );
       } else {
-        AppSnackbar.show(e.message ?? "Account deletion failed.");
+        AppSnackbar.show(e.message ?? "Account deletion failed.".tr);
       }
     } catch (e) {
       AppLoader.hide();
-      AppSnackbar.show("Account deletion failed. Please try again.");
+      AppSnackbar.show("Account deletion failed. Please try again.".tr);
     }
   }
 
@@ -366,6 +362,92 @@ class settingController extends GetxController {
     final user = FirebaseAuth.instance.currentUser;
     return user?.isAnonymous ?? true;
   }
+
+  final Rx<Locale> currentLocale = const Locale('bn', 'BD').obs;
+
+  DocumentReference<Map<String, dynamic>> _docRef(String uid) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('settings')
+        .doc('app');
+  }
+
+  void _applyLocale(Locale locale) {
+    currentLocale.value = locale;
+    Get.updateLocale(locale);
+  }
+
+  // ✅ Local change first, firebase save later (no await needed from UI)
+  void changeLanguageInstant(Locale locale) {
+    _applyLocale(locale); // instant UI update
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return; // guest -> only local
+
+    // fire-and-forget save (silent)
+    _saveLocaleToFirebase(user.uid, locale);
+  }
+
+  Future<void> _saveLocaleToFirebase(String uid, Locale locale) async {
+    try {
+      await _docRef(uid).set({
+        "languageCode": locale.languageCode,
+        "countryCode": locale.countryCode,
+        "updatedAt": FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (_) {
+      // keep silent (no UI block)
+    }
+  }
+
+  final nameC = TextEditingController();
+
+  Future<void> changeName() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      AppSnackbar.show("No user found.");
+      return;
+    }
+
+    if (!isEmailPasswordUser()) {
+      AppSnackbar.show("Name change is available for email/password accounts only.".tr);
+      return;
+    }
+
+    final newName = nameC.text.trim();
+    if (newName.isEmpty) {
+      AppSnackbar.show("Please enter your name.");
+      return;
+    }
+    Get.back();
+
+    AppLoader.show(message: "Updating name...");
+
+    try {
+      // ✅ Update Firebase Auth
+      await user.updateDisplayName(newName);
+
+      // ✅ Update Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({
+        "name": newName,
+        "updatedAt": FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      AppLoader.hide();
+      Get.offAllNamed(routes.navbar_screen);
+      AppSnackbar.show("Name updated successfully.");
+    } catch (e) {
+      AppLoader.hide();
+      AppSnackbar.show("Failed. Try again.");
+    }
+  }
+
+
 
 
 }

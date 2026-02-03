@@ -28,8 +28,8 @@ class MakePermanentDialog extends StatelessWidget {
                   // Header
                   Row(
                     children: [
-                      const Text(
-                        "Make Permanent Account",
+                      Text(
+                        "Make Permanent Account".tr,
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
                       ),
                       const Spacer(),
@@ -48,8 +48,8 @@ class MakePermanentDialog extends StatelessWidget {
                   const SizedBox(height: 14),
 
                   if (!guest) ...[
-                    const Text(
-                      "Your account is already permanent.",
+                    Text(
+                      "Your account is already permanent.".tr,
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 12),
@@ -58,13 +58,13 @@ class MakePermanentDialog extends StatelessWidget {
                       height: 46,
                       child: ElevatedButton(
                         onPressed: () => Get.back(),
-                        child: const Text("Done", style: TextStyle(color: Colors.white),),
+                        child: Text("Done".tr, style: TextStyle(color: Colors.white),),
                       ),
                     ),
                     const SizedBox(height: 6),
                   ] else ...[
-                    const Text(
-                      "Create with Email",
+                    Text(
+                      "Create with Email".tr,
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 10),
@@ -72,8 +72,8 @@ class MakePermanentDialog extends StatelessWidget {
                     TextField(
                       controller: c.emailC,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: "Email",
+                      decoration: InputDecoration(
+                        labelText: "Email".tr,
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -83,7 +83,7 @@ class MakePermanentDialog extends StatelessWidget {
                       controller: c.passC,
                       obscureText: c.hidePass.value,
                       decoration: InputDecoration(
-                        labelText: "Password",
+                        labelText: "Password".tr,
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           onPressed: () => c.hidePass.value = !c.hidePass.value,
@@ -98,13 +98,13 @@ class MakePermanentDialog extends StatelessWidget {
                       height: 46,
                       child: ElevatedButton(
                         onPressed: c.isLoading.value ? null : c.makePermanentWithEmail,
-                        child: const Text("Make Permanent", style: TextStyle(color: Colors.white),),
+                        child: Text("Make Permanent".tr, style: TextStyle(color: Colors.white),),
                       ),
                     ),
 
                     const SizedBox(height: 14),
-                    const Center(
-                      child: Text("OR", style: TextStyle(fontWeight: FontWeight.w800)),
+                     Center(
+                      child: Text("OR".tr, style: TextStyle(fontWeight: FontWeight.w800)),
                     ),
                     const SizedBox(height: 14),
 
@@ -114,13 +114,13 @@ class MakePermanentDialog extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: c.isLoading.value ? null : c.makePermanentWithGoogle,
                         icon: Image.asset(assets_path.google, width: 25,),
-                        label: const Text("Continue with Google"),
+                        label: Text("Continue with Google".tr),
                       ),
                     ),
 
                     const SizedBox(height: 10),
                     Text(
-                      "This upgrades your guest account to a permanent account.",
+                      "This upgrades your guest account to a permanent account.".tr,
                       style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
                     ),
                   ],
@@ -173,7 +173,7 @@ class MakePermanentDialog extends StatelessWidget {
           Expanded(
             child: Text(
               guest
-                  ? "You are using a Guest account. Make it permanent to keep data forever."
+                  ? "You are using a Guest account. Make it permanent to keep data forever.".tr
                   : "Permanent account${email.isNotEmpty ? ": $email" : ""}",
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),

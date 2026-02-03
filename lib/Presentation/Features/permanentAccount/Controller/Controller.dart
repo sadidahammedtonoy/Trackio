@@ -56,25 +56,25 @@ class MakePermanentController extends GetxController {
     final pass = passC.text.trim();
 
     if (email.isEmpty || pass.isEmpty) {
-      AppSnackbar.show("Email and password are required.");
+      AppSnackbar.show("Email and password are required.".tr);
       return;
     }
     if (!_isValidEmail(email)) {
-      AppSnackbar.show("Invalid email address.");
+      AppSnackbar.show("Invalid email address.".tr);
       return;
     }
     if (pass.length < 6) {
-      AppSnackbar.show("Password must be at least 6 characters.");
+      AppSnackbar.show("Password must be at least 6 characters.".tr);
       return;
     }
 
     final user = _auth.currentUser;
     if (user == null) {
-      AppSnackbar.show("No user session found. Please login again.");
+      AppSnackbar.show("No user session found. Please login again.".tr);
       return;
     }
     if (!user.isAnonymous) {
-      AppSnackbar.show("This account is already permanent.");
+      AppSnackbar.show("This account is already permanent.".tr);
       return;
     }
 
@@ -90,20 +90,20 @@ class MakePermanentController extends GetxController {
       isGuest.value = false;
       displayEmail.value = result.user?.email ?? email;
 
-      AppSnackbar.show("Permanent account created!");
+      AppSnackbar.show("Permanent account created!".tr);
       Get.back();
       Get.offAllNamed(routes.navbar_screen);
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        AppSnackbar.show("This email is already in use. Try logging in instead.");
+        AppSnackbar.show("This email is already in use. Try logging in instead.".tr);
       } else if (e.code == 'credential-already-in-use') {
-        AppSnackbar.show("This credential is already linked to another account.");
+        AppSnackbar.show("This credential is already linked to another account.".tr);
       } else {
-        AppSnackbar.show(e.message ?? "Failed. Try again.");
+        AppSnackbar.show(e.message ?? "Failed. Try again.".tr);
       }
     } catch (_) {
-      AppSnackbar.show("Failed. Try again.");
+      AppSnackbar.show("Failed. Try again.".tr);
     } finally {
       _stopLoading();
     }
@@ -115,11 +115,11 @@ class MakePermanentController extends GetxController {
   Future<void> makePermanentWithGoogle() async {
     final user = _auth.currentUser;
     if (user == null) {
-      AppSnackbar.show("No user session found. Please login again.");
+      AppSnackbar.show("No user session found. Please login again.".tr);
       return;
     }
     if (!user.isAnonymous) {
-      AppSnackbar.show("This account is already permanent.");
+      AppSnackbar.show("This account is already permanent.".tr);
       return;
     }
 
@@ -145,19 +145,19 @@ class MakePermanentController extends GetxController {
       isGuest.value = false;
       displayEmail.value = result.user?.email ?? '';
 
-      AppSnackbar.show("Google connected! Account is now permanent.");
+      AppSnackbar.show("Google connected! Account is now permanent.".tr);
       Get.back();
       Get.offAllNamed(routes.navbar_screen);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'credential-already-in-use') {
-        AppSnackbar.show("This Google account is already linked to another user.");
+        AppSnackbar.show("This Google account is already linked to another user.".tr);
       } else if (e.code == 'account-exists-with-different-credential') {
-        AppSnackbar.show("An account already exists with the same email but different sign-in method.");
+        AppSnackbar.show("An account already exists with the same email but different sign-in method.".tr);
       } else {
-        AppSnackbar.show(e.message ?? "Google sign-in failed.");
+        AppSnackbar.show(e.message ?? "Google sign-in failed.".tr);
       }
     } catch (_) {
-      AppSnackbar.show("Google sign-in failed.");
+      AppSnackbar.show("Google sign-in failed.".tr);
     } finally {
       _stopLoading();
     }

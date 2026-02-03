@@ -107,7 +107,7 @@ class saving extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Savings"),
+        title: Text("Savings".tr),
         titleSpacing: -10,
       ),
       floatingActionButton: GestureDetector(
@@ -134,7 +134,7 @@ class saving extends StatelessWidget {
           children: [
             // ✅ 2) Overall Saving (stored separately)
             _card(
-              title: "Overall Saving",
+              title: "Overall Saving".tr,
               child: StreamBuilder<double>(
                 stream: controller.streamOverallSaving(),
                 builder: (context, snap) {
@@ -171,7 +171,7 @@ class saving extends StatelessWidget {
 
                                 await controller.addToOverallSaving(amount);
                               },
-                              child: const Text("Add"),
+                              child: Text("Add".tr),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -192,14 +192,14 @@ class saving extends StatelessWidget {
 
                                 await controller.resetOverallSaving();
                               },
-                              child: const Text("Remove"),
+                              child: Text("Remove".tr),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
-                      const Text(
-                        "Remove means Overall Saving will be set to 0.",
+                      Text(
+                        "Remove means Overall Saving will be set to 0.".tr,
                         style: TextStyle(color: Colors.black45, fontSize: 12),
                       )
                     ],
@@ -252,7 +252,7 @@ Widget allMonthSavingsList() {
 
       final months = snap.data ?? [];
       if (months.isEmpty) {
-        return const Center(child: Text("No monthly data found"));
+        return Center(child: Text("No monthly data found".tr));
       }
 
       return Column(

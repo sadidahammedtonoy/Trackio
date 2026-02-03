@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/App/routes.dart';
+import '../../../../Core/numberTranslation.dart';
 import '../Controller/Controller.dart';
 import '../Model/tranModel.dart';
 import 'package:intl/intl.dart';
@@ -39,7 +40,7 @@ class transcations_page extends StatelessWidget {
       appBar: AppBar(title: Obx(() {
         final selected = controller.selectedMonthKey.value;
         return Text(
-          selected == null ? "All Transactions" : "Month: $selected",
+          selected == null ? "All Transactions".tr : "Month: $selected",
         );
       }),
       actions: [
@@ -69,7 +70,7 @@ class transcations_page extends StatelessWidget {
                   final items = live.isNotEmpty ? live : cached;
 
                   if (items.isEmpty) {
-                    return const Center(child: Text("No transactions yet"));
+                    return Center(child: Text("No transactions yet".tr));
                   }
 
                   final now = DateTime.now();
@@ -77,11 +78,11 @@ class transcations_page extends StatelessWidget {
                   final days = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
                   String titleForDay(DateTime day) {
-                    if (_isSameDay(day, now)) return "Today Transactions";
+                    if (_isSameDay(day, now)) return "Today Transactions".tr;
                     if (_isSameDay(day, now.subtract(const Duration(days: 1)))) {
-                      return "Yesterday Transactions";
+                      return "Yesterday Transactions".tr;
                     }
-                    return DateFormat('dd MMM yyyy').format(day);
+                    return numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(day));
                   }
 
                   Widget header(DateTime day, List<TranItem> list) {
@@ -98,7 +99,7 @@ class transcations_page extends StatelessWidget {
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                           Text(
-                            "${isPositive ? '+' : ''}${total.toStringAsFixed(0)}",
+                            "${isPositive ? '+' : ''}${numberTranslation.toBnDigits(total.toStringAsFixed(0))}",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -156,16 +157,16 @@ Future<bool> showDeleteTransactionDialog() async {
   final result = await Get.dialog<bool>(
     AlertDialog(
       backgroundColor: Colors.white,
-      title: const Text("Delete Transaction"),
-      content: const Text("Are you sure you want to delete this transaction?"),
+      title: Text("Delete Transaction".tr),
+      content: Text("Are you sure you want to delete this transaction?".tr),
       actions: [
         TextButton(
           onPressed: () => Get.back(result: false),
-          child: const Text("Cancel"),
+          child: Text("Cancel".tr),
         ),
         TextButton(
           onPressed: () => Get.back(result: true),
-          child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          child: Text("Delete".tr, style: TextStyle(color: Colors.red)),
         ),
       ],
     ),
@@ -194,7 +195,7 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateText = DateFormat('dd MMM, yyyy').format(item.date);
+    final dateText = numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date));
     final typeColor = _typeColor(item.type);
 
     return Dismissible(
@@ -213,11 +214,11 @@ class _TransactionTile extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
-              "Delete",
+              "Delete".tr,
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
             ),
             SizedBox(width: 8),
@@ -252,12 +253,12 @@ class _TransactionTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 10,
                       children: [
-                        Text("${item.type} Transaction", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18.sp, color: typeColor),),
+                        Text("${item.type} Transaction".tr, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18.sp, color: typeColor),),
                         item.type == "Lent" || item.type == "Borrow" ? Row(
                           spacing: 5,
                           children: [
                             Icon(Icons.person, color: Colors.black, size: 15,),
-                            Text("Person Name:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                            Text("Person Name:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
                             Text(item.category, style: TextStyle(fontSize: 16.sp),),
                           ],
                         ) :
@@ -265,7 +266,7 @@ class _TransactionTile extends StatelessWidget {
                           spacing: 5,
                           children: [
                             Icon(Icons.category, color: Colors.black, size: 15,),
-                            Text("Category:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                            Text("Category:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
                             Text(item.category, style: TextStyle(fontSize: 16.sp,),),
 
                           ],
@@ -274,7 +275,7 @@ class _TransactionTile extends StatelessWidget {
                           spacing: 5,
                           children: [
                             Icon(Icons.wallet, color: Colors.black, size: 15,),
-                            Text("Amount:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                            Text("Amount:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
                             Text("৳${item.amount}", style: TextStyle(fontSize: 16.sp),),
                           ],
                         ),
@@ -283,7 +284,7 @@ class _TransactionTile extends StatelessWidget {
                           spacing: 5,
                           children: [
                             Icon(Icons.account_balance_wallet, color: Colors.black, size: 15,),
-                            Text("Wallet:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                            Text("Wallet:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
                             Text(item.wallet, style: TextStyle(fontSize: 16.sp),),
                           ],
                         ),
@@ -292,7 +293,7 @@ class _TransactionTile extends StatelessWidget {
                           spacing: 5,
                           children: [
                             Icon(Icons.date_range_rounded, color: Colors.black, size: 15,),
-                            Text("Date:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                            Text("Date:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
                             Text(dateText, style: TextStyle(fontSize: 16.sp),),
                           ],
                         ),
@@ -302,12 +303,12 @@ class _TransactionTile extends StatelessWidget {
                           spacing: 5,
                           children: [
                             Icon(Icons.edit_note_outlined, color: Colors.black, size: 15,),
-                            Text("Remark:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Expanded(child: Text(item.note.isEmpty ? "No Remark" : item.note, style: TextStyle(fontSize: 16.sp),)),
+                            Text("Remark:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                            Expanded(child: Text(item.note.isEmpty ? "No Remark".tr : item.note, style: TextStyle(fontSize: 16.sp),)),
                           ],
                         ),
 
-                        ElevatedButton(onPressed: () => Get.back(), child: Text("Close", style: TextStyle(color: Colors.white),))
+                        ElevatedButton(onPressed: () => Get.back(), child: Text("Close".tr, style: TextStyle(color: Colors.white),))
 
 
 
@@ -363,7 +364,7 @@ class _TransactionTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "৳${item.amount.toStringAsFixed(0)}",
+                    "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
                     style: TextStyle(fontWeight: FontWeight.w800, color: typeColor),
                   ),
                   Text(
@@ -397,9 +398,6 @@ void _showMonthFilterSheet(BuildContext context) {
           builder: (context, snap) {
             final months = snap.data ?? [];
 
-            // listen to the currently selected month so the sheet rebuilds
-            final selectedMonth = controller.selectedMonth.value;
-
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,9 +422,9 @@ void _showMonthFilterSheet(BuildContext context) {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        "Filter by Month",
+                        "Filter by Month".tr,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -436,7 +434,7 @@ void _showMonthFilterSheet(BuildContext context) {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "Select a month to filter your transactions",
+                        "Select a month to filter your transactions".tr,
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF6B7280),
@@ -465,7 +463,7 @@ void _showMonthFilterSheet(BuildContext context) {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Obx(() => _MonthTile(
                     icon: Icons.sick_outlined,
-                    label: "All Months",
+                    label: "All Months".tr,
                     isSelected: controller.selectedMonth.value == null,
                     onTap: () {
                       controller.selectMonth(null);

@@ -59,26 +59,26 @@ class navbar extends StatelessWidget {
               backgroundColor: Colors.white,
               selectedItemColor: Colors.cyan,
 
-              items: const [
+              items: [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.dashboard_outlined),
                   activeIcon: Icon(Icons.dashboard),
-                  label: "Dashboard",
+                  label: "Dashboard".tr,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.receipt_long_outlined),
                   activeIcon: Icon(Icons.receipt_long),
-                  label: "Transactions",
+                  label: "Transactions".tr,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.balance_outlined),
                   activeIcon: Icon(Icons.balance_rounded),
-                  label: "Debts",
+                  label: "Debts".tr,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.settings_outlined),
                   activeIcon: Icon(Icons.settings),
-                  label: "Settings",
+                  label: "Settings".tr,
                 ),
               ],
             ),

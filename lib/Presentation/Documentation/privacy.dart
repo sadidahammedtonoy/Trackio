@@ -9,70 +9,71 @@ class PrivacyPolicyPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text("Privacy Policy"),
+        title: Text("Privacy Policy".tr),
+        titleSpacing: -10,
         backgroundColor: Colors.white,
         elevation: 0.5,
         foregroundColor: Colors.black,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: const [
+        children: [
           _Header(
-            title: "Privacy Policy",
+            title: "Privacy Policy".tr,
             subtitle:
-            "Your privacy matters to us. This explains how your data is collected, stored, and protected.",
+            "Your privacy matters to us. This explains how your data is collected, stored, and protected.".tr,
           ),
 
           _Section(
-            title: "Information We Collect",
+            title: "Information We Collect".tr,
             points: [
-              "Account information from Firebase Authentication (email, UID, display name, profile image if available).",
-              "Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.",
-              "Anonymous (guest) users are assigned a temporary UID by Firebase.",
+              "Account information from Firebase Authentication (email, UID, display name, profile image if available).".tr,
+              "Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.".tr,
+              "Anonymous (guest) users are assigned a temporary UID by Firebase.".tr,
             ],
           ),
 
           _Section(
-            title: "How We Use Your Information",
+            title: "How We Use Your Information".tr,
             points: [
-              "To securely store and sync your financial data across devices.",
-              "To generate summaries, reports, and insights about your spending and income.",
-              "To improve app performance, stability, and security.",
+              "To securely store and sync your financial data across devices.".tr,
+              "To generate summaries, reports, and insights about your spending and income.".tr,
+              "To improve app performance, stability, and security.".tr,
             ],
           ),
 
           _Section(
-            title: "Data Storage & Security",
+            title: "Data Storage & Security".tr,
             points: [
-              "All data is stored in Firebase Firestore under your unique user ID (UID).",
-              "Firebase security rules restrict access so only your account can read or write your data.",
-              "We do not store your passwords on our servers.",
+              "All data is stored in Firebase Firestore under your unique user ID (UID).".tr,
+              "Firebase security rules restrict access so only your account can read or write your data.".tr,
+              "We do not store your passwords on our servers.".tr,
             ],
           ),
 
           _Section(
-            title: "Guest (Anonymous) Accounts",
+            title: "Guest (Anonymous) Accounts".tr,
             points: [
-              "Guest users can use the app without creating an account.",
-              "Data is linked to an anonymous Firebase UID.",
-              "If you log out or delete the guest account, the data may be permanently lost.",
+              "Guest users can use the app without creating an account.".tr,
+              "Data is linked to an anonymous Firebase UID.".tr,
+              "If you log out or delete the guest account, the data may be permanently lost.".tr,
             ],
           ),
 
           _Section(
-            title: "Data Sharing",
+            title: "Data Sharing".tr,
             points: [
-              "We do not sell or rent your personal data.",
-              "Data may be processed by Firebase services to provide authentication and cloud storage.",
-              "We may disclose data if required by law.",
+              "We do not sell or rent your personal data.".tr,
+              "Data may be processed by Firebase services to provide authentication and cloud storage.".tr,
+              "We may disclose data if required by law.".tr,
             ],
           ),
 
           _Section(
-            title: "Account Deletion",
+            title: "Account Deletion".tr,
             points: [
-              "You can delete your account from the app settings.",
-              "Once deleted, your data may be permanently removed and cannot be recovered.",
+              "You can delete your account from the app settings.".tr,
+              "Once deleted, your data may be permanently removed and cannot be recovered.".tr,
             ],
           ),
 
@@ -168,19 +169,19 @@ class _Footer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Questions?",
+          Text(
+            "Questions?".tr,
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
-          const Text(
-            "If you have any questions about this Privacy Policy, please contact support.",
+          Text(
+            "If you have any questions about this Privacy Policy, please contact support.".tr,
             style: TextStyle(color: Colors.black54),
           ),
           const SizedBox(height: 12),
           ElevatedButton(
             onPressed: () => Get.back(),
-            child: const Text("Back", style: TextStyle(color: Colors.white),),
+            child: Text("Back".tr, style: TextStyle(color: Colors.white),),
           ),
         ],
       ),
