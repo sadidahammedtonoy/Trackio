@@ -33,14 +33,14 @@ class navbar extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-            color: Colors.blue,
+            color: Colors.cyan,
             border: Border.all(
-              color: Colors.blue,
+              color: Colors.cyan,
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.cyan.withOpacity(0.2),
                 blurRadius: 8,
                 offset: const Offset(5, 4),
               ),
@@ -57,7 +57,7 @@ class navbar extends StatelessWidget {
               type: BottomNavigationBarType.fixed,
               showUnselectedLabels: true,
               backgroundColor: Colors.white,
-              selectedItemColor: Colors.blue,
+              selectedItemColor: Colors.cyan,
 
               items: const [
                 BottomNavigationBarItem(

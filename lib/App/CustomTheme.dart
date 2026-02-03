@@ -13,26 +13,26 @@ final ThemeData customTheme = ThemeData(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       minimumSize: const Size(double.infinity, 49),
-      backgroundColor: Colors.deepPurple,
+      backgroundColor: Colors.cyan,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
     enabledBorder: const OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: Colors.purple),
+      borderSide: BorderSide(color: Colors.black),
     ),
     focusedBorder: const OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: Colors.purple, width: 1),
+      borderSide: BorderSide(color: Colors.black, width: 1),
     ),
     errorBorder: const OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: Colors.purple),
+      borderSide: BorderSide(color: Colors.black),
     ),
     focusedErrorBorder: const OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: Colors.purple, width: 1),
+      borderSide: BorderSide(color: Colors.black, width: 1),
     ),
   ),
 

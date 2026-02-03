@@ -48,8 +48,9 @@ class dashboardPage extends StatelessWidget {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.blue.withOpacity(0.2),
-                                    blurRadius: 8,
+                                    color: Colors.blue.withOpacity(0.5),
+                                    offset: const Offset(4, 1),
+                                    blurRadius: 10,
                                   )
                                 ]
                             ),
@@ -86,8 +87,9 @@ class dashboardPage extends StatelessWidget {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.orange.withOpacity(0.2),
-                                        blurRadius: 8,
+                                        color: Colors.orange.withOpacity(0.5),
+                                        offset: const Offset(4, 1),
+                                        blurRadius: 10,
                                       )
                                     ]
                                 ),
@@ -125,8 +127,9 @@ class dashboardPage extends StatelessWidget {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 8,
+                                    color: Colors.green.withOpacity(0.5),
+                                    offset: const Offset(4, 1),
+                                    blurRadius: 10,
                                   )
                                 ]
                             ),
@@ -160,8 +163,9 @@ class dashboardPage extends StatelessWidget {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.redAccent.withOpacity(0.2),
-                                    blurRadius: 8,
+                                    color: Colors.redAccent.withOpacity(0.5),
+                                    offset: const Offset(4, 1),
+                                    blurRadius: 10,
                                   )
                                 ]
                             ),
@@ -194,13 +198,14 @@ class dashboardPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                                 color: Colors.white,
                                 border: Border.all(
-                                  color: Colors.green,
+                                  color: Colors.cyan,
                                   width: 1,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 8,
+                                    color: Colors.cyan.withOpacity(0.5),
+                                    offset: const Offset(4, 1),
+                                    blurRadius: 10,
                                   )
                                 ]
                             ),
@@ -210,7 +215,7 @@ class dashboardPage extends StatelessWidget {
                                 Container(
                                     padding: EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: Colors.green.withAlpha(150),
+                                      color: Colors.cyan.withAlpha(150),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(Icons.savings_outlined, size: 30, color: Colors.white,)
@@ -218,18 +223,11 @@ class dashboardPage extends StatelessWidget {
                                 const SizedBox(height: 20, width: 110,),
                                 Text("Saving", style: TextStyle(fontSize: 16.sp),),
                                 Text("৳$saving", style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w500),),
-
                               ],
                             ),
                           );
                         },
                       ),
-
-
-
-
-
-
                         ],
                       ),
                     ),
@@ -248,16 +246,17 @@ class dashboardPage extends StatelessWidget {
               ),
               StreamBuilder<List<TranItem>>(
                 stream: controller.streamTodayTransactions(),
+                initialData: controller.cachedTodayItems, // ✅ show cached instantly
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
                   if (snapshot.hasError) {
                     return Center(child: Text("Error: ${snapshot.error}"));
                   }
 
-                  final items = snapshot.data ?? [];
+                  // ✅ If snapshot is empty but cache has data, keep showing cache
+                  final liveItems = snapshot.data ?? const <TranItem>[];
+                  final cachedItems = controller.cachedTodayItems;
+
+                  final items = liveItems.isNotEmpty ? liveItems : cachedItems;
 
                   if (items.isEmpty) {
                     return const Center(child: Text("No transactions today"));
@@ -285,8 +284,9 @@ class dashboardPage extends StatelessWidget {
                   );
                 },
               )
-          
-          
+
+
+
             ],
           ),
         ),
@@ -339,7 +339,7 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateText = DateFormat('dd MMM, yyyy • hh:mm a').format(item.date);
+    final dateText = DateFormat('dd MMM, yyyy').format(item.date);
     final typeColor = _typeColor(item.type);
 
     return Dismissible(
@@ -355,7 +355,7 @@ class _TransactionTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: Alignment.centerRight,
         decoration: BoxDecoration(
-          color: Colors.red,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(14),
         ),
         child: const Row(
@@ -363,10 +363,10 @@ class _TransactionTile extends StatelessWidget {
           children: [
             Text(
               "Delete",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
             ),
             SizedBox(width: 8),
-            Icon(Icons.delete, color: Colors.white),
+            Icon(Icons.delete, color: Colors.red),
           ],
         ),
       ),
@@ -383,55 +383,142 @@ class _TransactionTile extends StatelessWidget {
       },
 
 
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.black12),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: typeColor,
-              radius: 18,
-              child: Text(
-                item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
-                style: const TextStyle(color: Colors.white),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.category,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: GestureDetector(
+          onLongPress: (){
+            Get.dialog(
+              Dialog(
+                backgroundColor: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
+                    children: [
+                      Text("${item.type} Transaction", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18.sp, color: typeColor),),
+                      item.type == "Lent" || item.type == "Borrow" ? Row(
+                        spacing: 5,
+                        children: [
+                          Icon(Icons.person, color: Colors.black, size: 15,),
+                          Text("Person Name:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                          Text(item.category, style: TextStyle(fontSize: 16.sp),),
+                        ],
+                      ) :
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Icon(Icons.category, color: Colors.black, size: 15,),
+                          Text("Category:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                          Text(item.category, style: TextStyle(fontSize: 16.sp,),),
+
+                        ],
+                      ),
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Icon(Icons.wallet, color: Colors.black, size: 15,),
+                          Text("Amount:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                          Text("৳${item.amount}", style: TextStyle(fontSize: 16.sp),),
+                        ],
+                      ),
+
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Icon(Icons.account_balance_wallet, color: Colors.black, size: 15,),
+                          Text("Wallet:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                          Text(item.wallet, style: TextStyle(fontSize: 16.sp),),
+                        ],
+                      ),
+
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Icon(Icons.date_range_rounded, color: Colors.black, size: 15,),
+                          Text("Date:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                          Text(dateText, style: TextStyle(fontSize: 16.sp),),
+                        ],
+                      ),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 5,
+                        children: [
+                          Icon(Icons.edit_note_outlined, color: Colors.black, size: 15,),
+                          Text("Remark:", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
+                          Expanded(child: Text(item.note.isEmpty ? "No Remark" : item.note, style: TextStyle(fontSize: 16.sp),)),
+                        ],
+                      ),
+                      
+                      ElevatedButton(onPressed: () => Get.back(), child: Text("Close", style: TextStyle(color: Colors.white),))
+
+
+
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "${item.wallet} • $dateText",
-                    style: const TextStyle(color: Colors.black54, fontSize: 12),
-                  ),
-                  if (item.note.trim().isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      "Note: ${item.note}",
-                      style:
-                      const TextStyle(color: Colors.black87, fontSize: 12),
+                ),
+              )
+            );
+          },
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 15,
+                      spreadRadius: 1,
+                      offset: const Offset(4, 1), // x, y
                     ),
                   ],
-                ],
+                ),
+                child: Text(
+                  item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
+                  style: TextStyle(color: typeColor, fontSize: 20.sp, fontWeight: FontWeight.w600),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              item.amount.toStringAsFixed(2),
-              style: TextStyle(fontWeight: FontWeight.w800, color: typeColor),
-            ),
-          ],
+              const SizedBox(width: 15,),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.category,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    Row(
+                      spacing: 3,
+                      children: [
+                        Text(
+                          item.wallet,
+                          style: const TextStyle(color: Colors.black54, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "৳${item.amount.toStringAsFixed(0)}",
+                    style: TextStyle(fontWeight: FontWeight.w800, color: typeColor),
+                  ),
+                  Text(
+                    dateText,
+                    style: const TextStyle(color: Colors.black54, fontSize: 12, fontStyle: FontStyle.italic,),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../Authentication/ForgetPassword/View/forgetpassword.dart';
 import '../Authentication/Login/View/login.dart';
 import '../Authentication/Signup/View/Signup.dart';
 import '../Presentation/Documentation/privacy.dart';
@@ -6,6 +7,7 @@ import '../Presentation/Documentation/terms.dart';
 import '../Presentation/Features/AddTransactions/View/AddTransactions.dart';
 import '../Presentation/Features/Change Password/View/changePassword.dart';
 import '../Presentation/Features/caregories/View/categories.dart';
+import '../Presentation/Features/permanentAccount/View/permanentAccount.dart';
 import '../Presentation/Features/saving/View/saving.dart';
 import '../Presentation/Splash/View/splash.dart';
 import '../Presentation/helpSupport/View/helpSupport.dart';
@@ -24,6 +26,8 @@ class routes {
   static const String categories_screen = '/categories';
   static const String saving_screen = '/saving';
   static const String signup_screen = '/signup';
+  static const String ForgotPasswordScreen_screen = '/ForgotPasswordScreen';
+  static const String MakePermanentDialog_screen = '/MakePermanentDialog';
 
 
   static final pages = [
@@ -38,6 +42,8 @@ class routes {
     GetPage( name: categories_screen, binding: InitialBinding(), page: () => categories()),
     GetPage( name: saving_screen, binding: InitialBinding(), page: () => saving()),
     GetPage( name: signup_screen, binding: InitialBinding(), page: () => signup()),
+    GetPage( name: ForgotPasswordScreen_screen, binding: InitialBinding(), page: () => ForgotPasswordScreen()),
+    GetPage( name: MakePermanentDialog_screen, binding: InitialBinding(), page: () => MakePermanentDialog()),
 
 
 

@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static Color primary = Color(0xFF07091C);
+  static Color primary = Colors.cyan;
   static Color scaffold_background = Color(0xFF07091C);
 
   static Color yellow = Color(0xFFFFBC6F);

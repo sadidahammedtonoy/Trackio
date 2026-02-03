@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sadid/App/AppColors.dart';
 import '../Controller/Controller.dart';
 
 class HelpSupportPage extends StatelessWidget {
@@ -13,6 +14,8 @@ class HelpSupportPage extends StatelessWidget {
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
         title: const Text("Help & Support"),
+        centerTitle: false,
+        titleSpacing: -10,
         backgroundColor: Colors.white,
         elevation: 0.5,
         foregroundColor: Colors.black,
@@ -147,7 +150,7 @@ class _ContactCard extends StatelessWidget {
   }
 }
 
- class _CategoryChips extends StatelessWidget {
+class _CategoryChips extends StatelessWidget {
   final HelpSupportController controller;
 
   const _CategoryChips({required this.controller});
@@ -165,16 +168,32 @@ class _ContactCard extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(width: 8),
           itemBuilder: (context, i) {
             final c = controller.categories[i];
-            final selected = (selectedCat == c);
+            final selected = selectedCat == c;
 
             return ChoiceChip(
               label: Text(c),
               selected: selected,
               onSelected: (_) => controller.selectedCategory.value = c,
-              selectedColor: Colors.blueGrey,
+
+              // 🎨 colors
+              backgroundColor: Colors.white, // unselected fill
+              selectedColor: AppColors.primary, // selected fill
+              checkmarkColor: Colors.white, // ✅ white check icon
+
+              // 📝 text style
               labelStyle: TextStyle(
                 color: selected ? Colors.white : Colors.black,
                 fontWeight: FontWeight.w600,
+              ),
+
+              // optional: cleaner look
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: selected
+                      ? AppColors.primary
+                      : Colors.grey.shade300,
+                ),
               ),
             );
           },
@@ -183,6 +202,7 @@ class _ContactCard extends StatelessWidget {
     });
   }
 }
+
 
 
 class _FaqHeader extends StatelessWidget {

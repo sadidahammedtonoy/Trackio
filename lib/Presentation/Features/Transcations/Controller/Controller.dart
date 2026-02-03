@@ -8,6 +8,8 @@ import '../Model/tranModel.dart';
 class transactionsController extends GetxController {
 
   final RxString monthKey = ''.obs;
+  final RxString selectedMonth = ''.obs;
+
 
   // ✅ month filter toggle: null = ALL months
   final RxnString selectedMonthKey = RxnString(null);
@@ -19,6 +21,54 @@ class transactionsController extends GetxController {
   void selectMonth(String? key) {
     // null => show ALL transactions
     selectedMonthKey.value = key;
+  }
+
+  final RxList<TranItem> cachedAllItems = <TranItem>[].obs;
+  final RxList<TranItem> cachedMonthItems = <TranItem>[].obs;
+
+  StreamSubscription<List<TranItem>>? _allSub;
+  StreamSubscription<List<TranItem>>? _monthSub;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    // Keep "all items" hot
+    _allSub = streamAllItems().listen((list) {
+      cachedAllItems.assignAll(list);
+    });
+
+    // Keep "month items" hot (will update when selectedMonthKey changes too)
+    ever(selectedMonthKey, (_) {
+      _monthSub?.cancel();
+      _monthSub = streamMonthlyItems().listen((list) {
+        cachedMonthItems.assignAll(list);
+      });
+    });
+
+    // initial month subscription
+    _monthSub = streamMonthlyItems().listen((list) {
+      cachedMonthItems.assignAll(list);
+    });
+  }
+
+  @override
+  void onClose() {
+    _allSub?.cancel();
+    _monthSub?.cancel();
+    super.onClose();
+  }
+
+  /// ✅ Use this in UI so it doesn’t flicker
+  Stream<List<TranItem>> streamTxnForUI() {
+    final isAll = selectedMonthKey.value == null;
+    return isAll ? streamAllItems() : streamMonthlyItems();
+  }
+
+  /// ✅ Cached fallback for UI
+  List<TranItem> cachedTxnForUI() {
+    final isAll = selectedMonthKey.value == null;
+    return isAll ? cachedAllItems : cachedMonthItems;
   }
 
   // ✅ Existing (month basis)
@@ -130,8 +180,6 @@ class transactionsController extends GetxController {
       return false;
     }
   }
-
-
 
 }
 

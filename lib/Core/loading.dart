@@ -10,7 +10,7 @@ class AppLoader {
 
     Get.dialog(
       Dialog(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         child: _LoaderWidget(message: message),
       ),
@@ -41,7 +41,7 @@ class _LoaderWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.deepPurple,
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(50),
       ),
       child: Row(

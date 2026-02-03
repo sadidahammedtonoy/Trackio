@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -269,6 +271,58 @@ class dashboardController extends GetxController {
           ? double.tryParse(raw) ?? 0.0
           : (raw as num?)?.toDouble() ?? 0.0;
     });
+  }
+
+  final RxMap<String, double> cachedCategoryMap = <String, double>{}.obs;
+
+  StreamSubscription<Map<String, double>>? _catSub;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    // ✅ Start listening once and cache results
+    _catSub = streamCategorySummary().listen((map) {
+      // Only update if changed (reduces unnecessary rebuilds)
+      if (_mapEquals(cachedCategoryMap, map)) return;
+
+      cachedCategoryMap
+        ..clear()
+        ..addAll(map);
+    });
+
+    _todaySub = streamTodayTransactions().listen((list) {
+      // cache the latest list (even if empty)
+      cachedTodayItems.assignAll(list);
+    });
+  }
+  bool _sameList(List<TranItem> a, List<TranItem> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      // compare stable identifiers
+      if (a[i].id != b[i].id) return false;
+    }
+    return true;
+  }
+
+  bool _mapEquals(Map<String, double> a, Map<String, double> b) {
+    if (a.length != b.length) return false;
+    for (final e in a.entries) {
+      final v = b[e.key];
+      if (v == null) return false;
+      if ((v - e.value).abs() > 0.0001) return false;
+    }
+    return true;
+  }
+
+  final RxList<TranItem> cachedTodayItems = <TranItem>[].obs;
+  StreamSubscription<List<TranItem>>? _todaySub;
+
+  @override
+  void onClose() {
+    _catSub?.cancel();
+    _todaySub?.cancel();
+    super.onClose();
   }
 
 

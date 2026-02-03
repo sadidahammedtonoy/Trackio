@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Controller/CalculatorController.dart';
+import 'package:sadid/App/AppColors.dart';
+import '../Controller/Controller.dart';
 
 class CalculatorDialog extends StatelessWidget {
   CalculatorDialog({super.key});
@@ -144,7 +145,7 @@ class CalculatorDialog extends StatelessWidget {
 
   Widget _btn(_CalcBtn b, {bool equalWide = false}) {
     final bg = b.isEqual
-        ? Colors.black
+        ? Colors.blue
         : b.isOp
         ? Colors.black.withOpacity(0.08)
         : b.isTop

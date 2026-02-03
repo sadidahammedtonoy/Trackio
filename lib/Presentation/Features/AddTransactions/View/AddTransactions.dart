@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sadid/Presentation/Features/AddTransactions/Model/addTransactionModel.dart';
-
-import '../../saving/View/calculator.dart';
+import '../../../../App/assets_path.dart';
+import '../../calcolator/View/calculator.dart';
 import '../Controller/Controller.dart';
+
 class addTranscations extends StatelessWidget {
   addTranscations({super.key});
   final addTranscationsController controller = Get.find<addTranscationsController>();
@@ -19,18 +21,25 @@ class addTranscations extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text("Add Transactions"),
-        centerTitle: true,
+        centerTitle: false,
+        titleSpacing: -10,
       ),
-      floatingActionButton: FloatingActionButton(
-        shape: CircleBorder(),
-        backgroundColor: Colors.white,
-        onPressed: () {
+      floatingActionButton: GestureDetector(
+        onTap: () {
           Get.dialog(
             CalculatorDialog(),
             barrierDismissible: true,
           );
         },
-        child: const Icon(Icons.calculate),
+        child: SizedBox(
+          width: 50,
+          height: 50,
+          child: Lottie.asset(
+            assets_path.calculator,
+            fit: BoxFit.contain,
+            repeat: false
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -51,7 +60,7 @@ class addTranscations extends StatelessWidget {
                 ),
           
                 dropdownColor: Colors.white,
-                icon: const Icon(Icons.arrow_drop_down, color: Colors.purple),
+                icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
           
                 items: controller.types.map((item) {
                   return DropdownMenuItem<String>(
@@ -70,23 +79,6 @@ class addTranscations extends StatelessWidget {
                 decoration: const InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
-          
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple, width: 1),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple, width: 1),
-                  ),
                 ),
               )),
               Text("Payment Processed On", style: TextStyle(fontSize: 16),),
@@ -107,15 +99,15 @@ class addTranscations extends StatelessWidget {
                   decoration: const InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.calendar_month, color: Colors.purple,),
-          
+                    suffixIcon: Icon(Icons.calendar_month, color: Colors.black87,),
+
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(color: Colors.purple),
+                      borderSide: BorderSide(color: Colors.black),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(color: Colors.purple, width: 1),
+                      borderSide: BorderSide(color: Colors.black, width: 1),
                     ),
                   ),
                   child: Text(
@@ -129,13 +121,14 @@ class addTranscations extends StatelessWidget {
               Text("Amount", style: TextStyle(fontSize: 16),),
               TextFormField(
                 controller: amountController,
+                keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   hintText: "Enter Amount",
                 ),
               ),
               Text("Wallet", style: TextStyle(fontSize: 16),),
               Obx(() => DropdownButtonFormField<String>(
-                dropdownColor: Colors.white, // 👈 dropdown menu bg
+                dropdownColor: Colors.white,
                 value: controller.selectedWallet.value,
                 items: controller.wallets.map((item) {
                   return DropdownMenuItem<String>(
@@ -147,22 +140,7 @@ class addTranscations extends StatelessWidget {
                   if (value != null) controller.selectedWallet.value = value;
                 },
                 decoration: InputDecoration(
-                  enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple, width: 1),
-                  ),
-                  errorBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple),
-                  ),
-                  focusedErrorBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Colors.purple, width: 1),
-                  ),
+
                 ),
               )),
 
@@ -193,7 +171,7 @@ class addTranscations extends StatelessWidget {
                     ),
 
                     dropdownColor: Colors.white,
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.purple),
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.black87),
 
                     items: controller.categories.map((cat) {
                       final name = (cat["name"] ?? "").toString();
@@ -209,20 +187,11 @@ class addTranscations extends StatelessWidget {
 
                     onChanged: (value) {
                       controller.selectedCategoryId.value = value ?? '';
-                      print(controller.selectedCategoryId.value);
                     },
 
                     decoration: const InputDecoration(
                       filled: true,
                       fillColor: Colors.white,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide(color: Colors.purple),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide(color: Colors.purple, width: 2),
-                      ),
                     ),
                   )),
                 ],

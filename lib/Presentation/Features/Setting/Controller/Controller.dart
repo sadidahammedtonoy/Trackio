@@ -114,7 +114,7 @@ class settingController extends GetxController {
 
     // Not logged in or anonymous user → no email
     if (user == null || user.isAnonymous) {
-      return "anonymous@trakio.com";
+      return "anonymous@trackio.com";
     }
 
     // Email-based login
@@ -360,6 +360,11 @@ class settingController extends GetxController {
       AppLoader.hide();
       AppSnackbar.show("Account deletion failed. Please try again.");
     }
+  }
+
+  bool isGuestUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    return user?.isAnonymous ?? true;
   }
 
 

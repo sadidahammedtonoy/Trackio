@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sadid/App/AppColors.dart';
 import '../Controller/Controller.dart';
 
 class categories extends StatelessWidget {
@@ -15,9 +16,10 @@ class categories extends StatelessWidget {
         titleSpacing: -10,
       ),
       floatingActionButton: FloatingActionButton(
+        shape: CircleBorder(),
         backgroundColor: Colors.white,
         onPressed: () => _openAddDialog(),
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add, color: AppColors.primary,),
       ),
       body: Obx(() {
         final list = controller.categories;

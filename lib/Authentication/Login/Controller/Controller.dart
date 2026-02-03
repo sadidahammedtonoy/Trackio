@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sadid/App/routes.dart';
 import '../../../Core/loading.dart';
 import '../../../Core/snakbar.dart';
@@ -132,6 +134,84 @@ class loginController extends GetxController {
     } finally {
       AppLoader.hide();
       AppLoader.hide();
+    }
+  }
+
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  final isLoading = false.obs;
+
+  Future<UserCredential?> signInWithGoogle() async {
+    isLoading.value = true;
+
+    try {
+      // 1️⃣ Trigger Google Sign-In
+      final GoogleSignInAccount? googleUser =
+      await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User cancelled
+        // Get.snackbar("Cancelled", "Google sign-in cancelled");
+        return null;
+      }
+
+      // 2️⃣ Get auth details
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // 3️⃣ Sign in to Firebase
+      final userCredential =
+      await _auth.signInWithCredential(credential);
+
+      final user = userCredential.user;
+      if (user == null) {
+        AppSnackbar.show("Google sign-in failed");
+        throw Exception("Google sign-in failed");
+      }
+
+      // 4️⃣ Save / update user in Firestore
+      await _db.collection("users").doc(user.uid).set({
+        "uid": user.uid,
+        "name": user.displayName ?? "",
+        "email": user.email?.toLowerCase(),
+        "photoUrl": user.photoURL,
+        "provider": "google",
+        "updatedAt": FieldValue.serverTimestamp(),
+        "createdAt": FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      AppSnackbar.show("Signed in with Google 🎉");
+      Get.offAllNamed(routes.navbar_screen);
+
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar("Google Sign-In Failed", _authError(e));
+      return null;
+    } catch (e) {
+      Get.snackbar("Error", "Something went wrong. Try again.");
+      return null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  String _authError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'account-exists-with-different-credential':
+        return "This email is already registered with another sign-in method.";
+      case 'network-request-failed':
+        return "No internet connection.";
+      case 'user-disabled':
+        return "This account has been disabled.";
+      default:
+        return e.message ?? "Google sign-in failed.";
     }
   }
 

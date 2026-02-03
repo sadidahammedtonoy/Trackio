@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/routes.dart';
-import '../../../../Core/loading.dart';
-import '../../../../Core/snakbar.dart';
+import '../../permanentAccount/View/permanentAccount.dart';
 import '../Controller/Controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -15,6 +13,9 @@ class setting_page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Settings",),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: Column(
@@ -35,7 +36,7 @@ class setting_page extends StatelessWidget {
               onTap: () => Get.toNamed(routes.saving_screen),
               child: Row(
                 children: [
-                  Icon(Icons.savings_outlined, size: 30,),
+                  Icon(Icons.savings_outlined, size: 25,),
                   SizedBox(width: 10,),
                   Text("Savings", style: TextStyle(fontSize: 18.sp)),
                   Spacer(),
@@ -48,7 +49,7 @@ class setting_page extends StatelessWidget {
               onTap: () => Get.toNamed(routes.categories_screen),
               child: Row(
                 children: [
-                  Icon(Icons.category_outlined, size: 30,),
+                  Icon(Icons.category_outlined, size: 25,),
                   SizedBox(width: 10,),
                   Text("Categories", style: TextStyle(fontSize: 18.sp),),
                   Spacer(),
@@ -62,7 +63,7 @@ class setting_page extends StatelessWidget {
               onTap: () => Get.toNamed(routes.PrivacyPolicyPage_screen),
               child: Row(
                 children: [
-                  Icon(Icons.privacy_tip_outlined, size: 30,),
+                  Icon(Icons.privacy_tip_outlined, size: 25,),
                   SizedBox(width: 10,),
                   Text("Privacy Policy", style: TextStyle(fontSize: 18.sp),),
                   Spacer(),
@@ -74,7 +75,7 @@ class setting_page extends StatelessWidget {
               onTap: () => Get.toNamed(routes.TermsConditionsPage_screen),
               child: Row(
                 children: [
-                  Icon(Icons.description, size: 30,),
+                  Icon(Icons.description, size: 25,),
                   SizedBox(width: 10,),
                   Text("Terms & Conditions", style: TextStyle(fontSize: 18.sp),),
                   Spacer(),
@@ -86,7 +87,7 @@ class setting_page extends StatelessWidget {
               onTap: () => Get.toNamed(routes.HelpSupportPage_screen),
               child: Row(
                 children: [
-                  Icon(Icons.support_agent_outlined, size: 30,),
+                  Icon(Icons.support_agent_outlined, size: 25,),
                   SizedBox(width: 10,),
                   Text("Help & Support", style: TextStyle(fontSize: 18.sp),),
                   Spacer(),
@@ -100,7 +101,7 @@ class setting_page extends StatelessWidget {
                 onTap: () => Get.toNamed(routes.changePassword_screen),
                 child: Row(
                   children: [
-                    Icon(Icons.password, size: 30,),
+                    Icon(Icons.password, size: 25,),
                     SizedBox(width: 10,),
                     Text("Change Password", style: TextStyle(fontSize: 18.sp)),
                     Spacer(),
@@ -111,12 +112,31 @@ class setting_page extends StatelessWidget {
             ),
             Text("Account", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),),
 
+            Visibility(
+              visible: controller.isGuestUser(),
+              child: GestureDetector(
+                onTap: () {
+                  Get.dialog(
+                      MakePermanentDialog()
+                  );
+
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.verified_outlined, size: 25, color: Colors.green,),
+                    SizedBox(width: 10,),
+                    Text("Make permanent account", style: TextStyle(fontSize: 18.sp, color: Colors.green),),
+                  ],
+                ),
+              ),
+            ),
+
 
             GestureDetector(
               onTap: () => controller.showLogoutDialog(onConfirm: () => controller.logout()),
               child: Row(
                 children: [
-                  Icon(Icons.logout_rounded, color: Colors.redAccent, size: 30,),
+                  Icon(Icons.logout_rounded, color: Colors.redAccent, size: 25,),
                   SizedBox(width: 10,),
                   Text("Log Out", style: TextStyle(color: Colors.red, fontSize: 18.sp),),
                 ],
@@ -127,15 +147,13 @@ class setting_page extends StatelessWidget {
               onTap: () => controller.confirmDeleteAccount(),
               child: Row(
                 children: [
-                  Icon(Icons.delete_sweep_outlined, color: Colors.redAccent, size: 30,),
+                  Icon(Icons.supervisor_account_rounded, color: Colors.redAccent, size: 25,),
                   SizedBox(width: 10,),
                   Text("Delete Account", style: TextStyle(color: Colors.red, fontSize: 18.sp),),
                 ],
               ),
             ),
             SizedBox(height: 10,)
-
-
           ],
         ),
       ),

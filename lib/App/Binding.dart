@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../Authentication/ForgetPassword/Controller/Controller.dart';
 import '../Authentication/Login/Controller/Controller.dart';
 import '../Authentication/Signup/Controller/Controller.dart';
 import '../Presentation/Features/AddTransactions/Controller/Controller.dart';
@@ -30,6 +31,7 @@ class InitialBinding extends Bindings {
     Get.lazyPut<caregoriesController>(() => caregoriesController(), fenix: true);
     Get.lazyPut<savingController>(() => savingController(), fenix: true);
     Get.lazyPut<signupController>(() => signupController(), fenix: true);
+    Get.lazyPut<ForgotPasswordController>(() => ForgotPasswordController(), fenix: true);
 
 
   }

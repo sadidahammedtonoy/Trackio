@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -5,6 +7,27 @@ import 'package:get/get.dart';
 import '../../Transcations/Model/tranModel.dart';
 
 class debtsController extends GetxController {
+  final RxBool showBorrowInfo = false.obs;
+
+
+// Cache
+  final RxList<TranItem> cachedLentBorrow = <TranItem>[].obs;
+  StreamSubscription<List<TranItem>>? _lentBorrowSub;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    _lentBorrowSub = streamLentBorrowTransactions().listen((list) {
+      cachedLentBorrow.assignAll(list);
+    });
+  }
+
+  @override
+  void onClose() {
+    _lentBorrowSub?.cancel();
+    super.onClose();
+  }
 
   Stream<List<TranItem>> streamLentBorrowTransactions() {
     final user = FirebaseAuth.instance.currentUser;

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
+import 'package:sadid/App/AppColors.dart';
+import 'package:sadid/App/assets_path.dart';
+import '../../calcolator/View/calculator.dart';
 import '../Controller/Controller.dart';
 import '../Model/savingModel.dart';
-import 'calculator.dart';
 
 class saving extends StatelessWidget {
   final controller = Get.put(savingController());
@@ -107,17 +110,24 @@ class saving extends StatelessWidget {
         title: const Text("Savings"),
         titleSpacing: -10,
       ),
-      floatingActionButton: FloatingActionButton(
-        shape: CircleBorder(),
-        backgroundColor: Colors.white,
-        onPressed: () {
+      floatingActionButton: GestureDetector(
+        onTap: () {
           Get.dialog(
             CalculatorDialog(),
             barrierDismissible: true,
           );
         },
-        child: const Icon(Icons.calculate),
+        child: SizedBox(
+          width: 50,
+          height: 50,
+          child: Lottie.asset(
+            assets_path.calculator,
+            fit: BoxFit.contain,
+            repeat: false
+          ),
+        ),
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -234,7 +244,7 @@ Widget allMonthSavingsList() {
     stream: controller.streamAllMonthSavings(),
     builder: (context, snap) {
       if (snap.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator.adaptive());
       }
       if (snap.hasError) {
         return Center(child: Text("Error: ${snap.error}"));
