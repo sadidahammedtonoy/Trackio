@@ -148,24 +148,25 @@ class dashboardController extends GetxController {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return const Stream.empty();
 
-    final key = selectedMonthKey.value;
-
-    // null => all months
-    if (key == null) return streamAllItems();
+    final now = DateTime.now();
+    final currentMonthKey =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}"; // e.g. 2026-02
 
     return FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .collection('monthly_transactions')
-        .doc(key)
+        .doc(currentMonthKey)
         .collection('items')
+        .orderBy('date', descending: true)
         .snapshots()
         .map(
           (snap) => snap.docs
-          .map((d) => TranItem.fromDoc(d, monthKey: key))
+          .map((d) => TranItem.fromDoc(d, monthKey: currentMonthKey))
           .toList(),
     );
   }
+
 
   // ✅ Expense-by-category (pie chart data)
   Stream<Map<String, double>> streamCategorySummary() {
@@ -294,14 +295,6 @@ class dashboardController extends GetxController {
       cachedTodayItems.assignAll(list);
     });
   }
-  bool _sameList(List<TranItem> a, List<TranItem> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      // compare stable identifiers
-      if (a[i].id != b[i].id) return false;
-    }
-    return true;
-  }
 
   bool _mapEquals(Map<String, double> a, Map<String, double> b) {
     if (a.length != b.length) return false;
@@ -322,13 +315,4 @@ class dashboardController extends GetxController {
     _todaySub?.cancel();
     super.onClose();
   }
-
-
-
-
-
-
-
-
-
 }

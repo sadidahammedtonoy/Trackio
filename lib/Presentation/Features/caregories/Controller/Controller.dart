@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:sadid/Core/snakbar.dart';
 
 class caregoriesController extends GetxController {
   final categories = <Map<String, dynamic>>[].obs;
@@ -40,7 +41,7 @@ class caregoriesController extends GetxController {
 
     final trimmed = name.trim();
     if (trimmed.isEmpty) {
-      Get.snackbar("Invalid", "Category name can't be empty");
+      AppSnackbar.show("Category name can't be empty".tr);
       return;
     }
 
@@ -49,7 +50,7 @@ class caregoriesController extends GetxController {
     (c["name"] ?? "").toString().trim().toLowerCase() ==
         trimmed.toLowerCase());
     if (exists) {
-      Get.snackbar("Already exists", "This category already exists");
+      AppSnackbar.show("Category already exists".tr);
       return;
     }
 
@@ -70,7 +71,7 @@ class caregoriesController extends GetxController {
 
     final trimmed = newName.trim();
     if (trimmed.isEmpty) {
-      Get.snackbar("Invalid", "Category name can't be empty");
+      AppSnackbar.show("Category name can't be empty".tr);
       return;
     }
 
@@ -81,7 +82,7 @@ class caregoriesController extends GetxController {
       return id != categoryId && name == trimmed.toLowerCase();
     });
     if (exists) {
-      Get.snackbar("Already exists", "Another category already has this name");
+      AppSnackbar.show("Another category already has this name".tr);
       return;
     }
 

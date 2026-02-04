@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import '../Authentication/ForgetPassword/Controller/Controller.dart';
-import '../Authentication/Login/Controller/Controller.dart';
-import '../Authentication/Signup/Controller/Controller.dart';
+import '../Presentation/Authentication/ForgetPassword/Controller/Controller.dart';
+import '../Presentation/Authentication/Login/Controller/Controller.dart';
+import '../Presentation/Authentication/Signup/Controller/Controller.dart';
 import '../Presentation/Features/AddTransactions/Controller/Controller.dart';
 import '../Presentation/Features/Change Password/Controller/Controller.dart';
 import '../Presentation/Features/Dashboard/Controller/Controller.dart';

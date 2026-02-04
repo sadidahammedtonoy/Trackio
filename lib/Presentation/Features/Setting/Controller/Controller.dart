@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../../App/routes.dart';
 import '../../../../Core/loading.dart';
 import '../../../../Core/snakbar.dart';
@@ -204,10 +201,10 @@ class settingController extends GetxController {
               ),
               const SizedBox(height: 8),
               Text(
-                "This action is permanent.\n\n"
-                    "• Your account will be deleted.\n"
-                    "• Your saved data may be removed.\n"
-                    "• You cannot recover this account after deletion.\n",
+                "${"delete_warning_title".tr}\n\n"
+                    "${"delete_warning_1".tr}\n"
+                    "${"delete_warning_2".tr}\n"
+                    "${"delete_warning_3".tr}",
               ),
               const SizedBox(height: 12),
 
@@ -233,13 +230,13 @@ class settingController extends GetxController {
                 ),
               ] else if (user.isAnonymous) ...[
                 Text(
-                  "You are using a Guest account. Deleting will remove this guest profile.",
+                  "You are using a Guest account. Deleting will remove this guest profile.".tr,
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ] else ...[
                 Text(
-                  "You are signed in with Google/Apple/other provider.\n"
-                      "If deletion fails, you may need to re-login and try again.",
+                  "${"You are signed in with Google/Apple/other provider.".tr}\n"
+                      "If deletion fails, you may need to re-login and try again.".tr,
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],

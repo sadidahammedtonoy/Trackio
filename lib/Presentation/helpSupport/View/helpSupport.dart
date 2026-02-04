@@ -13,7 +13,7 @@ class HelpSupportPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text("Help & Support"),
+        title: Text("Help & Support".tr),
         centerTitle: false,
         titleSpacing: -10,
         backgroundColor: Colors.white,
@@ -23,7 +23,7 @@ class HelpSupportPage extends StatelessWidget {
           IconButton(
             onPressed: controller.openReportSheet,
             icon: const Icon(Icons.bug_report_outlined),
-            tooltip: "Report a problem",
+            tooltip: "Report a problem".tr,
           ),
         ],
       ),
@@ -93,9 +93,9 @@ class _SearchBar extends StatelessWidget {
           Expanded(
             child: TextField(
               onChanged: (v) => controller.search.value = v,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search, color: Colors.grey,),
-                hintText: "Search questions (sync, guest, password...)",
+                hintText: "Search questions (sync, guest, password...)".tr,
                 border: InputBorder.none,
               ),
             ),
@@ -126,13 +126,13 @@ class _ContactCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Contact Support",
+          Text(
+            "Contact Support".tr,
             style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
-          const Text(
-            "Need help quickly? Contact us using one of the options below.",
+          Text(
+            "Need help quickly? Contact us using one of the options below.".tr,
             style: TextStyle(color: Colors.black54),
           ),
           const SizedBox(height: 12),
@@ -141,7 +141,7 @@ class _ContactCard extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: controller.openReportSheet,
               icon: const Icon(Icons.bug_report_outlined, color: Colors.white,),
-              label: const Text("Report a problem", style: TextStyle(color: Colors.white),),
+              label: Text("Report a problem".tr, style: TextStyle(color: Colors.white),),
             ),
           ),
         ],
@@ -171,7 +171,7 @@ class _CategoryChips extends StatelessWidget {
             final selected = selectedCat == c;
 
             return ChoiceChip(
-              label: Text(c),
+              label: Text(c.tr),
               selected: selected,
               onSelected: (_) => controller.selectedCategory.value = c,
 
@@ -210,8 +210,8 @@ class _FaqHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      "Frequently Asked Questions",
+    return Text(
+      "Frequently Asked Questions".tr,
       style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700),
     );
   }
@@ -237,19 +237,19 @@ class _FaqTile extends StatelessWidget {
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
         leading: const Icon(Icons.help_outline),
         title: Text(
-          question,
+          question.tr,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(
-            tag,
+            tag.tr,
             style: const TextStyle(fontSize: 12, color: Colors.black54),
           ),
         ),
         children: [
           Text(
-            answer,
+            answer.tr,
             style: const TextStyle(color: Colors.black87, height: 1.35),
           ),
         ],
@@ -269,13 +269,13 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "No results found",
+          Text(
+            "No results found".tr,
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
-          const Text(
-            "Try searching with different keywords or clear filters.",
+          Text(
+            "Try searching with different keywords or clear filters.".tr,
             style: TextStyle(color: Colors.black54),
           ),
           const SizedBox(height: 12),
@@ -283,7 +283,7 @@ class _EmptyState extends StatelessWidget {
             width: double.infinity,
             child: OutlinedButton(
               onPressed: onClear,
-              child: const Text("Clear search & filters"),
+              child: Text("Clear search & filters".tr),
             ),
           ),
         ],
@@ -291,7 +291,6 @@ class _EmptyState extends StatelessWidget {
     );
   }
 }
-
 
 class _Card extends StatelessWidget {
   final Widget child;

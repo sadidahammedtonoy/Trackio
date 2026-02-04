@@ -45,11 +45,14 @@ class addTranscationsController extends GetxController {
   Future<String?> addMonthlyTransaction({
     required addTranModel model,
   }) async {
-    AppLoader.show(message: "Adding transaction...");
+    AppLoader.show(message: "Adding transaction...".tr);
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception("User not logged in");
+      if (user == null) {
+        AppSnackbar.show("User not logged in".tr);
+        throw Exception("User not logged in");
+      };
 
       final monthKey =
           "${model.date.year}-${model.date.month.toString().padLeft(2, '0')}";
@@ -80,12 +83,12 @@ class addTranscationsController extends GetxController {
 
       AppLoader.hide();
       Get.back();
-      AppSnackbar.show("Transaction added successfully");
+      AppSnackbar.show("Transaction added successfully".tr);
 
       return ref.id;
     } catch (e) {
       AppLoader.hide();
-      AppSnackbar.show("Fail to add Transaction");
+      AppSnackbar.show("Fail to add Transaction".tr);
       return null;
     }
   }

@@ -1,20 +1,18 @@
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sadid/App/routes.dart';
-
-import '../../../Core/loading.dart';
-import '../../../Core/snakbar.dart';
+import '../../../../Core/loading.dart';
+import '../../../../Core/snakbar.dart';
 
 class loginController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  var passswprd = true.obs;
+  var password = true.obs;
 
   /// UI toggle (English / বাংলা)
   var language = "English".obs;
@@ -103,27 +101,31 @@ class loginController extends GetxController {
 
   Future<void> loginAsGuest() async {
     try {
-      AppLoader.show(message: "Signing in as guest...");
+      AppLoader.show(message: "Signing in as guest...".tr);
 
       final UserCredential credential = await _auth.signInAnonymously();
       final User? user = credential.user;
 
-      if (user == null) throw Exception("Anonymous user is null");
-      if (!user.isAnonymous) throw Exception("User is not anonymous");
+      if (user == null) {
+        AppSnackbar.show("Anonymous user is null".tr);
+        throw Exception("Anonymous user is null");
+      };
+      if (!user.isAnonymous) {
+        AppSnackbar.show("User is not anonymous".tr);
+        throw Exception("User is not anonymous");
+      };
 
       // Apply local language immediately (guest has no firebase settings)
       Get.updateLocale(_localeFromToggle());
 
       AppLoader.hide();
-      AppSnackbar.show("Logged in as guest");
+      AppSnackbar.show("Logged in as guest".tr);
 
       // Navigate
       Get.offAllNamed(routes.navbar_screen);
     } catch (e, s) {
       AppLoader.hide();
-      print("Guest login error: $e");
-      print(s);
-      AppSnackbar.show("Unable to continue as guest. Please try again.");
+      AppSnackbar.show("Unable to continue as guest. Please try again.".tr);
     }
   }
 
@@ -133,14 +135,14 @@ class loginController extends GetxController {
     required String email,
     required String password,
   }) async {
-    AppLoader.show(message: "Logging in...");
+    AppLoader.show(message: "Logging in...".tr);
 
     try {
       final e = email.trim();
       final p = password.trim();
 
       if (e.isEmpty || p.isEmpty) {
-        AppSnackbar.show("Email and password are required.");
+        AppSnackbar.show("Email and password are required.".tr);
         return null;
       }
 
@@ -151,11 +153,11 @@ class loginController extends GetxController {
 
       final user = result.user;
       if (user == null) {
-        AppSnackbar.show("Login failed. Please try again.");
+        AppSnackbar.show("Login failed. Please try again.".tr);
         return null;
       }
 
-      AppSnackbar.show("Logged in successfully");
+      AppSnackbar.show("Logged in successfully".tr);
 
       // ✅ Apply saved language or save current toggle, then navigate
       await applyOrSaveLanguageAndContinue(user);
@@ -163,41 +165,41 @@ class loginController extends GetxController {
       return user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        AppSnackbar.show("No user found with this email.");
+        AppSnackbar.show("No user found with this email.".tr);
         return null;
       }
 
       if (e.code == 'wrong-password' ||
           e.code == 'invalid-credential' ||
           e.code == 'INVALID_LOGIN_CREDENTIALS') {
-        AppSnackbar.show("Incorrect password.");
+        AppSnackbar.show("Incorrect password.".tr);
         return null;
       }
 
       if (e.code == 'invalid-email') {
-        AppSnackbar.show("Invalid email address.");
+        AppSnackbar.show("Invalid email address.".tr);
         return null;
       }
 
       if (e.code == 'user-disabled') {
-        AppSnackbar.show("This account has been disabled.");
+        AppSnackbar.show("This account has been disabled.".tr);
         return null;
       }
 
       if (e.code == 'too-many-requests') {
-        AppSnackbar.show("Too many attempts. Try again later.");
+        AppSnackbar.show("Too many attempts. Try again later.".tr);
         return null;
       }
 
       if (e.code == 'network-request-failed') {
-        AppSnackbar.show("No internet connection.");
+        AppSnackbar.show("No internet connection.".tr);
         return null;
       }
 
-      AppSnackbar.show(e.message ?? "Login failed.");
+      AppSnackbar.show(e.message ?? "Login failed.".tr);
       return null;
     } catch (_) {
-      AppSnackbar.show("Something went wrong. Please try again.");
+      AppSnackbar.show("Something went wrong. Please try again.".tr);
       return null;
     } finally {
       AppLoader.hide();
@@ -228,7 +230,7 @@ class loginController extends GetxController {
 
       final user = userCredential.user;
       if (user == null) {
-        AppSnackbar.show("Google sign-in failed.");
+        AppSnackbar.show("Google sign-in failed.".tr);
         return null;
       }
 
@@ -243,33 +245,20 @@ class loginController extends GetxController {
         "createdAt": FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      AppSnackbar.show("Signed in with Google 🎉");
+      AppSnackbar.show("Signed in with Google.".tr);
 
       // ✅ Apply saved language or save current toggle, then navigate
       await applyOrSaveLanguageAndContinue(user);
 
       return userCredential;
     } on FirebaseAuthException catch (e) {
-      Get.snackbar("Google Sign-In Failed", _authError(e));
+      AppSnackbar.show("Google Sign-In Failed".tr);
       return null;
     } catch (_) {
-      Get.snackbar("Error", "Something went wrong. Try again.");
+      AppSnackbar.show("Something went wrong. Try again.".tr);
       return null;
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  String _authError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'account-exists-with-different-credential':
-        return "This email is already registered with another sign-in method.";
-      case 'network-request-failed':
-        return "No internet connection.";
-      case 'user-disabled':
-        return "This account has been disabled.";
-      default:
-        return e.message ?? "Google sign-in failed.";
     }
   }
 }

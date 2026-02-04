@@ -182,7 +182,19 @@ class setting_page extends StatelessWidget {
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Center(child: Container(
+                            height: 5,
+                            width: 50,
+                            decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(50),
+                          ),),),
+                          const SizedBox(height: 10,),
+                          Text("Choose Language".tr, style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700),),
+                          Text("Choose your preferred language for the app".tr),
+                          Divider(),
                           ListTile(
                             title: const Text("বাংলা"),
                             onTap: () {

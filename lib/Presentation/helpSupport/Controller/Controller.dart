@@ -50,13 +50,7 @@ class HelpSupportController extends GetxController {
       "category": "Transactions",
       "q": "How do I add income/expense?",
       "a":
-      "Go to Add Transaction → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Save.",
-    },
-    {
-      "category": "Transactions",
-      "q": "Can I edit or delete a transaction?",
-      "a":
-      "Yes. Open the transaction from History and choose Edit or Delete (if enabled by your app settings).",
+      "Go to Add Transaction → Press on (+) icon → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Add Transaction Button.",
     },
     {
       "category": "Security",
@@ -107,9 +101,9 @@ class HelpSupportController extends GetxController {
             children: [
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      "Report a problem",
+                      "Report a problem".tr,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -122,8 +116,8 @@ class HelpSupportController extends GetxController {
               const SizedBox(height: 8),
               TextField(
                 controller: titleCtrl,
-                decoration: const InputDecoration(
-                  labelText: "Title",
+                decoration: InputDecoration(
+                  labelText: "Title".tr,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -131,8 +125,8 @@ class HelpSupportController extends GetxController {
               TextField(
                 controller: detailsCtrl,
                 maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: "Describe the issue",
+                decoration: InputDecoration(
+                  labelText: "Describe the issue".tr,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -141,13 +135,13 @@ class HelpSupportController extends GetxController {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.send, color: Colors.white,),
-                  label: const Text("Submit", style: TextStyle(color: Colors.white),),
+                  label: Text("Submit".tr, style: TextStyle(color: Colors.white),),
                   onPressed: () async {
                     final title = titleCtrl.text.trim();
                     final details = detailsCtrl.text.trim();
 
                     if (title.isEmpty || details.isEmpty) {
-                      Get.snackbar("Missing", "Please fill title and details.");
+                      AppSnackbar.show("Please fill title and details.".tr);
                       return;
                     }
 
@@ -184,11 +178,11 @@ class HelpSupportController extends GetxController {
       final user = FirebaseAuth.instance.currentUser;
 
       if (title.trim().isEmpty || message.trim().isEmpty) {
-        AppSnackbar.show("Please provide title and details.");
+        AppSnackbar.show("Please provide title and details.".tr);
         return false;
       }
 
-      AppLoader.show(message: "Submitting report...");
+      AppLoader.show(message: "Submitting report...".tr);
 
       final uid = user?.uid ?? "unknown";
       final isAnonymous = user?.isAnonymous ?? false;
@@ -216,7 +210,7 @@ class HelpSupportController extends GetxController {
       });
 
       AppLoader.hide();
-      AppSnackbar.show("Thanks! Your report has been submitted.");
+      AppSnackbar.show("Thanks! Your report has been submitted.".tr);
       return true;
     } catch (e, s) {
       AppLoader.hide();
@@ -224,7 +218,7 @@ class HelpSupportController extends GetxController {
         print("sendUserReportToFirebase error: $e");
         print(s);
       }
-      AppSnackbar.show("Failed to submit report. Please try again.");
+      AppSnackbar.show("Failed to submit report. Please try again.".tr);
       return false;
     }
   }

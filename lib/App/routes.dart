@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import '../Authentication/ForgetPassword/View/forgetpassword.dart';
-import '../Authentication/Login/View/login.dart';
-import '../Authentication/Signup/View/Signup.dart';
+import '../Presentation/Authentication/ForgetPassword/View/forgetpassword.dart';
+import '../Presentation/Authentication/Login/View/login.dart';
+import '../Presentation/Authentication/Signup/View/Signup.dart';
 import '../Presentation/Documentation/privacy.dart';
 import '../Presentation/Documentation/terms.dart';
 import '../Presentation/Features/AddTransactions/View/AddTransactions.dart';

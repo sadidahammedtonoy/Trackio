@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:sadid/App/routes.dart';
 import 'package:sadid/Core/loading.dart';
 import 'package:sadid/Core/snakbar.dart';
-
 import '../Model/signupModel.dart';
 
 class signupController extends GetxController {
@@ -23,7 +22,7 @@ class signupController extends GetxController {
     isLoading.value = true;
 
     try {
-      AppLoader.show(message: "Creating account...");
+      AppLoader.show(message: "Creating account...".tr);
       final name = model.name.trim();
       final email = model.email.trim().toLowerCase();
       final pass = model.password;
@@ -40,7 +39,7 @@ class signupController extends GetxController {
 
       final user = credential.user;
       if (user == null){
-        AppSnackbar.show("Account creation failed. Please try again.");
+        AppSnackbar.show("Account creation failed. Please try again.".tr);
         throw Exception("Account creation failed. Please try again.");
       }
 
@@ -60,24 +59,19 @@ class signupController extends GetxController {
 
       // ✅ Optional: send email verification
       // await user.sendEmailVerification();
-      AppSnackbar.show("Account created successfully 🎉");
+      AppSnackbar.show("Account created successfully.".tr);
       Get.offAllNamed(routes.navbar_screen);
 
       return credential;
     } on FirebaseAuthException catch (e) {
       AppLoader.hide();
       final msg = _firebaseAuthErrorMessage(e);
-      print(msg);
-      AppSnackbar.show(msg);
+      AppSnackbar.show(msg.tr);
       return null;
     } on FirebaseException catch (e) {
       AppLoader.hide();
       // Firestore related errors
-      Get.snackbar(
-        "Database error",
-        e.message ?? "Could not save user info. Please try again.",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.show("Could not save user info. Please try again.".tr);
       return null;
     } catch (e) {
       AppLoader.hide();
@@ -96,22 +90,22 @@ class signupController extends GetxController {
     // Common Firebase Auth error codes
     switch (e.code) {
       case 'email-already-in-use':
-        return "This email is already registered. Try logging in.";
+        return "This email is already registered. Try logging in.".tr;
       case 'invalid-email':
-        return "Please enter a valid email address.";
+        return "Please enter a valid email address.".tr;
       case 'weak-password':
-        return "Password is too weak. Use at least 6 characters.";
+        return "Password is too weak. Use at least 6 characters.".tr;
       case 'operation-not-allowed':
-        return "Email/password accounts are not enabled in Firebase Console.";
+        return "Email/password accounts are not enabled in Firebase Console.".tr;
       case 'network-request-failed':
-        return "No internet connection. Please check your network.";
+        return "No internet connection. Please check your network.".tr;
       case 'too-many-requests':
-        return "Too many attempts. Please wait and try again later.";
+        return "Too many attempts. Please wait and try again later.".tr;
       case 'user-disabled':
-        return "This account has been disabled. Contact support.";
+        return "This account has been disabled. Contact support.".tr;
       default:
       // Fallback to message if available
-        return e.message ?? "Something went wrong. Please try again.";
+        return e.message ?? "Something went wrong. Please try again.".tr;
     }
   }
 

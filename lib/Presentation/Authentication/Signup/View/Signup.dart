@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/routes.dart';
-import 'package:sadid/Authentication/Signup/Model/signupModel.dart';
 import '../Controller/Controller.dart';
+import '../Model/signupModel.dart';
 
 class signup extends StatelessWidget {
   signup({super.key});

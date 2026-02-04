@@ -138,7 +138,7 @@ class savingController extends GetxController {
         double expense = 0.0;
 
         for (final d in itemsSnap.docs) {
-          final data = d.data() as Map<String, dynamic>;
+          final data = d.data();
           final type = (data['type'] ?? '').toString();
 
           final raw = data['amount'];

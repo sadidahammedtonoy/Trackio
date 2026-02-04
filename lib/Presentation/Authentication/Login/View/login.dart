@@ -82,13 +82,13 @@ class login extends StatelessWidget {
                         }
                         return null;
                       }, controller: passwordController,
-                      obscureText: controller.passswprd.value,
+                      obscureText: controller.password.value,
                       decoration: InputDecoration(
                           suffixIcon: GestureDetector(
                               onTap: (){
-                                controller.passswprd.value = !controller.passswprd.value;
+                                controller.password.value = !controller.password.value;
                               },
-                              child: Icon(controller.passswprd.value ? Icons.visibility_off : Icons.visibility, color: Colors.black)),
+                              child: Icon(controller.password.value ? Icons.visibility_off : Icons.visibility, color: Colors.black)),
                           hintText: "Enter your password".tr,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),

@@ -203,7 +203,6 @@ class AppTranslation extends Translations {
       "Questions?" : "Questions?",
       "If you have any questions about this Privacy Policy, please contact support." : "If you have any questions about this Privacy Policy, please contact support.",
       "Back" : "Back",
-
       "By using this app, you agree to these terms." : "By using this app, you agree to these terms.",
       "Using Trackio" : "Using Trackio",
       "You must use this app for lawful and personal financial tracking purposes only." : "You must use this app for lawful and personal financial tracking purposes only.",
@@ -227,6 +226,119 @@ class AppTranslation extends Translations {
       "Deleting an account may permanently remove associated data." : "Deleting an account may permanently remove associated data.",
       "Acceptance of Terms" : "Acceptance of Terms",
       "If you do not agree with these terms, please stop using the app." : "If you do not agree with these terms, please stop using the app.",
+
+      "Please enter your email" : "Please enter your email",
+      "Please enter a valid email" : "Please enter a valid email",
+      "No account exists with this email." : "No account exists with this email.",
+      "This email is registered with Google. Please sign in with Google." : "This email is registered with Google. Please sign in with Google.",
+      "Reset link sent. Check inbox/spam." : "Reset link sent. Check inbox/spam.",
+      "Could not send reset email." : "Could not send reset email.",
+      "Something went wrong. Please try again." : "Something went wrong. Please try again.",
+      "Signing in as guest..." : "Signing in as guest...",
+      "Anonymous user is null" : "Anonymous user is null",
+      "User is not anonymous" : "User is not anonymous",
+      "Logged in as guest" : "Logged in as guest",
+      "Unable to continue as guest. Please try again." : "Unable to continue as guest. Please try again.",
+      "Logging in..." : "Logging in...",
+      "Login failed. Please try again." : "Login failed. Please try again.",
+      "Logged in successfully" : "Logged in successfully",
+      "No user found with this email." : "No user found with this email.",
+      "Incorrect password." : "Incorrect password.",
+      "This account has been disabled." : "This account has been disabled.",
+      "Too many attempts. Try again later." : "Too many attempts. Try again later.",
+      "No internet connection." : "No internet connection.",
+      "Login failed." : "Login failed.",
+      "Signed in with Google." : "Signed in with Google.",
+      "Google Sign-In Failed" : "Google Sign-In Failed",
+      "Something went wrong. Try again." : "Something went wrong. Try again.",
+      "Creating account..." : "Creating account...",
+      "Account creation failed. Please try again." : "Account creation failed. Please try again.",
+      "Account created successfully." : "Account created successfully.",
+      "Could not save user info. Please try again." : "Could not save user info. Please try again.",
+      "This email is already registered. Try logging in." : "This email is already registered. Try logging in.",
+      "Please enter a valid email address." : "Please enter a valid email address.",
+      "Password is too weak. Use at least 6 characters." : "Password is too weak. Use at least 6 characters.",
+      "Email/password accounts are not enabled in Firebase Console." : "Email/password accounts are not enabled in Firebase Console.",
+      "No internet connection. Please check your network." : "No internet connection. Please check your network.",
+      "Too many attempts. Please wait and try again later." : "Too many attempts. Please wait and try again later.",
+      "This account has been disabled. Contact support." : "This account has been disabled. Contact support.",
+      "All" : "All",
+      "Data & Sync" : "Data & Sync",
+      "Troubleshooting" : "Troubleshooting",
+      "How do I log in as Guest?" : "How do I log in as Guest?",
+      "Continue as Guest' on the login screen. Your data will be stored under an anonymous Firebase UID. If you logout as guest, data may be lost." : "Continue as Guest' on the login screen. Your data will be stored under an anonymous Firebase UID. If you logout as guest, data may be lost.",
+      "How do I change my password?" : "How do I change my password?",
+      "Password change is available only for Email/Password accounts. Go to Settings → Security → Change Password." : "Password change is available only for Email/Password accounts. Go to Settings → Security → Change Password.",
+      "Where is my data stored?" : "Where is my data stored?",
+      "Your financial records are stored in Firebase Firestore using your UID, so only your account can access your data." : "Your financial records are stored in Firebase Firestore using your UID, so only your account can access your data.",
+      "Why is my data not syncing?" : "Why is my data not syncing?",
+      "Please check internet connection, login status, and try again. If you are in guest mode and logged out, previous data may not be recoverable." : "Please check internet connection, login status, and try again. If you are in guest mode and logged out, previous data may not be recoverable.",
+      "How do I add income/expense?" : "How do I add income/expense?",
+      "Go to Add Transaction → Press on (+) icon → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Add Transaction Button." : "Go to Add Transaction → Press on (+) icon → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Add Transaction Button.",
+      "Is my data secure?" : "Is my data secure?",
+      "We use Firebase Authentication and Firestore security rules. Your data is linked to your UID. Keep your device secure and use a strong password." : "We use Firebase Authentication and Firestore security rules. Your data is linked to your UID. Keep your device secure and use a strong password.",
+      "The app is slow or stuck on loading. What should I do?" : "The app is slow or stuck on loading. What should I do?",
+      "Close and reopen the app, check network, and update to the latest version. You can also clear cache from Settings if available." : "Close and reopen the app, check network, and update to the latest version. You can also clear cache from Settings if available.",
+      "Report a problem" : "Report a problem",
+      "Title" : "Title",
+      "Describe the issue" : "Describe the issue",
+      "Submit" : "Submit",
+      "Please fill title and details." : "Please fill title and details.",
+      "Please provide title and details." : "Please provide title and details.",
+      "Submitting report..." : "Submitting report...",
+      "Thanks! Your report has been submitted." : "Thanks! Your report has been submitted.",
+      "Failed to submit report. Please try again." : "Failed to submit report. Please try again.",
+      "Search questions (sync, guest, password...)" : "Search questions (sync, guest, password...)",
+      "Contact Support" : "Contact Support",
+      "Need help quickly? Contact us using one of the options below." : "Need help quickly? Contact us using one of the options below.",
+      "Frequently Asked Questions" : "Frequently Asked Questions",
+      "No results found" : "No results found",
+      "Try searching with different keywords or clear filters." : "Try searching with different keywords or clear filters.",
+      "Clear search & filters" : "Clear search & filters",
+      "delete_warning_title": "This action is permanent.",
+      "delete_warning_1": "• Your account will be deleted.",
+      "delete_warning_2": "• Your saved data may be removed.",
+      "delete_warning_3": "• You cannot recover this account after deletion.",
+
+      "You are signed in with Google/Apple/other provider." : "You are signed in with Google/Apple/other provider.",
+      "If deletion fails, you may need to re-login and try again." : "If deletion fails, you may need to re-login and try again.",
+      "Choose Language" : "Choose Language",
+      "Choose your preferred language for the app" : "Choose your preferred language for the app",
+      "Adding transaction..." : "Adding transaction...",
+      "User not logged in" : "User not logged in",
+      "Transaction added successfully" : "Transaction added successfully",
+      "Fail to add Transaction" : "Fail to add Transaction",
+      "Category name can't be empty" : "Category name can't be empty",
+      "Category already exists" : "Category already exists",
+      "Another category already has this name" : "Another category already has this name",
+      "Please fill in all fields." : "Please fill in all fields.",
+      "New password must be at least 6 characters." : "New password must be at least 6 characters.",
+      "Updating password..." : "Updating password...",
+      "No user is logged in." : "No user is logged in.",
+      "Password change not available for this account." : "Password change not available for this account.",
+      "Password changed successfully" : "Password changed successfully",
+      "Current password doesn't match. Please try again." : "Current password doesn't match. Please try again.",
+      "New password is too weak (min 6 characters)." : "New password is too weak (min 6 characters).",
+      "Session expired. Please log in again and retry." : "Session expired. Please log in again and retry.",
+      "Password update failed. Please try again." : "Password update failed. Please try again.",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
+      "" : "",
       "" : "",
       "" : "",
       "" : "",
@@ -313,7 +425,7 @@ class AppTranslation extends Translations {
       "No lent or borrow transactions" : "কোনো ধার দেওয়া বা ধার নেওয়ার লেনদেন নেই",
       "You Need to Pay." : "আপনাকে পরিশোধ করতে হবে।",
       "Borrow means money you received and must repay later." : "ধার মানে অন্যের কাছ থেকে নেওয়া টাকা, যা পরে পরিশোধ করতে হয়।",
-      "Borrow" : "ধার",
+      "Borrow" : "ধার নেওয়া",
       "You Will Receive." : "আপনি পাবেন।",
       "Lent means giving money to another person with the expectation that it will be returned in the future." : "ধার দেওয়া মানে অন্য কাউকে টাকা দেওয়া, যা ভবিষ্যতে ফেরত পাওয়ার আশা করা হয়।",
       "Lent" : "ধার দেওয়া",
@@ -393,156 +505,176 @@ class AppTranslation extends Translations {
       "Add Income" : "আয় যোগ করুন",
       "Add Expense" : "খরচ যোগ করুন",
       "Calculator" : "ক্যালকুলেটর",
-      "You are using a Guest account. Make it permanent to keep data forever."
-          : "আপনি একটি গেস্ট অ্যাকাউন্ট ব্যবহার করছেন। আপনার ডেটা চিরস্থায়ীভাবে সংরক্ষণ করতে এটিকে স্থায়ী করুন।",
-
+      "You are using a Guest account. Make it permanent to keep data forever.": "আপনি একটি গেস্ট অ্যাকাউন্ট ব্যবহার করছেন। আপনার ডেটা চিরস্থায়ীভাবে সংরক্ষণ করতে এটিকে স্থায়ী করুন।",
       "Overall Saving" : "মোট সঞ্চয়",
       "Add" : "যোগ করুন",
       "Remove" : "মুছে ফেলুন",
-      "Remove means Overall Saving will be set to 0."
-          : "মুছে ফেললে মোট সঞ্চয়ের পরিমাণ ০ হয়ে যাবে।",
+      "Remove means Overall Saving will be set to 0." : "মুছে ফেললে মোট সঞ্চয়ের পরিমাণ ০ হয়ে যাবে।",
       "No monthly data found" : "মাসভিত্তিক কোনো তথ্য পাওয়া যায়নি",
       "Language" : "ভাষা",
       "Manage Profile" : "প্রোফাইল পরিচালনা করুন",
-      "Name change is available for email/password accounts only."
-          : "নাম পরিবর্তনের সুবিধা শুধুমাত্র ইমেইল/পাসওয়ার্ড অ্যাকাউন্টের জন্য উপলব্ধ।",
+      "Name change is available for email/password accounts only." : "নাম পরিবর্তনের সুবিধা শুধুমাত্র ইমেইল/পাসওয়ার্ড অ্যাকাউন্টের জন্য উপলব্ধ।",
       "Cash" : "নগদ",
       "Mobile Banking" : "মোবাইল ব্যাংকিং",
       "Bank" : "ব্যাংক",
       "Others" : "অন্যান্য",
-      "Your privacy matters to us. This explains how your data is collected, stored, and protected."
-          : "আপনার গোপনীয়তা আমাদের কাছে গুরুত্বপূর্ণ। এখানে আপনার ডেটা কীভাবে সংগ্রহ, সংরক্ষণ এবং সুরক্ষিত করা হয় তা ব্যাখ্যা করা হয়েছে।",
-
+      "Your privacy matters to us. This explains how your data is collected, stored, and protected.": "আপনার গোপনীয়তা আমাদের কাছে গুরুত্বপূর্ণ। এখানে আপনার ডেটা কীভাবে সংগ্রহ, সংরক্ষণ এবং সুরক্ষিত করা হয় তা ব্যাখ্যা করা হয়েছে।",
       "Information We Collect" : "আমরা যে তথ্য সংগ্রহ করি",
-
-      "Account information from Firebase Authentication (email, UID, display name, profile image if available)."
-          : "Firebase Authentication থেকে প্রাপ্ত অ্যাকাউন্ট সংক্রান্ত তথ্য (ইমেইল, UID, প্রদর্শন নাম, প্রোফাইল ছবি যদি থাকে)।",
-
-      "Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories."
-          : "আপনি যে আর্থিক তথ্য যোগ করেন, যেমন আয়, খরচ, সঞ্চয়, ধার দেওয়া/নেওয়া, নোট এবং ক্যাটাগরি।",
-
-      "Anonymous (guest) users are assigned a temporary UID by Firebase."
-          : "অ্যানোনিমাস (গেস্ট) ব্যবহারকারীদের জন্য Firebase একটি অস্থায়ী UID নির্ধারণ করে।",
-
+      "Account information from Firebase Authentication (email, UID, display name, profile image if available).": "Firebase Authentication থেকে প্রাপ্ত অ্যাকাউন্ট সংক্রান্ত তথ্য (ইমেইল, UID, প্রদর্শন নাম, প্রোফাইল ছবি যদি থাকে)।",
+      "Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.": "আপনি যে আর্থিক তথ্য যোগ করেন, যেমন আয়, খরচ, সঞ্চয়, ধার দেওয়া/নেওয়া, নোট এবং ক্যাটাগরি।",
+      "Anonymous (guest) users are assigned a temporary UID by Firebase.": "অ্যানোনিমাস (গেস্ট) ব্যবহারকারীদের জন্য Firebase একটি অস্থায়ী UID নির্ধারণ করে।",
       "How We Use Your Information" : "আমরা আপনার তথ্য কীভাবে ব্যবহার করি",
-
-      "To securely store and sync your financial data across devices."
-          : "আপনার আর্থিক ডেটা নিরাপদভাবে সংরক্ষণ এবং বিভিন্ন ডিভাইসে সিঙ্ক করার জন্য।",
-
-      "To generate summaries, reports, and insights about your spending and income."
-          : "আপনার খরচ ও আয় সম্পর্কে সারসংক্ষেপ, রিপোর্ট এবং বিশ্লেষণ তৈরি করার জন্য।",
-
-      "To improve app performance, stability, and security."
-          : "অ্যাপের কর্মক্ষমতা, স্থিতিশীলতা এবং নিরাপত্তা উন্নত করার জন্য।",
-
+      "To securely store and sync your financial data across devices.": "আপনার আর্থিক ডেটা নিরাপদভাবে সংরক্ষণ এবং বিভিন্ন ডিভাইসে সিঙ্ক করার জন্য।",
+      "To generate summaries, reports, and insights about your spending and income.": "আপনার খরচ ও আয় সম্পর্কে সারসংক্ষেপ, রিপোর্ট এবং বিশ্লেষণ তৈরি করার জন্য।",
+      "To improve app performance, stability, and security.": "অ্যাপের কর্মক্ষমতা, স্থিতিশীলতা এবং নিরাপত্তা উন্নত করার জন্য।",
       "Data Storage & Security" : "ডেটা সংরক্ষণ ও নিরাপত্তা",
-
-      "All data is stored in Firebase Firestore under your unique user ID (UID)."
-          : "সব ডেটা আপনার অনন্য ইউজার আইডি (UID) এর অধীনে Firebase Firestore-এ সংরক্ষিত থাকে।",
-
-      "Firebase security rules restrict access so only your account can read or write your data."
-          : "Firebase-এর নিরাপত্তা নিয়ম অনুযায়ী শুধুমাত্র আপনার অ্যাকাউন্টই আপনার ডেটা পড়তে বা পরিবর্তন করতে পারে।",
-
-      "We do not store your passwords on our servers."
-          : "আমরা আমাদের সার্ভারে আপনার পাসওয়ার্ড সংরক্ষণ করি না।",
-
+      "All data is stored in Firebase Firestore under your unique user ID (UID).": "সব ডেটা আপনার অনন্য ইউজার আইডি (UID) এর অধীনে Firebase Firestore-এ সংরক্ষিত থাকে।",
+      "Firebase security rules restrict access so only your account can read or write your data.": "Firebase-এর নিরাপত্তা নিয়ম অনুযায়ী শুধুমাত্র আপনার অ্যাকাউন্টই আপনার ডেটা পড়তে বা পরিবর্তন করতে পারে।",
+      "We do not store your passwords on our servers.": "আমরা আমাদের সার্ভারে আপনার পাসওয়ার্ড সংরক্ষণ করি না।",
       "Guest (Anonymous) Accounts" : "গেস্ট (অ্যানোনিমাস) অ্যাকাউন্ট",
-
-      "Guest users can use the app without creating an account."
-          : "গেস্ট ব্যবহারকারীরা কোনো অ্যাকাউন্ট তৈরি না করেই অ্যাপ ব্যবহার করতে পারেন।",
-
-      "Data is linked to an anonymous Firebase UID."
-          : "ডেটা একটি অ্যানোনিমাস Firebase UID-এর সাথে সংযুক্ত থাকে।",
-
-      "If you log out or delete the guest account, the data may be permanently lost."
-          : "আপনি যদি গেস্ট অ্যাকাউন্ট থেকে লগ আউট করেন বা অ্যাকাউন্ট মুছে ফেলেন, তাহলে ডেটা স্থায়ীভাবে হারিয়ে যেতে পারে।",
-
+      "Guest users can use the app without creating an account.": "গেস্ট ব্যবহারকারীরা কোনো অ্যাকাউন্ট তৈরি না করেই অ্যাপ ব্যবহার করতে পারেন।",
+      "Data is linked to an anonymous Firebase UID.": "ডেটা একটি অ্যানোনিমাস Firebase UID-এর সাথে সংযুক্ত থাকে।",
+      "If you log out or delete the guest account, the data may be permanently lost.": "আপনি যদি গেস্ট অ্যাকাউন্ট থেকে লগ আউট করেন বা অ্যাকাউন্ট মুছে ফেলেন, তাহলে ডেটা স্থায়ীভাবে হারিয়ে যেতে পারে।",
       "Data Sharing" : "ডেটা শেয়ারিং",
-
-      "We do not sell or rent your personal data."
-          : "আমরা আপনার ব্যক্তিগত ডেটা বিক্রি বা ভাড়া দিই না।",
-
-      "Data may be processed by Firebase services to provide authentication and cloud storage."
-          : "প্রমাণীকরণ এবং ক্লাউড স্টোরেজ সেবা প্রদানের জন্য Firebase সার্ভিসের মাধ্যমে ডেটা প্রক্রিয়াজাত হতে পারে।",
-
-      "We may disclose data if required by law."
-          : "আইন অনুযায়ী প্রয়োজন হলে আমরা ডেটা প্রকাশ করতে পারি।",
-
+      "We do not sell or rent your personal data.": "আমরা আপনার ব্যক্তিগত ডেটা বিক্রি বা ভাড়া দিই না।",
+      "Data may be processed by Firebase services to provide authentication and cloud storage.": "প্রমাণীকরণ এবং ক্লাউড স্টোরেজ সেবা প্রদানের জন্য Firebase সার্ভিসের মাধ্যমে ডেটা প্রক্রিয়াজাত হতে পারে।",
+      "We may disclose data if required by law.": "আইন অনুযায়ী প্রয়োজন হলে আমরা ডেটা প্রকাশ করতে পারি।",
       "Account Deletion" : "অ্যাকাউন্ট মুছে ফেলা",
-
-      "You can delete your account from the app settings."
-          : "আপনি অ্যাপের সেটিংস থেকে আপনার অ্যাকাউন্ট মুছে ফেলতে পারেন।",
-
-      "Once deleted, your data may be permanently removed and cannot be recovered."
-          : "একবার মুছে ফেলার পর আপনার ডেটা স্থায়ীভাবে অপসারণ করা হতে পারে এবং তা পুনরুদ্ধার করা যাবে না।",
-
+      "You can delete your account from the app settings.": "আপনি অ্যাপের সেটিংস থেকে আপনার অ্যাকাউন্ট মুছে ফেলতে পারেন।",
+      "Once deleted, your data may be permanently removed and cannot be recovered.": "একবার মুছে ফেলার পর আপনার ডেটা স্থায়ীভাবে অপসারণ করা হতে পারে এবং তা পুনরুদ্ধার করা যাবে না।",
       "Questions?" : "কোনো প্রশ্ন আছে?",
-
-      "If you have any questions about this Privacy Policy, please contact support."
-          : "এই গোপনীয়তা নীতিমালা সম্পর্কে আপনার কোনো প্রশ্ন থাকলে অনুগ্রহ করে সাপোর্টের সাথে যোগাযোগ করুন।",
-
+      "If you have any questions about this Privacy Policy, please contact support." : "এই গোপনীয়তা নীতিমালা সম্পর্কে আপনার কোনো প্রশ্ন থাকলে অনুগ্রহ করে সাপোর্টের সাথে যোগাযোগ করুন।",
       "Back" : "ফিরে যান",
-      "By using this app, you agree to these terms."
-          : "এই অ্যাপ ব্যবহার করার মাধ্যমে আপনি এই শর্তাবলীতে সম্মতি প্রদান করছেন।",
-
+      "By using this app, you agree to these terms." : "এই অ্যাপ ব্যবহার করার মাধ্যমে আপনি এই শর্তাবলীতে সম্মতি প্রদান করছেন।",
       "Using Trackio" : "Trackio ব্যবহার",
-
-      "You must use this app for lawful and personal financial tracking purposes only."
-          : "এই অ্যাপটি শুধুমাত্র বৈধ এবং ব্যক্তিগত আর্থিক হিসাব রাখার উদ্দেশ্যে ব্যবহার করতে হবে।",
-
-      "You are responsible for the accuracy of the data you enter."
-          : "আপনি যে তথ্য প্রদান করেন তার সঠিকতার দায়িত্ব আপনার।",
-
+      "You must use this app for lawful and personal financial tracking purposes only." : "এই অ্যাপটি শুধুমাত্র বৈধ এবং ব্যক্তিগত আর্থিক হিসাব রাখার উদ্দেশ্যে ব্যবহার করতে হবে।",
+      "You are responsible for the accuracy of the data you enter." : "আপনি যে তথ্য প্রদান করেন তার সঠিকতার দায়িত্ব আপনার।",
       "Accounts & Access" : "অ্যাকাউন্ট ও প্রবেশাধিকার",
-
-      "Accounts are managed through Firebase Authentication."
-          : "অ্যাকাউন্টসমূহ Firebase Authentication এর মাধ্যমে পরিচালিত হয়।",
-
-      "Guest users may lose data if they log out or delete the account."
-          : "গেস্ট ব্যবহারকারীরা লগ আউট করলে বা অ্যাকাউন্ট মুছে ফেললে ডেটা হারাতে পারেন।",
-
-      "You are responsible for keeping your login method secure."
-          : "আপনার লগইন পদ্ধতি নিরাপদ রাখার দায়িত্ব আপনার।",
-
+      "Accounts are managed through Firebase Authentication." : "অ্যাকাউন্টসমূহ Firebase Authentication এর মাধ্যমে পরিচালিত হয়।",
+      "Guest users may lose data if they log out or delete the account." : "গেস্ট ব্যবহারকারীরা লগ আউট করলে বা অ্যাকাউন্ট মুছে ফেললে ডেটা হারাতে পারেন।",
+      "You are responsible for keeping your login method secure." : "আপনার লগইন পদ্ধতি নিরাপদ রাখার দায়িত্ব আপনার।",
       "Financial Disclaimer" : "আর্থিক দায়বদ্ধতা সংক্রান্ত ঘোষণা",
-
-      "This app does not provide financial, tax, or legal advice."
-          : "এই অ্যাপটি কোনো আর্থিক, কর বা আইনি পরামর্শ প্রদান করে না।",
-
-      "All reports and summaries are for informational purposes only."
-          : "সব রিপোর্ট ও সারসংক্ষেপ শুধুমাত্র তথ্য প্রদানের উদ্দেশ্যে।",
-
+      "This app does not provide financial, tax, or legal advice.": "এই অ্যাপটি কোনো আর্থিক, কর বা আইনি পরামর্শ প্রদান করে না।",
+      "All reports and summaries are for informational purposes only.": "সব রিপোর্ট ও সারসংক্ষেপ শুধুমাত্র তথ্য প্রদানের উদ্দেশ্যে।",
       "Service Availability" : "সেবার প্রাপ্যতা",
-
-      "We strive to keep the app available at all times."
-          : "আমরা সর্বদা অ্যাপটি সচল রাখার চেষ্টা করি।",
-
-      "Internet connectivity is required for syncing data."
-          : "ডেটা সিঙ্ক করার জন্য ইন্টারনেট সংযোগ প্রয়োজন।",
-
-      "Features may change or be updated without notice."
-          : "ফিচারসমূহ পূর্ব ঘোষণা ছাড়াই পরিবর্তন বা হালনাগাদ করা হতে পারে।",
-
+      "We strive to keep the app available at all times." : "আমরা সর্বদা অ্যাপটি সচল রাখার চেষ্টা করি।",
+      "Internet connectivity is required for syncing data." : "ডেটা সিঙ্ক করার জন্য ইন্টারনেট সংযোগ প্রয়োজন।",
+      "Features may change or be updated without notice." : "ফিচারসমূহ পূর্ব ঘোষণা ছাড়াই পরিবর্তন বা হালনাগাদ করা হতে পারে।",
       "Limitation of Liability" : "দায়বদ্ধতার সীমাবদ্ধতা",
-
-      "We are not responsible for losses due to incorrect data entry."
-          : "ভুল তথ্য প্রবেশ করানোর কারণে সৃষ্ট ক্ষতির জন্য আমরা দায়ী নই।",
-
-      "We are not liable for service interruptions or data loss beyond our control."
-          : "আমাদের নিয়ন্ত্রণের বাইরে সেবা বিঘ্ন বা ডেটা ক্ষতির জন্য আমরা দায়বদ্ধ নই।",
-
+      "We are not responsible for losses due to incorrect data entry.": "ভুল তথ্য প্রবেশ করানোর কারণে সৃষ্ট ক্ষতির জন্য আমরা দায়ী নই।",
+      "We are not liable for service interruptions or data loss beyond our control.": "আমাদের নিয়ন্ত্রণের বাইরে সেবা বিঘ্ন বা ডেটা ক্ষতির জন্য আমরা দায়বদ্ধ নই।",
       "Account Termination" : "অ্যাকাউন্ট বাতিলকরণ",
-
-      "You may delete your account at any time from the app."
-          : "আপনি যেকোনো সময় অ্যাপ থেকে আপনার অ্যাকাউন্ট মুছে ফেলতে পারেন।",
-
-      "Deleting an account may permanently remove associated data."
-          : "অ্যাকাউন্ট মুছে ফেললে সংশ্লিষ্ট ডেটা স্থায়ীভাবে অপসারণ হতে পারে।",
-
+      "You may delete your account at any time from the app." : "আপনি যেকোনো সময় অ্যাপ থেকে আপনার অ্যাকাউন্ট মুছে ফেলতে পারেন।",
+      "Deleting an account may permanently remove associated data." : "অ্যাকাউন্ট মুছে ফেললে সংশ্লিষ্ট ডেটা স্থায়ীভাবে অপসারণ হতে পারে।",
       "Acceptance of Terms" : "শর্তাবলীর স্বীকৃতি",
+      "If you do not agree with these terms, please stop using the app." : "আপনি যদি এই শর্তাবলীতে সম্মত না হন, অনুগ্রহ করে অ্যাপ ব্যবহার বন্ধ করুন।",
+      "Please enter your email": "অনুগ্রহ করে আপনার ইমেইল লিখুন",
+      "Please enter a valid email": "অনুগ্রহ করে একটি সঠিক ইমেইল লিখুন",
+      "No account exists with this email.": "এই ইমেইলের সাথে কোনো অ্যাকাউন্ট পাওয়া যায়নি।",
+      "This email is registered with Google. Please sign in with Google.": "এই ইমেইলটি গুগলের সাথে নিবন্ধিত। অনুগ্রহ করে গুগল দিয়ে সাইন ইন করুন।",
+      "Reset link sent. Check inbox/spam.": "রিসেট লিংক পাঠানো হয়েছে। ইনবক্স বা স্প্যাম ফোল্ডার দেখুন।",
+      "Could not send reset email.": "রিসেট ইমেইল পাঠানো যায়নি।",
+      "Something went wrong. Please try again.": "কিছু একটা ভুল হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "Signing in as guest...": "গেস্ট হিসেবে লগইন হচ্ছে...",
+      "Anonymous user is null": "অ্যানোনিমাস ইউজার পাওয়া যায়নি",
+      "User is not anonymous": "ইউজার অ্যানোনিমাস নয়",
+      "Logged in as guest": "গেস্ট হিসেবে লগইন করা হয়েছে",
+      "Unable to continue as guest. Please try again.": "গেস্ট হিসেবে চালিয়ে যাওয়া সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "Logging in...": "লগইন হচ্ছে...",
+      "Login failed. Please try again.": "লগইন ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "Logged in successfully": "সফলভাবে লগইন হয়েছে",
+      "No user found with this email.": "এই ইমেইলের সাথে কোনো ইউজার পাওয়া যায়নি।",
+      "Incorrect password.": "পাসওয়ার্ড ভুল।",
+      "This account has been disabled.": "এই অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে।",
+      "Too many attempts. Try again later.": "অনেকবার চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।",
+      "No internet connection.": "ইন্টারনেট সংযোগ নেই।",
+      "Login failed.": "লগইন ব্যর্থ হয়েছে।",
+      "Signed in with Google.": "গুগল দিয়ে সফলভাবে সাইন ইন হয়েছে।",
+      "Google Sign-In Failed": "গুগল সাইন ইন ব্যর্থ হয়েছে",
+      "Something went wrong. Try again.": "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
+      "Creating account...": "অ্যাকাউন্ট তৈরি করা হচ্ছে...",
+      "Account creation failed. Please try again.": "অ্যাকাউন্ট তৈরি ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "Account created successfully.": "সফলভাবে অ্যাকাউন্ট তৈরি হয়েছে।",
+      "Could not save user info. Please try again.": "ইউজারের তথ্য সংরক্ষণ করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "This email is already registered. Try logging in.": "এই ইমেইলটি ইতোমধ্যে নিবন্ধিত। লগইন করার চেষ্টা করুন।",
+      "Please enter a valid email address.": "অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা লিখুন।",
+      "Password is too weak. Use at least 6 characters.": "পাসওয়ার্ড দুর্বল। কমপক্ষে ৬টি অক্ষর ব্যবহার করুন।",
+      "Email/password accounts are not enabled in Firebase Console.": "Firebase Console-এ ইমেইল/পাসওয়ার্ড লগইন চালু করা নেই।",
+      "No internet connection. Please check your network.": "ইন্টারনেট সংযোগ নেই। অনুগ্রহ করে নেটওয়ার্ক চেক করুন।",
+      "Too many attempts. Please wait and try again later.": "অনেকবার চেষ্টা করা হয়েছে। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।",
+      "This account has been disabled. Contact support.": "এই অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে। সাপোর্টে যোগাযোগ করুন।",
+      "All": "সব",
+      "Data & Sync": "ডাটা ও সিঙ্ক",
+      "Troubleshooting": "সমস্যা সমাধান",
+      "How do I log in as Guest?": "আমি কীভাবে গেস্ট হিসেবে লগইন করবো?",
+      "Continue as Guest' on the login screen. Your data will be stored under an anonymous Firebase UID. If you logout as guest, data may be lost.": "লগইন স্ক্রিনে 'Continue as Guest' চাপুন। আপনার ডাটা একটি অ্যানোনিমাস Firebase UID-এর অধীনে সংরক্ষণ হবে। গেস্ট হিসেবে লগআউট করলে ডাটা হারিয়ে যেতে পারে।",
+      "How do I change my password?": "আমি কীভাবে পাসওয়ার্ড পরিবর্তন করবো?",
+      "Password change is available only for Email/Password accounts. Go to Settings → Security → Change Password.": "পাসওয়ার্ড পরিবর্তন শুধুমাত্র ইমেইল/পাসওয়ার্ড অ্যাকাউন্টের জন্য উপলব্ধ। Settings → Security → Change Password এ যান।",
+      "Where is my data stored?": "আমার ডাটা কোথায় সংরক্ষণ করা হয়?",
+      "Your financial records are stored in Firebase Firestore using your UID, so only your account can access your data.": "আপনার আর্থিক তথ্য Firebase Firestore-এ আপনার UID ব্যবহার করে সংরক্ষণ করা হয়, তাই শুধু আপনার অ্যাকাউন্টই এই ডাটায় অ্যাক্সেস করতে পারে।",
 
-      "If you do not agree with these terms, please stop using the app."
-          : "আপনি যদি এই শর্তাবলীতে সম্মত না হন, অনুগ্রহ করে অ্যাপ ব্যবহার বন্ধ করুন।",
+      "Why is my data not syncing?": "আমার ডাটা কেন সিঙ্ক হচ্ছে না?",
+      "Please check internet connection, login status, and try again. If you are in guest mode and logged out, previous data may not be recoverable.": "অনুগ্রহ করে ইন্টারনেট সংযোগ ও লগইন অবস্থা চেক করে আবার চেষ্টা করুন। আপনি যদি গেস্ট মোডে থেকে লগআউট করেন, তাহলে আগের ডাটা পুনরুদ্ধার করা নাও যেতে পারে।",
+
+      "How do I add income/expense?": "আমি কীভাবে আয়/খরচ যোগ করবো?",
+      "Go to Add Transaction → Press on (+) icon → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Add Transaction Button.": "Add Transaction এ যান → (+) আইকনে চাপুন → ধরন নির্বাচন করুন (Income/Expense/Saving/Lend/Borrow) → পরিমাণ, ক্যাটাগরি ও তারিখ যোগ করুন → Add Transaction বাটনে চাপুন।",
+
+      "Is my data secure?": "আমার ডাটা কি নিরাপদ?",
+      "We use Firebase Authentication and Firestore security rules. Your data is linked to your UID. Keep your device secure and use a strong password.": "আমরা Firebase Authentication এবং Firestore সিকিউরিটি রুল ব্যবহার করি। আপনার ডাটা আপনার UID-এর সাথে যুক্ত। আপনার ডিভাইস সুরক্ষিত রাখুন এবং শক্তিশালী পাসওয়ার্ড ব্যবহার করুন।",
+
+      "The app is slow or stuck on loading. What should I do?": "অ্যাপটি ধীরগতির বা লোডিংয়ে আটকে আছে। আমি কী করবো?",
+      "Close and reopen the app, check network, and update to the latest version. You can also clear cache from Settings if available.": "অ্যাপ বন্ধ করে আবার খুলুন, নেটওয়ার্ক চেক করুন এবং সর্বশেষ ভার্সনে আপডেট করুন। প্রয়োজনে Settings থেকে ক্যাশ ক্লিয়ার করতে পারেন।",
+
+      "Report a problem": "সমস্যা রিপোর্ট করুন",
+      "Title": "শিরোনাম",
+      "Describe the issue": "সমস্যার বিবরণ লিখুন",
+      "Submit": "জমা দিন",
+      "Please fill title and details.": "অনুগ্রহ করে শিরোনাম ও বিস্তারিত লিখুন।",
+      "Please provide title and details.": "অনুগ্রহ করে শিরোনাম ও বিস্তারিত দিন।",
+      "Submitting report...": "রিপোর্ট পাঠানো হচ্ছে...",
+      "Thanks! Your report has been submitted.": "ধন্যবাদ! আপনার রিপোর্ট পাঠানো হয়েছে।",
+      "Failed to submit report. Please try again.": "রিপোর্ট পাঠাতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "Search questions (sync, guest, password...)": "প্রশ্ন খুঁজুন (সিঙ্ক, গেস্ট, পাসওয়ার্ড...)",
+      "Contact Support": "সাপোর্টে যোগাযোগ করুন",
+      "Need help quickly? Contact us using one of the options below.": "দ্রুত সাহায্য দরকার? নিচের অপশনগুলোর যেকোনো একটি ব্যবহার করে আমাদের সাথে যোগাযোগ করুন।",
+      "Frequently Asked Questions": "সচরাচর জিজ্ঞাসিত প্রশ্নাবলী",
+      "No results found": "কোনো ফলাফল পাওয়া যায়নি",
+      "Try searching with different keywords or clear filters.": "ভিন্ন কীওয়ার্ড দিয়ে খুঁজুন অথবা ফিল্টার মুছে দিন।",
+      "Clear search & filters": "সার্চ ও ফিল্টার ক্লিয়ার করুন",
+      "delete_warning_title": "এই কাজটি স্থায়ী।",
+      "delete_warning_1": "• আপনার অ্যাকাউন্ট মুছে ফেলা হবে।",
+      "delete_warning_2": "• আপনার সংরক্ষিত ডেটা মুছে যেতে পারে।",
+      "delete_warning_3": "• এই অ্যাকাউন্টটি মুছে ফেলার পর আর পুনরুদ্ধার করা যাবে না।",
+      "You are signed in with Google/Apple/other provider.": "আপনি Google/Apple বা অন্য কোনো প্রোভাইডার দিয়ে সাইন ইন করেছেন।",
+      "If deletion fails, you may need to re-login and try again.": "ডিলিট করতে ব্যর্থ হলে, আপনাকে আবার লগইন করে পুনরায় চেষ্টা করতে হতে পারে।",
+      "Choose Language" : "ভাষা নির্বাচন করুন",
+      "Choose your preferred language for the app" : "অ্যাপের জন্য আপনার পছন্দের ভাষা নির্বাচন করুন",
+
+      "Adding transaction..." : "লেনদেন যোগ করা হচ্ছে...",
+      "User not logged in" : "ব্যবহারকারী লগইন করা নেই",
+      "Transaction added successfully" : "লেনদেন সফলভাবে যোগ করা হয়েছে",
+      "Fail to add Transaction" : "লেনদেন যোগ করতে ব্যর্থ হয়েছে",
+
+      "Category name can't be empty" : "ক্যাটাগরির নাম খালি রাখা যাবে না",
+      "Category already exists" : "এই ক্যাটাগরিটি ইতিমধ্যেই আছে",
+      "Another category already has this name" : "অন্য একটি ক্যাটাগরির একই নাম রয়েছে",
+      "Please fill in all fields." : "অনুগ্রহ করে সব তথ্য পূরণ করুন।",
+
+      "New password must be at least 6 characters." : "নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
+      "Updating password..." : "পাসওয়ার্ড আপডেট করা হচ্ছে...",
+      "No user is logged in." : "কোনো ব্যবহারকারী লগইন করা নেই।",
+      "Password change not available for this account."
+          : "এই অ্যাকাউন্টের জন্য পাসওয়ার্ড পরিবর্তনের সুবিধা নেই।",
+      "Password changed successfully" : "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে",
+      "Current password doesn't match. Please try again."
+          : "বর্তমান পাসওয়ার্ড মিলছে না। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "New password is too weak (min 6 characters)."
+          : "নতুন পাসওয়ার্ড খুব দুর্বল (কমপক্ষে ৬ অক্ষর হতে হবে)।",
+      "Session expired. Please log in again and retry."
+          : "সেশন মেয়াদোত্তীর্ণ হয়েছে। অনুগ্রহ করে আবার লগইন করে চেষ্টা করুন।",
+      "Password update failed. Please try again."
+          : "পাসওয়ার্ড আপডেট ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+
 
 
     },

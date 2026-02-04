@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:sadid/Core/loading.dart';
-
 import '../../../../Core/snakbar.dart';
 
 class changePasswordController extends GetxController {
@@ -18,27 +17,27 @@ class changePasswordController extends GetxController {
   }) async {
     // Optional: basic validation (avoid Firebase call)
     if (currentPassword.trim().isEmpty || newPassword.trim().isEmpty) {
-      AppSnackbar.show("Please fill in all fields.");
+      AppSnackbar.show("Please fill in all fields.".tr);
       return;
     }
 
     if (newPassword.trim().length < 6) {
-      AppSnackbar.show("New password must be at least 6 characters.");
+      AppSnackbar.show("New password must be at least 6 characters.".tr);
       return;
     }
 
-    AppLoader.show(message: "Updating password...");
+    AppLoader.show(message: "Updating password...".tr);
 
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        AppSnackbar.show("No user is logged in.");
+        AppSnackbar.show("No user is logged in.".tr);
         return;
       }
 
       final email = user.email;
       if (email == null || email.isEmpty) {
-        AppSnackbar.show("Password change not available for this account.");
+        AppSnackbar.show("Password change not available for this account.".tr);
         return;
       }
 
@@ -56,7 +55,7 @@ class changePasswordController extends GetxController {
       // ✅ Success: close loader first, then go back, then show message
       AppLoader.hide();
       Get.back(); // go back only on success
-      AppSnackbar.show("Password changed successfully");
+      AppSnackbar.show("Password changed successfully".tr);
 
     } on FirebaseAuthException catch (e) {
       AppLoader.hide();
@@ -65,28 +64,24 @@ class changePasswordController extends GetxController {
       if (e.code == 'wrong-password' ||
           e.code == 'invalid-credential' ||
           e.code == 'INVALID_LOGIN_CREDENTIALS') {
-        AppSnackbar.show("Current password doesn't match. Please try again.");
+        AppSnackbar.show("Current password doesn't match. Please try again.".tr);
         return;
       }
 
       if (e.code == 'weak-password') {
-        AppSnackbar.show("New password is too weak (min 6 characters).");
+        AppSnackbar.show("New password is too weak (min 6 characters).".tr);
         return;
       }
 
       if (e.code == 'requires-recent-login') {
-        AppSnackbar.show("Session expired. Please log in again and retry.");
+        AppSnackbar.show("Session expired. Please log in again and retry.".tr);
         return;
       }
 
-      AppSnackbar.show(e.message ?? "Password update failed. Please try again.");
+      AppSnackbar.show(e.message ?? "Password update failed. Please try again.".tr);
     } catch (_) {
       AppLoader.hide();
-      AppSnackbar.show("Something went wrong. Please try again.");
+      AppSnackbar.show("Something went wrong. Please try again.".tr);
     }
   }
-
-
-
-
 }

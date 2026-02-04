@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/routes.dart';
-import 'package:sadid/Core/loading.dart';
 import 'package:sadid/Core/snakbar.dart';
 
 class ForgotPasswordController extends GetxController {
@@ -15,13 +14,13 @@ class ForgotPasswordController extends GetxController {
     final mail = email.trim().toLowerCase();
 
     if (mail.isEmpty) {
-      Get.snackbar("Error", "Please enter your email");
+      AppSnackbar.show("Please enter your email".tr);
       return;
     }
 
     final ok = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(mail);
     if (!ok) {
-      Get.snackbar("Invalid email", "Please enter a valid email address");
+      AppSnackbar.show("Please enter a valid email".tr);
       return;
     }
 
@@ -35,7 +34,7 @@ class ForgotPasswordController extends GetxController {
           .get();
 
       if (snap.docs.isEmpty) {
-        Get.snackbar("Account not found", "No account exists with this email.");
+        AppSnackbar.show("No account exists with this email.".tr);
         return;
       }
 
@@ -44,10 +43,7 @@ class ForgotPasswordController extends GetxController {
 
       // ✅ 2) If Google account → no reset
       if (provider == "google") {
-        Get.snackbar(
-          "Google account",
-          "This email is registered with Google. Please sign in with Google.",
-        );
+        AppSnackbar.show("This email is registered with Google. Please sign in with Google.".tr);
         return;
       }
 
@@ -55,16 +51,16 @@ class ForgotPasswordController extends GetxController {
       if (provider == "password") {
         await _auth.sendPasswordResetEmail(email: mail);
         Get.offAndToNamed(routes.login_screen);
-        AppSnackbar.show("Reset link sent. Check inbox/spam.");
+        AppSnackbar.show("Reset link sent. Check inbox/spam.".tr);
         return;
       }
 
       // ✅ 4) Unknown provider
       Get.snackbar("Not supported", "This account uses: $provider");
     } on FirebaseAuthException catch (e) {
-      Get.snackbar("Failed", e.message ?? "Could not send reset email.");
+      Get.snackbar("Failed", e.message ?? "Could not send reset email.".tr);
     } catch (e) {
-      Get.snackbar("Failed", "Something went wrong. Please try again.");
+      AppSnackbar.show("Something went wrong. Please try again.".tr);
     } finally {
       isLoading.value = false;
     }

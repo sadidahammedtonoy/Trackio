@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:rxdart/rxdart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -105,13 +105,26 @@ class debtsController extends GetxController {
         if (t.type == "Borrow") totalBorrow += t.amount;
       }
 
-      return {
+      final result = {
         "lent": totalLent,
         "borrow": totalBorrow,
         "net": totalLent - totalBorrow,
       };
-    });
+
+      // ✅ cache latest result
+      _cachedLentBorrow.assignAll(result);
+
+      return result;
+    }).startWith(_cachedLentBorrow); // 👈 return cached immediately
   }
+
+  final RxMap<String, double> _cachedLentBorrow = <String, double>{
+    "lent": 0.0,
+    "borrow": 0.0,
+    "net": 0.0,
+  }.obs;
+
+
 
 
 
