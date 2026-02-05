@@ -330,4 +330,41 @@ class dashboardController extends GetxController {
     return diff.inDays;
   }
 
+  Stream<double> streamThisMonthSavings() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return const Stream.empty();
+
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 1);
+
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('savings')
+        .doc('items')
+        .collection('list')
+    // ⚠️ Requires `date` field stored as Timestamp in each doc
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+        .where('date', isLessThan: Timestamp.fromDate(endOfMonth))
+        .snapshots()
+        .map((snap) {
+      double total = 0.0;
+
+      for (final d in snap.docs) {
+        final data = d.data();
+        final raw = data['amount'];
+
+        final amount = (raw is String)
+            ? double.tryParse(raw) ?? 0.0
+            : (raw as num?)?.toDouble() ?? 0.0;
+
+        total += amount;
+      }
+
+      return total; // ✅ number
+    });
+  }
+
+
 }

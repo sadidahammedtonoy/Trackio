@@ -68,7 +68,15 @@ class dashboardPage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 20, width: 110,),
                                 Text("Remaining".tr, style: TextStyle(fontSize: 16.sp),),
-                                Text("৳${numberTranslation.toBnDigits("${(data["income"] ?? 0) - (data["expense"] ?? 0)}")}", style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w500),),
+                                StreamBuilder<double>(
+                                  stream: controller.streamThisMonthSavings(),
+                                  builder: (context, snap) {
+                                    final v = snap.data ?? 0.0;
+                                    return Text("৳${numberTranslation.toBnDigits("${(data["income"] ?? 0) - (data["expense"] ?? 0) - v}")}", style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w500),);
+                                  },
+                                )
+
+
 
                               ],
                             ),
@@ -146,14 +154,21 @@ class dashboardPage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 20, width: 110,),
                                 Text("Daily Limit".tr, style: TextStyle(fontSize: 16.sp),),
-                                Text(
-                                  "৳${numberTranslation.toBnDigits(
-                                    ((((data["income"] ?? 0) - (data["expense"] ?? 0)) /
-                                        controller.daysLeftInCurrentMonth()))
-                                        .toStringAsFixed(0),
-                                  )}",
-                                  style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w500),
-                                ),
+                                StreamBuilder<double>(
+                                  stream: controller.streamThisMonthSavings(),
+                                  builder: (context, snap) {
+                                    final v = snap.data ?? 0.0;
+                                    return Text(
+                                      "৳${numberTranslation.toBnDigits(
+                                        ((((data["income"] ?? 0) - (data["expense"] ?? 0) - v) /
+                                            controller.daysLeftInCurrentMonth()))
+                                            .toStringAsFixed(1),
+                                      )}",
+                                      style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w500),
+                                    );
+                                  },
+                                )
+
 
                               ],
                             ),
@@ -463,7 +478,7 @@ class _TransactionTile extends StatelessWidget {
                         children: [
                           Icon(Icons.category, color: Colors.black, size: 15,),
                           Text("Category:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                          Text(item.category.isEmpty ? "Uncategorized".tr : item.category, style: TextStyle(fontSize: 16.sp,),),
+                          Text(item.category.isEmpty ? "Uncategorized".tr : item.category.tr, style: TextStyle(fontSize: 16.sp,),),
 
                         ],
                       ),

@@ -120,7 +120,7 @@ class categories extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  name.tr,
                   style: const TextStyle(
                     fontSize: 15.5,
                     fontWeight: FontWeight.w600,
@@ -294,22 +294,50 @@ class categories extends StatelessWidget {
   // ---------- date formatter (simple) ----------
   String _formatCreatedAt(dynamic createdAt) {
     // Firestore serverTimestamp can be null briefly.
-    if (createdAt == null) return "Just now";
+    if (createdAt == null) {
+      return Get.locale?.languageCode == 'bn'
+          ? "এইমাত্র"
+          : "Just now";
+    }
 
     if (createdAt is Timestamp) {
       final dt = createdAt.toDate();
-      // simple readable format: 02 Feb 2026
-      final months = [
+
+      final isBn = Get.locale?.languageCode == 'bn';
+
+      const enMonths = [
         "Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec"
       ];
-      final dd = dt.day.toString().padLeft(2, '0');
-      final mm = months[dt.month - 1];
-      final yyyy = dt.year.toString();
-      return "Created: $dd $mm $yyyy";
+
+      const bnMonths = [
+        "জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন",
+        "জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"
+      ];
+
+      String toBnDigits(String input) {
+        const map = {
+          '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
+          '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
+        };
+        return input.split('').map((c) => map[c] ?? c).join();
+      }
+
+      final ddEn = dt.day.toString().padLeft(2, '0');
+      final yyyyEn = dt.year.toString();
+
+      final dd = isBn ? toBnDigits(ddEn) : ddEn;
+      final yyyy = isBn ? toBnDigits(yyyyEn) : yyyyEn;
+      final mm = isBn ? bnMonths[dt.month - 1] : enMonths[dt.month - 1];
+
+      return isBn
+          ? "তৈরি: $dd $mm $yyyy"
+          : "Created: $dd $mm $yyyy";
     }
 
-    return "Created: —";
+    return Get.locale?.languageCode == 'bn'
+        ? "তৈরি: —"
+        : "Created: —";
   }
 }
 

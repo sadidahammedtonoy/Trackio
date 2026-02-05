@@ -403,7 +403,7 @@ class AppTranslation extends Translations {
       "Taxes" : "Taxes",
 
 
-      "" : "",
+      "No savings yet." : "No savings yet.",
       "" : "",
       "" : "",
       "" : "",
@@ -684,6 +684,7 @@ class AppTranslation extends Translations {
 
       "How do I add income/expense?": "আমি কীভাবে আয়/খরচ যোগ করবো?",
       "Go to Add Transaction → Press on (+) icon → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Add Transaction Button.": "Add Transaction এ যান → (+) আইকনে চাপুন → ধরন নির্বাচন করুন (Income/Expense/Saving/Lend/Borrow) → পরিমাণ, ক্যাটাগরি ও তারিখ যোগ করুন → Add Transaction বাটনে চাপুন।",
+      "No savings yet." : "এখনও কোনো সঞ্চয় যোগ করা হয়নি।",
 
       "Is my data secure?": "আমার ডাটা কি নিরাপদ?",
       "We use Firebase Authentication and Firestore security rules. Your data is linked to your UID. Keep your device secure and use a strong password.": "আমরা Firebase Authentication এবং Firestore সিকিউরিটি রুল ব্যবহার করি। আপনার ডাটা আপনার UID-এর সাথে যুক্ত। আপনার ডিভাইস সুরক্ষিত রাখুন এবং শক্তিশালী পাসওয়ার্ড ব্যবহার করুন।",

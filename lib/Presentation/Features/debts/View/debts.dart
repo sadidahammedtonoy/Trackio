@@ -360,7 +360,7 @@ class _TransactionTile extends StatelessWidget {
                           children: [
                             Icon(Icons.person, color: Colors.black, size: 15,),
                             Text("Person Name:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(item.category.isEmpty ? "No Name".tr : item.category, style: TextStyle(fontSize: 16.sp),),
+                            Text(item.category.isEmpty ? "No Name".tr : item.category.tr, style: TextStyle(fontSize: 16.sp),),
                           ],
                         ) :
                         Row(
@@ -396,7 +396,7 @@ class _TransactionTile extends StatelessWidget {
                           children: [
                             Icon(Icons.edit_note_outlined, color: Colors.black, size: 15,),
                             Text("Remark:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Expanded(child: Text(item.note.isEmpty ? "No Remark".tr : item.note, style: TextStyle(fontSize: 16.sp),)),
+                            Expanded(child: Text(item.note.isEmpty ? "No Remark".tr : item.note.tr, style: TextStyle(fontSize: 16.sp),)),
                           ],
                         ),
 

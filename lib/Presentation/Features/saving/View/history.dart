@@ -187,7 +187,7 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
         if (list.isEmpty) {
           return Center(
             child: Text(
-              widget.emptyText,
+              widget.emptyText.tr,
               style: TextStyle(color: Colors.black.withOpacity(0.5)),
             ),
           );

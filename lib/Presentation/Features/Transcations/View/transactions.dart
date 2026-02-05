@@ -279,7 +279,7 @@ class _TransactionTile extends StatelessWidget {
                           children: [
                             Icon(Icons.category, color: Colors.black, size: 15,),
                             Text("Category:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(item.category.isEmpty ? "Uncategorized".tr : item.category, style: TextStyle(fontSize: 16.sp,),),
+                            Text(item.category.isEmpty ? "Uncategorized".tr : item.category.tr, style: TextStyle(fontSize: 16.sp,),),
                           ],
                         ),
 

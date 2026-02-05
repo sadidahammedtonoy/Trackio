@@ -271,12 +271,13 @@ class savingController extends GetxController {
 
     // new motivation each time
     _pickMotivation();
+    Get.to(AddSavingSheet(controller: Get.find<savingController>(),));
 
-    Get.bottomSheet(
-      AddSavingSheet(controller: this),
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-    );
+    // Get.bottomSheet(
+    //   AddSavingSheet(controller: this),
+    //   isScrollControlled: true,
+    //   backgroundColor: Colors.transparent,
+    // );
   }
 
   Future<void> addSaving() async {
