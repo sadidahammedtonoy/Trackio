@@ -43,7 +43,7 @@ Future<void> main() async {
 
 
 
-// jhvv vkb kyifg hviyku xycvbnm
+// jhvv vkb kyifg hviyku
 //       home: expense_page(),
 //     );
 //   }
