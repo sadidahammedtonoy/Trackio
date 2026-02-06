@@ -40,6 +40,10 @@ Future<void> main() async {
 //         // tested with just a hot reload.
 //         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
 //       ),
+
+
+
+// jhvv vkb kyifg hviyku xycvbnm xrycuvbiynm
 //       home: expense_page(),
 //     );
 //   }
