@@ -19,9 +19,9 @@ class editTransactionsController extends GetxController {
   TextEditingController noteController = TextEditingController();
   TextEditingController personNameController = TextEditingController();
 
-  void assignValues(TranItem model){
+  Future<void> assignValues(TranItem model) async {
     oldItem = model;
-    fetchCategories();
+    await fetchCategories();
     selectedType.value = model.type;
     selectedDate.value = model.date;
     amountController.text = "${model.amount}";

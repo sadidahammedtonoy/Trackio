@@ -35,16 +35,19 @@ class SplashController extends GetxController {
       isNewUser.value = true;
       isLoggedIn.value = false;
       isGuest.value = false;
+      await checkInternetOrShowOffline();
       debugPrint("User status: NEW USER");
     } else if (user.isAnonymous) {
       isGuest.value = true;
       isLoggedIn.value = false;
       isNewUser.value = false;
+      await checkInternetOrShowOffline();
       debugPrint("User status: GUEST USER");
     } else {
       isLoggedIn.value = true;
       isGuest.value = false;
       isNewUser.value = false;
+      await checkInternetOrShowOffline();
       debugPrint("User status: LOGGED IN USER");
     }
 
@@ -91,9 +94,7 @@ class SplashController extends GetxController {
   }
 
 
-  Future<bool> checkInternetOrShowOffline({
-    required void Function(String message) showMessage,
-  }) async {
+  Future<void> checkInternetOrShowOffline() async {
     // 1) Quick check: any network?
     final connectivity = await Connectivity().checkConnectivity();
     final hasNetwork = connectivity != ConnectivityResult.none;
@@ -101,7 +102,6 @@ class SplashController extends GetxController {
     if (!hasNetwork) {
       isOffline.value = true;
       AppSnackbar.show("You're using Trackio offline. Please connect to the internet.");
-      return false;
     }
 
     // 2) Real check: can we reach internet?
@@ -109,10 +109,7 @@ class SplashController extends GetxController {
     if (!hasInternet) {
       isOffline.value = true;
       AppSnackbar.show("You're using Trackio offline. Please connect to the internet.");
-      return false;
     }
-
-    return true;
   }
 
 }
