@@ -129,4 +129,50 @@ class NotificationService {
     );
   }
 
+  static Future<void> scheduleNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime dateTime,
+  }) async {
+    final tzDate = tz.TZDateTime.from(dateTime, tz.local);
+
+    const androidDetails = AndroidNotificationDetails(
+      'reminder_channel',
+      'Reminders',
+      channelDescription: 'Scheduled reminders',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    const iosDetails = DarwinNotificationDetails();
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tzDate,
+      details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  /// Cancel a single notification by ID
+  static Future<void> cancelNotification(int id) async {
+    await _plugin.cancel(id);
+  }
+
+  /// Cancel all scheduled notifications
+  static Future<void> cancelAllNotifications() async {
+    await _plugin.cancelAll();
+  }
+
+
 }

@@ -24,7 +24,25 @@ class navbar extends StatelessWidget {
     return Obx(() {
       return Scaffold(
         body: SafeArea(
-          child: pages[nav.currentIndex.value],
+          child: Obx(() => AnimatedSwitcher(
+            duration: Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+
+            },
+            child: pages[nav.currentIndex.value],
+            layoutBuilder: (currentChild, previousChildren) {
+              return Stack(
+                children: <Widget>[
+                  ...previousChildren,
+                  if (currentChild != null) currentChild,
+                ],
+              );
+            },
+          )),
         ),
 
         bottomNavigationBar: Container(
