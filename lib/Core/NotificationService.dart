@@ -94,8 +94,7 @@ class NotificationService {
   }) async {
     final now = tz.TZDateTime.now(tz.local);
 
-    var scheduled =
-    tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
+    var scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
 
     // If time already passed today, schedule for tomorrow
     if (scheduled.isBefore(now)) {
