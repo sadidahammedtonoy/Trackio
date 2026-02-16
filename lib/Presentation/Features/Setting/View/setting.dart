@@ -26,14 +26,25 @@ class setting_page extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 15,
             children: [
-              ListTile(
-                leading: controller.getUserProfileImage() == null ? Icon(Icons.person, size: 30,) : CircleAvatar(
-                  backgroundImage: NetworkImage(controller.getUserProfileImage() ?? ""),
-                ),
-                title: Text(controller.getUserName(), style: TextStyle(fontSize: 18.sp)),
-                subtitle: Text(controller.getUserEmail() ?? "", style: TextStyle(fontSize: 16.sp),),
+              const SizedBox(height: 0,),
+              Row(
+                spacing: 10,
+                children: [
+                  controller.getUserProfileImage() == null ? Icon(Icons.person, size: 30,) : CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(controller.getUserProfileImage() ?? ""),
+                  ),
+
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(controller.getUserName(), style: TextStyle(fontSize: 25.sp)),
+                      Text(controller.getUserEmail() ?? "", style: TextStyle(fontSize: 16.sp),),
+                    ],
+                  )
+                ],
               ),
-          
+
               Text("Manage Profile".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),),
               GestureDetector(
                 onTap: () {
@@ -43,10 +54,10 @@ class setting_page extends StatelessWidget {
                     );
                     return;
                   }
-          
+
                   final user = FirebaseAuth.instance.currentUser;
                   controller.nameC.text = user?.displayName ?? "";
-          
+
                   Get.dialog(
                     barrierDismissible: false,
                     AlertDialog(
@@ -90,7 +101,7 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-          
+
               Text("Money Management".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),),
               GestureDetector(
                 onTap: () => Get.toNamed(routes.saving_screen),
@@ -104,7 +115,7 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-          
+
               GestureDetector(
                 onTap: () => Get.toNamed(routes.categories_screen),
                 child: Row(
@@ -244,11 +255,11 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-          
-          
-          
+
+
+
               Text("Account".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),),
-          
+
               Visibility(
                 visible: controller.isGuestUser(),
                 child: GestureDetector(
@@ -256,7 +267,7 @@ class setting_page extends StatelessWidget {
                     Get.dialog(
                         MakePermanentDialog()
                     );
-          
+
                   },
                   child: Row(
                     children: [
@@ -267,8 +278,8 @@ class setting_page extends StatelessWidget {
                   ),
                 ),
               ),
-          
-          
+
+
               GestureDetector(
                 onTap: () => controller.showLogoutDialog(onConfirm: () => controller.logout()),
                 child: Row(
@@ -279,7 +290,7 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-          
+
               GestureDetector(
                 onTap: () => controller.confirmDeleteAccount(),
                 child: Row(

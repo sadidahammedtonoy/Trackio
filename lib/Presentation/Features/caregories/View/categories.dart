@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/AppColors.dart';
@@ -219,77 +220,144 @@ class categories extends StatelessWidget {
   }) {
     final tc = TextEditingController(text: currentName);
 
-    Get.dialog(
-      barrierDismissible: false,
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Edit Category".tr),
-        content: TextField(
-          controller: tc,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: "Category name".tr,
+    if (GetPlatform.isIOS) {
+      /// 🍎 iOS Style
+      Get.dialog(
+        CupertinoAlertDialog(
+          title: Text("Edit Category".tr),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: CupertinoTextField(
+              controller: tc,
+              autofocus: true,
+              placeholder: "Category name".tr,
+            ),
           ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Get.back(),
+              child: Text("Cancel".tr),
+            ),
+            CupertinoDialogAction(
+              onPressed: () async {
+                final newName = tc.text;
+                Get.back();
+                await controller.editCategory(
+                  categoryId: categoryId,
+                  newName: newName,
+                );
+              },
+              child: Text("Save".tr),
+            ),
+          ],
         ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () => Get.back(),
-                  child: Text("Cancel".tr, style: TextStyle(color: Colors.black),),
-                ),
+        barrierDismissible: false,
+      );
+    } else {
+      /// 🤖 Android Style
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text("Edit Category".tr),
+          content: TextField(
+            controller: tc,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: "Category name".tr,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text(
+                "Cancel".tr,
+                style: const TextStyle(color: Colors.black),
               ),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final newName = tc.text;
-                    Get.back();
-                    await controller.editCategory(
-                      categoryId: categoryId,
-                      newName: newName,
-                    );
-                  },
-                  child: Text("Save".tr, style: TextStyle(color: Colors.white),),
-                ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newName = tc.text;
+                Get.back();
+                await controller.editCategory(
+                  categoryId: categoryId,
+                  newName: newName,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
               ),
-            ],
-          )
-
-        ],
-      ),
-    );
+              child: Text("Save".tr),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
+
 
   Future<bool?> _confirmDelete(String name) {
-    return Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Delete Category?".tr),
-        content: Text('${"Are you sure you want to delete".tr} "$name"?'),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () => Get.back(result: false),
-                  child: Text("No".tr, style: TextStyle(color: Colors.black),),
-                ),
+    if (GetPlatform.isIOS) {
+      /// 🍎 iOS Style
+      return Get.dialog<bool>(
+        CupertinoAlertDialog(
+          title: Text("Delete Category?".tr),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              '${"Are you sure you want to delete".tr} "$name"?',
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Get.back(result: false),
+              child: Text("No".tr),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () => Get.back(result: true),
+              child: Text("Delete".tr),
+            ),
+          ],
+        ),
+      );
+    } else {
+      /// 🤖 Android Style
+      return Get.dialog<bool>(
+        AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text("Delete Category?".tr),
+          content: Text(
+            '${"Are you sure you want to delete".tr} "$name"?',
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: Text(
+                "No".tr,
+                style: const TextStyle(color: Colors.black),
               ),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F)),
-                  onPressed: () => Get.back(result: true),
-                  child: Text("Delete".tr, style: TextStyle(color: Colors.white)),
-                ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD32F2F),
+                foregroundColor: Colors.white,
               ),
-            ],
-          )
-
-        ],
-      ),
-    );
+              onPressed: () => Get.back(result: true),
+              child: Text("Delete".tr),
+            ),
+          ],
+        ),
+      );
+    }
   }
+
 
   // ---------- date formatter (simple) ----------
   String _formatCreatedAt(dynamic createdAt) {

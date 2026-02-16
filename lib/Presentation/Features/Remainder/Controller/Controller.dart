@@ -1,44 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:sadid/Core/snakbar.dart';
 import 'dart:io';
 import '../../../../Core/NotificationService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../Model/remainderModel.dart';
 
-class Reminder {
-  String id;
-  String title;
-  String description;
-  DateTime dateTime;
-  int notificationId; // Add this field
-
-  Reminder({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.dateTime,
-    required this.notificationId,
-  });
-
-  Map<String, dynamic> toMap() => {
-    'title': title,
-    'description': description,
-    'dateTime': dateTime.toIso8601String(),
-    'notificationId': notificationId,
-  };
-
-  factory Reminder.fromMap(String id, Map<String, dynamic> map) {
-    return Reminder(
-      id: id,
-      title: map['title'],
-      description: map['description'],
-      dateTime: DateTime.parse(map['dateTime']),
-      notificationId: map['notificationId'] ?? id.hashCode,
-    );
-  }
-}
 
 class ReminderController extends GetxController {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -57,7 +28,7 @@ class ReminderController extends GetxController {
     super.onInit();
     final user = auth.currentUser;
     if (user == null) {
-      Get.snackbar("Error", "User not logged in");
+      AppSnackbar.show("User not logged in".tr);
       return;
     }
     userId = user.uid;
@@ -91,20 +62,61 @@ class ReminderController extends GetxController {
 
   Future<void> pickDate(BuildContext context) async {
     DateTime now = DateTime.now();
-    if (Platform.isIOS) {
-      DateTime initial =
-      selectedDate.value.isBefore(now) ? now : selectedDate.value;
+    DateTime tempDate =
+    selectedDate.value.isBefore(now) ? now : selectedDate.value;
 
+    if (Platform.isIOS) {
       await showCupertinoModalPopup(
         context: context,
         builder: (_) => Container(
-          height: 250,
+          height: 300,
           color: Colors.white,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.date,
-            initialDateTime: initial,
-            minimumDate: now,
-            onDateTimeChanged: (val) => selectedDate.value = val,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Top Row: Cancel / Done
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        "Cancel".tr,
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        "Done".tr,
+                        style: TextStyle(color: Colors.cyan),
+                      ),
+                      onPressed: () {
+                        selectedDate.value = tempDate;
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(height: 1),
+
+              // Date Picker
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: tempDate,
+                  minimumDate: now,
+                  onDateTimeChanged: (val) {
+                    tempDate = val; // update temp variable only
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -120,25 +132,67 @@ class ReminderController extends GetxController {
     }
   }
 
+
   Future<void> pickTime(BuildContext context) async {
     if (Platform.isIOS) {
+      Duration tempDuration = Duration(
+        hours: selectedTime.value.hour,
+        minutes: selectedTime.value.minute,
+      );
+
       await showCupertinoModalPopup(
         context: context,
         builder: (_) => Container(
-          height: 250,
+          height: 300,
           color: Colors.white,
-          child: CupertinoTimerPicker(
-            mode: CupertinoTimerPickerMode.hm,
-            initialTimerDuration: Duration(
-              hours: selectedTime.value.hour,
-              minutes: selectedTime.value.minute,
-            ),
-            onTimerDurationChanged: (duration) {
-              selectedTime.value = TimeOfDay(
-                hour: duration.inHours,
-                minute: duration.inMinutes % 60,
-              );
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Top Row: Cancel / Done
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        "Cancel".tr,
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        "Done".tr,
+                        style: TextStyle(color: Colors.cyan),
+                      ),
+                      onPressed: () {
+                        // Save selected time
+                        selectedTime.value = TimeOfDay(
+                          hour: tempDuration.inHours,
+                          minute: tempDuration.inMinutes % 60,
+                        );
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(height: 1),
+
+              Expanded(
+                child: CupertinoTimerPicker(
+                  mode: CupertinoTimerPickerMode.hm,
+                  initialTimerDuration: tempDuration,
+                  onTimerDurationChanged: (duration) {
+                    tempDuration = duration; // update temp variable
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -153,7 +207,7 @@ class ReminderController extends GetxController {
 
   Future<void> addReminder() async {
     if (titleController.text.isEmpty) {
-      Get.snackbar("Error", "Title cannot be empty");
+      AppSnackbar.show("Title cannot be empty".tr);
       return;
     }
 
@@ -167,11 +221,8 @@ class ReminderController extends GetxController {
 
     // Check if the selected time is in the past
     if (dt.isBefore(DateTime.now())) {
-      Get.snackbar(
-        "Error",
-        "Cannot set reminder for past time",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.show("Cannot set reminder for past time".tr);
+
       return;
     }
 
@@ -179,6 +230,7 @@ class ReminderController extends GetxController {
     int notificationId = _generateNotificationId();
 
     try {
+      Get.back();
       // Schedule notification first
       await NotificationService.scheduleNotification(
         id: notificationId,
@@ -194,27 +246,17 @@ class ReminderController extends GetxController {
         'dateTime': dt.toIso8601String(),
         'notificationId': notificationId,
       });
-
-      Get.snackbar(
-        "Success",
-        "Reminder added successfully",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.show("Reminder added successfully".tr);
 
       clearFields();
-      Get.back();
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Failed to add reminder: $e",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.show("Failed to add reminder".tr);
     }
   }
 
   Future<void> updateReminder(Reminder reminder) async {
     if (titleController.text.isEmpty) {
-      Get.snackbar("Error", "Title cannot be empty");
+      AppSnackbar.show("Title cannot be empty".tr);
       return;
     }
 
@@ -228,11 +270,7 @@ class ReminderController extends GetxController {
 
     // Check if the selected time is in the past
     if (dt.isBefore(DateTime.now())) {
-      Get.snackbar(
-        "Error",
-        "Cannot set reminder for past time",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.show("Cannot set reminder for past time".tr);
       return;
     }
 
@@ -254,21 +292,12 @@ class ReminderController extends GetxController {
         'description': descriptionController.text,
         'dateTime': dt.toIso8601String(),
       });
-
-      Get.snackbar(
-        "Success",
-        "Reminder updated successfully",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.show("Reminder updated successfully".tr);
 
       clearFields();
       Get.back();
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Failed to update reminder: $e",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.show("Failed to update reminder".tr);
     }
   }
 
@@ -280,15 +309,11 @@ class ReminderController extends GetxController {
       // Delete from Firestore
       await reminderCollection.doc(reminder.id).delete();
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Failed to delete reminder: $e",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.show("Failed to delete reminder".tr);
     }
   }
 
-  void openAddEditDialog({Reminder? reminder}) {
+  void openAddEditDialog({Reminder? reminder, required BuildContext context}) {
     if (reminder != null) {
       titleController.text = reminder.title;
       descriptionController.text = reminder.description;
@@ -301,36 +326,66 @@ class ReminderController extends GetxController {
 
     Get.bottomSheet(
       Container(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: Platform.isIOS ? Colors.grey[200] : Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              Center(
+                child: Container(
+                  height: 5,
+                  width: 70,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    color: Colors.grey
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              Text("New Reminder".tr, style: TextStyle(fontSize: 22.sp),),
+              Text("Never forget important tasks add your reminder now.".tr),
+              SizedBox(height: 15),
               TextField(
                 controller: titleController,
-                decoration: InputDecoration(labelText: "Title"),
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) {
+                  FocusScope.of(context).unfocus();
+                },
+                decoration: InputDecoration(
+                    labelText: "Title".tr,
+                  labelStyle: TextStyle(color: Colors.black)
+                ),
               ),
               SizedBox(height: 10),
               TextField(
                 controller: descriptionController,
-                decoration: InputDecoration(labelText: "Description"),
                 maxLines: 3,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) {
+                  FocusScope.of(context).unfocus();
+                },
+                decoration: InputDecoration(
+                  labelText: "Description".tr,
+                  labelStyle: const TextStyle(color: Colors.black),
+                ),
               ),
+
               SizedBox(height: 10),
               Obx(() => ListTile(
                 title: Text(
-                    "Date: ${DateFormat('yyyy-MM-dd').format(selectedDate.value)}"),
-                trailing: Icon(Icons.calendar_today),
+                    "${"Date:".tr} ${DateFormat('yyyy-MM-dd').format(selectedDate.value)}", style: TextStyle(color: Colors.black),),
+                trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18,),
                 onTap: () => pickDate(Get.context!),
               )),
               Obx(() => ListTile(
                 title:
-                Text("Time: ${selectedTime.value.format(Get.context!)}"),
-                trailing: Icon(Icons.access_time),
+                Text("${"Time:".tr} ${selectedTime.value.format(Get.context!)}"),
+                trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18,),
                 onTap: () => pickTime(Get.context!),
               )),
               SizedBox(height: 10),
@@ -344,7 +399,7 @@ class ReminderController extends GetxController {
                 },
                 style:
                 ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
-                child: Text(reminder != null ? "Update Reminder" : "Add Reminder"),
+                child: Text(reminder != null ? "Update Reminder".tr : "Add Reminder".tr, style: TextStyle(color: Colors.white),),
               ),
             ],
           ),
@@ -360,15 +415,15 @@ class ReminderController extends GetxController {
       confirmed = await showCupertinoDialog<bool>(
         context: Get.context!,
         builder: (context) => CupertinoAlertDialog(
-          title: const Text("Delete Reminder"),
-          content: const Text("Are you sure you want to delete this reminder?"),
+          title: Text("Delete Reminder".tr),
+          content: Text("Are you sure you want to delete this reminder?".tr),
           actions: [
             CupertinoDialogAction(
-              child: const Text("Cancel"),
+              child: Text("Cancel".tr),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             CupertinoDialogAction(
-              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+              child: Text("Delete".tr, style: TextStyle(color: Colors.red)),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -379,15 +434,15 @@ class ReminderController extends GetxController {
       confirmed = await showDialog<bool>(
         context: Get.context!,
         builder: (context) => AlertDialog(
-          title: const Text("Delete Reminder"),
-          content: const Text("Are you sure you want to delete this reminder?"),
+          title: Text("Delete Reminder".tr),
+          content: Text("Are you sure you want to delete this reminder?".tr),
           actions: [
             TextButton(
-              child: const Text("Cancel"),
+              child:  Text("Cancel".tr),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+              child: Text("Delete".tr, style: TextStyle(color: Colors.red)),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -398,7 +453,7 @@ class ReminderController extends GetxController {
 
     if (confirmed) {
       await deleteReminder(reminder);
-      Get.snackbar("Deleted", "Reminder removed successfully");
+      AppSnackbar.show("Reminder removed successfully".tr);
     }
   }
 }

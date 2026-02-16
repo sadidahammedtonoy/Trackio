@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sadid/Core/numberTranslation.dart';
@@ -116,26 +117,63 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
   }
 
   Future<bool> _confirmDelete(BuildContext context) async {
-    final res = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Delete saving?".tr),
-        content: Text("This item will be deleted permanently.".tr),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text("Cancel".tr, style: TextStyle(color: Colors.black),),
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      // 🍎 iOS Style
+      final res = await showCupertinoDialog<bool>(
+        context: context,
+        builder: (_) => CupertinoAlertDialog(
+          title: Text("Delete saving?".tr),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text("This item will be deleted permanently.".tr),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text("Delete".tr, style: TextStyle(color: Colors.red),),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text("Cancel".tr),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(context, true),
+              child: Text("Delete".tr),
+            ),
+          ],
+        ),
+      );
+      return res ?? false;
+    } else {
+      // 🤖 Android Style
+      final res = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text("Delete saving?".tr),
+          content: Text("This item will be deleted permanently.".tr),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ),
-    );
-    return res ?? false;
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(
+                "Cancel".tr,
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(
+                "Delete".tr,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        ),
+      );
+      return res ?? false;
+    }
   }
+
 
   void _toast(BuildContext context, String msg) {
     AppSnackbar.show(msg);

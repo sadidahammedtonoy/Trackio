@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../App/routes.dart';
@@ -40,47 +41,77 @@ class settingController extends GetxController {
   Future<void> showLogoutDialog({
     required VoidCallback onConfirm,
   }) async {
-    await Get.dialog(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Logout".tr),
-        content: Text(
-          isGuestUser()
-              ? "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe.".tr
-              : "Are you sure you want to logout?".tr,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        actions: [
-          Row(
-            spacing: 15,
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () => Get.back(), // close dialog
-                  child: Text("Cancel".tr, style: TextStyle(color: Colors.black),),
-                ),
-              ),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.back(); // close dialog
-                    onConfirm(); // run logout
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: Text("Log Out".tr),
-                ),
-              ),
-            ],
-          )
 
-        ],
-      ),
-      barrierDismissible: false,
-    );
+    if (GetPlatform.isIOS) {
+      // iOS Style (Cupertino)
+      await Get.dialog(
+        CupertinoAlertDialog(
+          title: Text("Logout".tr),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              isGuestUser()
+                  ? "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe.".tr
+                  : "Are you sure you want to logout?".tr,
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Get.back(),
+              child: Text("Cancel".tr),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Get.back();
+                onConfirm();
+              },
+              child: Text("Log Out".tr),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    } else {
+      // Android Style (Material)
+      await Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text("Logout".tr),
+          content: Text(
+            isGuestUser()
+                ? "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe.".tr
+                : "Are you sure you want to logout?".tr,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text(
+                "Cancel".tr,
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Get.back();
+                onConfirm();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text("Log Out".tr),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
+
 
   String getUserName() {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -191,93 +222,132 @@ class settingController extends GetxController {
 
     final passCtrl = TextEditingController();
 
-    await Get.dialog(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Delete Account".tr),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    Widget buildContent() {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "⚠️ Warning".tr,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "${"delete_warning_title".tr}\n\n"
+                  "${"delete_warning_1".tr}\n"
+                  "${"delete_warning_2".tr}\n"
+                  "${"delete_warning_3".tr}",
+            ),
+            const SizedBox(height: 12),
+
+            if (isEmailUser) ...[
               Text(
-                "⚠️ Warning".tr,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                "To confirm, enter your current password:".tr,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
+              GetPlatform.isIOS
+                  ? CupertinoTextField(
+                controller: passCtrl,
+                obscureText: true,
+                placeholder: "Current password".tr,
+              )
+                  : TextField(
+                controller: passCtrl,
+                obscureText: true,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: "Current password".tr,
+                ),
+              ),
+              const SizedBox(height: 6),
               Text(
-                "${"delete_warning_title".tr}\n\n"
-                    "${"delete_warning_1".tr}\n"
-                    "${"delete_warning_2".tr}\n"
-                    "${"delete_warning_3".tr}",
+                "Note: Password is required to delete an email/password account."
+                    .tr,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
-              const SizedBox(height: 12),
-
-              // Only ask password if email/password user
-              if (isEmailUser) ...[
-                Text(
-                  "To confirm, enter your current password:".tr,
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: passCtrl,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: "Current password".tr,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  "Note: Password is required to delete an email/password account.".tr,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ] else if (user.isAnonymous) ...[
-                Text(
-                  "You are using a Guest account. Deleting will remove this guest profile.".tr,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ] else ...[
-                Text(
-                  "${"You are signed in with Google/Apple/other provider.".tr}\n"
-                      "If deletion fails, you may need to re-login and try again.".tr,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
+            ] else if (user.isAnonymous) ...[
+              Text(
+                "You are using a Guest account. Deleting will remove this guest profile."
+                    .tr,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ] else ...[
+              Text(
+                "${"You are signed in with Google/Apple/other provider.".tr}\n"
+                    "If deletion fails, you may need to re-login and try again.".tr,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ],
-          ),
+          ],
         ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () => Get.back(),
-                  child: Text("Cancel".tr, style: TextStyle(color: Colors.black),),
-                ),
-              ),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () async {
-                    Get.back(); // close dialog first
+      );
+    }
 
-                    final password = passCtrl.text.trim();
-                    await deleteAccount(currentPassword: password);
-                  },
-                  child: Text("Delete".tr),
-                ),
+    if (GetPlatform.isIOS) {
+      /// 🍎 iOS Style
+      await Get.dialog(
+        CupertinoAlertDialog(
+          title: Text("Delete Account".tr),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Align(
+                alignment: Alignment.centerLeft,
+                child: buildContent()),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Get.back(),
+              child: Text("Cancel".tr),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () async {
+                Get.back();
+                final password = passCtrl.text.trim();
+                await deleteAccount(currentPassword: password);
+              },
+              child: Text("Delete".tr),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    } else {
+      /// 🤖 Android Style
+      await Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text("Delete Account".tr),
+          content: buildContent(),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text(
+                "Cancel".tr,
+                style: const TextStyle(color: Colors.black),
               ),
-            ],
-          )
-
-        ],
-      ),
-      barrierDismissible: false,
-    );
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                Get.back();
+                final password = passCtrl.text.trim();
+                await deleteAccount(currentPassword: password);
+              },
+              child: Text("Delete".tr),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
 
   Future<void> deleteAccount({String currentPassword = ""}) async {

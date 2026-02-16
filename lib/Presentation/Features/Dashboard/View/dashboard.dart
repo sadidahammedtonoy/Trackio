@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/Core/numberTranslation.dart';
@@ -433,26 +434,62 @@ class dashboardPage extends StatelessWidget {
 }
 
 Future<bool> showDeleteTransactionDialog() async {
-  final result = await Get.dialog<bool>(
-    AlertDialog(
-      backgroundColor: Colors.white,
-      title: Text("Delete Transaction".tr),
-      content: Text("Are you sure you want to delete this transaction?".tr),
-      actions: [
-        TextButton(
-          onPressed: () => Get.back(result: false),
-          child: Text("Cancel".tr),
+  if (GetPlatform.isIOS) {
+    // 🍎 iOS style
+    final result = await Get.dialog<bool>(
+      CupertinoAlertDialog(
+        title: Text("Delete Transaction".tr),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            "Are you sure you want to delete this transaction?".tr,
+          ),
         ),
-        TextButton(
-          onPressed: () => Get.back(result: true),
-          child: Text("Delete".tr, style: TextStyle(color: Colors.red)),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Get.back(result: false),
+            child: Text("Cancel".tr),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Get.back(result: true),
+            child: Text("Delete".tr),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+    return result ?? false;
+  } else {
+    // 🤖 Android style
+    final result = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        title: Text("Delete Transaction".tr),
+        content: Text("Are you sure you want to delete this transaction?".tr),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-      ],
-    ),
-    barrierDismissible: false,
-  );
-  return result ?? false;
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text("Cancel".tr),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text(
+              "Delete".tr,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+    return result ?? false;
+  }
 }
+
 
 class _TransactionTile extends StatelessWidget {
   const _TransactionTile({required this.item, required this.onDelete});

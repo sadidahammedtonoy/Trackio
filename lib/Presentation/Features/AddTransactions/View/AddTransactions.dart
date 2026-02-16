@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/Presentation/Features/AddTransactions/Model/addTransactionModel.dart';
 import '../../../../App/assets_path.dart';
+import '../../Remainder/Controller/Controller.dart';
 import '../../calcolator/View/calculator.dart';
 import '../Controller/Controller.dart';
 
@@ -272,6 +273,33 @@ class addTranscations extends StatelessWidget {
                   hintText: "You can leave a note here...".tr,
                 ),
               ),
+              GestureDetector(
+                onTap: (){
+                  final ReminderController _controller = Get.put(ReminderController());
+                  _controller.openAddEditDialog(context: context);
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.info_rounded,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        "Add a reminder to ensure timely follow-up on this transaction.".tr,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               ElevatedButton(onPressed: (){
                 if(controller.selectedType.value == "Lent" || controller.selectedType.value == "Borrow"){
                   addTranModel model = addTranModel(type: controller.selectedType.value, date: controller.selectedDate.value, amount: amountController.text, wallet: controller.selectedWallet.value, category: personNameController.text, note: noteController.text);
@@ -280,7 +308,8 @@ class addTranscations extends StatelessWidget {
                   addTranModel model = addTranModel(type: controller.selectedType.value, date: controller.selectedDate.value, amount: amountController.text, wallet: controller.selectedWallet.value, category: controller.selectedCategoryId.value ?? "", note: noteController.text);
                   controller.addMonthlyTransaction(model: model);
                 }
-              }, child: Obx(() => Text("Add ${controller.selectedType.value}".tr, style: TextStyle(color: Colors.white),)))
+              }, child: Obx(() => Text("Add ${controller.selectedType.value}".tr, style: TextStyle(color: Colors.white),))),
+              const SizedBox(height: 15,)
               
             ],
           ),

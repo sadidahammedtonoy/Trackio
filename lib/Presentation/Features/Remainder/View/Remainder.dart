@@ -9,14 +9,14 @@ class ReminderHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Reminders"), titleSpacing: -10,),
+      appBar: AppBar(title: Text("Reminders".tr), titleSpacing: -10,),
       body: Obx(() {
         if (controller.reminders.isEmpty) {
-          return Center(child: Text("No Reminders Yet"));
+          return Center(child: Text("No Reminders Yet".tr));
         }
 
         return ListView.builder(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.all(10),
           itemCount: controller.reminders.length,
           itemBuilder: (context, index) {
             final reminder = controller.reminders[index];
@@ -29,7 +29,7 @@ class ReminderHomePage extends StatelessWidget {
                   spacing: 5,
                   children: [
                     Icon(Icons.edit, color: Colors.blue),
-                    Text("Edit", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),),
+                    Text("Edit".tr, style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),),
                   ],
                 ),
               ),
@@ -39,14 +39,14 @@ class ReminderHomePage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text("Delete", style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),),
+                    Text("Delete".tr, style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),),
                     const Icon(Icons.delete, color: Colors.red),
                   ],
                 ),
               ),
               confirmDismiss: (direction) async {
                 if (direction == DismissDirection.startToEnd) {
-                  controller.openAddEditDialog(reminder: reminder);
+                  controller.openAddEditDialog(reminder: reminder, context: context);
                   return false;
                 } else if (direction == DismissDirection.endToStart) {
                   controller.confirmDelete(reminder);
@@ -54,8 +54,8 @@ class ReminderHomePage extends StatelessWidget {
                 return false;
               },
               child: Container(
-                margin: const EdgeInsets.only(bottom: 25),
-                padding: const EdgeInsets.all(14),
+                margin: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
@@ -65,10 +65,10 @@ class ReminderHomePage extends StatelessWidget {
                         color: Colors.black.withOpacity(0.08),
                         blurRadius: 12,
                         offset: const Offset(10, 10)),
-                    BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 12,
-                        offset: const Offset(-10, -10)),
+                    // BoxShadow(
+                    //     color: Colors.black.withOpacity(0.08),
+                    //     blurRadius: 12,
+                    //     offset: const Offset(-10, -10)),
                   ],
                 ),
                 child: ListTile(
@@ -109,7 +109,7 @@ class ReminderHomePage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         shape: CircleBorder(),
         backgroundColor: Colors.white,
-        onPressed: () => controller.openAddEditDialog(),
+        onPressed: () => controller.openAddEditDialog(context: context),
         child: Icon(Icons.alarm_add, color: Colors.black,),
       ),
     );
