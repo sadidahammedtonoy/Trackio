@@ -12,7 +12,8 @@ class Splash extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Lottie.asset("assets/json/Wallet Essentials_ Money & Savings.json", repeat: false),
+        child: Lottie.asset("assets/json/Wallet animation.json",),
+        // child: Lottie.asset("assets/json/Wallet Essentials_ Money & Savings.json", repeat: false),
 
       ),
     );

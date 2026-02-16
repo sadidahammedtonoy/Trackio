@@ -360,15 +360,15 @@ class ReminderController extends GetxController {
       confirmed = await showCupertinoDialog<bool>(
         context: Get.context!,
         builder: (context) => CupertinoAlertDialog(
-          title: Text("Delete Reminder"),
-          content: Text("Are you sure you want to delete this reminder?"),
+          title: const Text("Delete Reminder"),
+          content: const Text("Are you sure you want to delete this reminder?"),
           actions: [
             CupertinoDialogAction(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             CupertinoDialogAction(
-              child: Text("Delete", style: TextStyle(color: Colors.red)),
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -379,15 +379,15 @@ class ReminderController extends GetxController {
       confirmed = await showDialog<bool>(
         context: Get.context!,
         builder: (context) => AlertDialog(
-          title: Text("Delete Reminder"),
-          content: Text("Are you sure you want to delete this reminder?"),
+          title: const Text("Delete Reminder"),
+          content: const Text("Are you sure you want to delete this reminder?"),
           actions: [
             TextButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: Text("Delete", style: TextStyle(color: Colors.red)),
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],

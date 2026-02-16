@@ -52,7 +52,7 @@ class SplashController extends GetxController {
     }
 
     // ⏱ 3) Delay then navigate
-    Future.delayed(const Duration(milliseconds: 1700), _handleNextAction);
+    Future.delayed(const Duration(milliseconds: 1200), _handleNextAction);
   }
 
   /// 🌍 Language logic
