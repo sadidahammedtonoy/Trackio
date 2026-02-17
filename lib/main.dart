@@ -32,7 +32,9 @@ Future<void> main() async {
   FlutterLocalNotificationsPlugin();
 
   const AndroidInitializationSettings androidSettings =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
+  AndroidInitializationSettings('ic_notification');
+
+
   final DarwinInitializationSettings iosSettings =
   DarwinInitializationSettings(
       requestAlertPermission: true,

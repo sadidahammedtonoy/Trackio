@@ -33,9 +33,19 @@ android {
         versionName = flutter.versionName
     }
 
+//    buildTypes {
+//        release {
+//            signingConfig = signingConfigs.getByName("debug")
+//        }
+//    }
+
     buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("debug")
+        getByName("release") {
+            // Correct Kotlin DSL syntax
+            isMinifyEnabled = false
+            isShrinkResources = false
+
+            signingConfig = signingConfigs.getByName("debug") // or your release config
         }
     }
 }
