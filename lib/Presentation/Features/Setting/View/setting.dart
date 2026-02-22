@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/routes.dart';
 import '../../../../Core/snakbar.dart';
+import '../../../Share/Background.dart';
 import '../../permanentAccount/View/permanentAccount.dart';
 import '../Controller/Controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -129,18 +130,6 @@ class setting_page extends StatelessWidget {
                 ),
               ),
 
-              GestureDetector(
-                onTap: () => Get.toNamed(routes.ReminderPage_screen),
-                child: Row(
-                  children: [
-                    Icon(Icons.alarm_on_outlined, size: 25,),
-                    SizedBox(width: 10,),
-                    Text("Remainder".tr, style: TextStyle(fontSize: 18.sp),),
-                    Spacer(),
-                    Icon(Icons.arrow_right)
-                  ],
-                ),
-              ),
               const SizedBox(height: 0,),
               Text("Security".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),),
               GestureDetector(

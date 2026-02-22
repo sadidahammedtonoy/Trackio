@@ -6,12 +6,11 @@ import '../Presentation/Documentation/privacy.dart';
 import '../Presentation/Documentation/terms.dart';
 import '../Presentation/Features/AddTransactions/View/AddTransactions.dart';
 import '../Presentation/Features/Change Password/View/changePassword.dart';
-import '../Presentation/Features/Remainder/View/Remainder.dart';
 import '../Presentation/Features/caregories/View/categories.dart';
+import '../Presentation/Features/helpSupport/View/helpSupport.dart';
 import '../Presentation/Features/permanentAccount/View/permanentAccount.dart';
 import '../Presentation/Features/saving/View/saving.dart';
 import '../Presentation/Splash/View/splash.dart';
-import '../Presentation/helpSupport/View/helpSupport.dart';
 import '../Presentation/navbar/View/navbar.dart';
 import 'Binding.dart';
 
@@ -29,7 +28,6 @@ class routes {
   static const String signup_screen = '/signup';
   static const String ForgotPasswordScreen_screen = '/ForgotPasswordScreen';
   static const String MakePermanentDialog_screen = '/MakePermanentDialog';
-  static const String ReminderPage_screen = '/ReminderPage';
 
 
   static final pages = [
@@ -46,7 +44,6 @@ class routes {
     GetPage( name: signup_screen, binding: InitialBinding(), page: () => signup()),
     GetPage( name: ForgotPasswordScreen_screen, binding: InitialBinding(), page: () => ForgotPasswordScreen()),
     GetPage( name: MakePermanentDialog_screen, binding: InitialBinding(), page: () => MakePermanentDialog()),
-    GetPage( name: ReminderPage_screen, binding: InitialBinding(), page: () => ReminderHomePage()),
 
 
 

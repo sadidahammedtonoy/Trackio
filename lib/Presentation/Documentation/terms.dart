@@ -1,77 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sadid/Presentation/Share/Background.dart';
 
 class TermsConditionsPage extends StatelessWidget {
   const TermsConditionsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
-      appBar: AppBar(
-        title: Text("Terms & Conditions".tr),
-        titleSpacing: -10,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        foregroundColor: Colors.black,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: [
-          _Header(),
-
-          _Section(
-            title: "Using Trackio".tr,
-            points: [
-              "You must use this app for lawful and personal financial tracking purposes only.".tr,
-              "You are responsible for the accuracy of the data you enter.".tr,
-            ],
-          ),
-
-          _Section(
-            title: "Accounts & Access".tr,
-            points: [
-              "Accounts are managed through Firebase Authentication.".tr,
-              "Guest users may lose data if they log out or delete the account.".tr,
-              "You are responsible for keeping your login method secure.".tr,
-            ],
-          ),
-
-          _Section(
-            title: "Financial Disclaimer".tr,
-            points: [
-              "This app does not provide financial, tax, or legal advice.".tr,
-              "All reports and summaries are for informational purposes only.".tr,
-            ],
-          ),
-
-          _Section(
-            title: "Service Availability".tr,
-            points: [
-              "We strive to keep the app available at all times.".tr,
-              "Internet connectivity is required for syncing data.".tr,
-              "Features may change or be updated without notice.".tr,
-            ],
-          ),
-
-          _Section(
-            title: "Limitation of Liability".tr,
-            points: [
-              "We are not responsible for losses due to incorrect data entry.".tr,
-              "We are not liable for service interruptions or data loss beyond our control.".tr,
-            ],
-          ),
-
-          _Section(
-            title: "Account Termination".tr,
-            points: [
-              "You may delete your account at any time from the app.".tr,
-              "Deleting an account may permanently remove associated data.".tr,
-            ],
-          ),
-
-          _Footer(),
-        ],
+    return background(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Terms & Conditions".tr),
+          titleSpacing: -10,
+        ),
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            _Header(),
+      
+            _Section(
+              title: "Using Trackio".tr,
+              points: [
+                "You must use this app for lawful and personal financial tracking purposes only.".tr,
+                "You are responsible for the accuracy of the data you enter.".tr,
+              ],
+            ),
+      
+            _Section(
+              title: "Accounts & Access".tr,
+              points: [
+                "Accounts are managed through Firebase Authentication.".tr,
+                "Guest users may lose data if they log out or delete the account.".tr,
+                "You are responsible for keeping your login method secure.".tr,
+              ],
+            ),
+      
+            _Section(
+              title: "Financial Disclaimer".tr,
+              points: [
+                "This app does not provide financial, tax, or legal advice.".tr,
+                "All reports and summaries are for informational purposes only.".tr,
+              ],
+            ),
+      
+            _Section(
+              title: "Service Availability".tr,
+              points: [
+                "We strive to keep the app available at all times.".tr,
+                "Internet connectivity is required for syncing data.".tr,
+                "Features may change or be updated without notice.".tr,
+              ],
+            ),
+      
+            _Section(
+              title: "Limitation of Liability".tr,
+              points: [
+                "We are not responsible for losses due to incorrect data entry.".tr,
+                "We are not liable for service interruptions or data loss beyond our control.".tr,
+              ],
+            ),
+      
+            _Section(
+              title: "Account Termination".tr,
+              points: [
+                "You may delete your account at any time from the app.".tr,
+                "Deleting an account may permanently remove associated data.".tr,
+              ],
+            ),
+      
+            _Footer(),
+          ],
+        ),
       ),
     );
   }
@@ -176,15 +175,16 @@ class _Card extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 8,
-            offset: Offset(0, 5),
-          ),
-        ],
+        // boxShadow: const [
+        //   BoxShadow(
+        //     color: Color(0x0F000000),
+        //     blurRadius: 8,
+        //     offset: Offset(0, 5),
+        //   ),
+        // ],
+        border: Border.all(color: Colors.black12),
       ),
       child: child,
     );

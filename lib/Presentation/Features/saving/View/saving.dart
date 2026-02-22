@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/App/assets_path.dart';
 import 'package:sadid/Core/numberTranslation.dart';
+import 'package:sadid/Presentation/Share/Background.dart';
 import '../../calcolator/View/calculator.dart';
 import '../Controller/Controller.dart';
 import '../Model/savingModel.dart';
@@ -114,164 +115,166 @@ class saving extends StatelessWidget {
   Widget build(BuildContext context) {
     final widgets = [allMonthSavingsList(), AllSavingsListWidget()];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Savings".tr),
-        titleSpacing: -10,
-        actions: [
-          IconButton(
-            onPressed: () => controller.openAddSavingSheet(context),
-            icon: Icon(
-              Icons.add_circle_outline_rounded,
-              color: Colors.black54,
+    return background(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Savings".tr),
+          titleSpacing: -10,
+          actions: [
+            IconButton(
+              onPressed: () => controller.openAddSavingSheet(context),
+              icon: Icon(
+                Icons.add_circle_outline_rounded,
+                color: Colors.black54,
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: GestureDetector(
+          onTap: () {
+            Get.dialog(CalculatorDialog(), barrierDismissible: true);
+          },
+          child: SizedBox(
+            width: 50,
+            height: 50,
+            child: Lottie.asset(
+              assets_path.calculator,
+              fit: BoxFit.contain,
+              repeat: false,
             ),
           ),
-        ],
-      ),
-      floatingActionButton: GestureDetector(
-        onTap: () {
-          Get.dialog(CalculatorDialog(), barrierDismissible: true);
-        },
-        child: SizedBox(
-          width: 50,
-          height: 50,
-          child: Lottie.asset(
-            assets_path.calculator,
-            fit: BoxFit.contain,
-            repeat: false,
-          ),
         ),
-      ),
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            // ✅ 2) Overall Saving (stored separately)
-            _card(
-              child: StreamBuilder<double>(
-                stream: controller.streamOverallSaving(),
-                builder: (context, snap) {
-                  final overall = snap.data ?? 0.0;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              // ✅ 2) Overall Saving (stored separately)
+              _card(
+                child: StreamBuilder<double>(
+                  stream: controller.streamOverallSaving(),
+                  builder: (context, snap) {
+                    final overall = snap.data ?? 0.0;
+      
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "৳${numberTranslation.toBnDigits(overall.toStringAsFixed(1))}",
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+      
+                            StreamBuilder<String>(
+                              stream: controller.streamTotalSavingsText(),
+                              builder: (context, snapshot) {
+                                final totalText = snapshot.data ?? "0";
+      
+                                return Text(
+                                  "৳${numberTranslation.toBnDigits(totalText)}", // or just totalText
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  final amount = await _showAddDialog();
+                                  if (amount == null) return;
+                                  if (amount <= 0) return;
+      
+                                  await controller.addToOverallSaving(amount);
+                                },
+                                child: Text("Add".tr),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  side: const BorderSide(color: Colors.red),
+                                ),
+                                onPressed: () async {
+                                  final confirm = await _showResetDialog();
+                                  if (!confirm) return;
+      
+                                  await controller.resetOverallSaving();
+                                },
+                                child: Text("Remove".tr),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          "Remove means Overall Saving will be set to 0.".tr,
+                          style: TextStyle(color: Colors.black45, fontSize: 12),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Obx(() {
+                  return Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "৳${numberTranslation.toBnDigits(overall.toStringAsFixed(1))}",
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-
-                          StreamBuilder<String>(
-                            stream: controller.streamTotalSavingsText(),
-                            builder: (context, snapshot) {
-                              final totalText = snapshot.data ?? "0";
-
-                              return Text(
-                                "৳${numberTranslation.toBnDigits(totalText)}", // or just totalText
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                      _tabButton(
+                        label: "Overview".tr,
+                        index: 0,
+                        selectedIndex: controller.tabIndex.value,
+                        onTap: () => controller.changeTab(0),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: () async {
-                                final amount = await _showAddDialog();
-                                if (amount == null) return;
-                                if (amount <= 0) return;
-
-                                await controller.addToOverallSaving(amount);
-                              },
-                              child: Text("Add".tr),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                side: const BorderSide(color: Colors.red),
-                              ),
-                              onPressed: () async {
-                                final confirm = await _showResetDialog();
-                                if (!confirm) return;
-
-                                await controller.resetOverallSaving();
-                              },
-                              child: Text("Remove".tr),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "Remove means Overall Saving will be set to 0.".tr,
-                        style: TextStyle(color: Colors.black45, fontSize: 12),
+                      _tabButton(
+                        label: "History".tr,
+                        index: 1,
+                        selectedIndex: controller.tabIndex.value,
+                        onTap: () => controller.changeTab(1),
                       ),
                     ],
                   );
-                },
+                }),
               ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Obx(() {
-                return Row(
-                  children: [
-                    _tabButton(
-                      label: "Overview".tr,
-                      index: 0,
-                      selectedIndex: controller.tabIndex.value,
-                      onTap: () => controller.changeTab(0),
-                    ),
-                    _tabButton(
-                      label: "History".tr,
-                      index: 1,
-                      selectedIndex: controller.tabIndex.value,
-                      onTap: () => controller.changeTab(1),
-                    ),
-                  ],
-                );
-              }),
-            ),
-            const SizedBox(height: 10),
-
-            Obx(() => widgets[controller.tabIndex.value]),
-          ],
+              const SizedBox(height: 10),
+      
+              Obx(() => widgets[controller.tabIndex.value]),
+            ],
+          ),
         ),
       ),
     );
