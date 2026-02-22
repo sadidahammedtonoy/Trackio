@@ -5,8 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../Core/loading.dart';
-import '../../../Core/snakbar.dart';
+import '../../../../Core/loading.dart';
+import '../../../../Core/snakbar.dart';
+
 
 class HelpSupportController extends GetxController {
   final search = "".obs;

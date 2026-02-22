@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:sadid/App/AppColors.dart';
+import 'package:sadid/Presentation/Share/Background.dart';
 
 import '../Controller/Controller.dart';
 
@@ -86,146 +87,148 @@ class AddSavingSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: -10,
-        title: Text("Add Saving".tr)
-
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Obx(() => Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      controller.motivationTitle.value.tr,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
+    return background(
+      child: Scaffold(
+        appBar: AppBar(
+          titleSpacing: -10,
+          title: Text("Add Saving".tr)
+      
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(() => Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.motivationTitle.value.tr,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      controller.motivationSubtitle.value.tr,
-                      style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 13
+                      const SizedBox(height: 4),
+                      Text(
+                        controller.motivationSubtitle.value.tr,
+                        style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 13
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              )),
-              const SizedBox(height: 12),
-              // Amount
-              TextField(
-                controller: controller.amountC,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) {
-                  FocusScope.of(context).unfocus();
-                },
-                decoration: InputDecoration(
-                  labelText: "Amount".tr,
-                  hintText: "Enter amount".tr,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-          
-              const SizedBox(height: 12),
-          
-              // Date
-              Obx(() => InkWell(
-                onTap: () => _pickDate(context),
-                child: InputDecorator(
+                    ],
+                  ),
+                )),
+                const SizedBox(height: 12),
+                // Amount
+                TextField(
+                  controller: controller.amountC,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) {
+                    FocusScope.of(context).unfocus();
+                  },
                   decoration: InputDecoration(
-                    labelText: "Date".tr,
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.calendar_month, color: Colors.black87),
+                    labelText: "Amount".tr,
+                    hintText: "Enter amount".tr,
                     border: OutlineInputBorder(),
                   ),
-                  child: Text(
-                    _dateText(controller.selectedDate.value),
-                    style: const TextStyle(color: Colors.black),
+                ),
+            
+                const SizedBox(height: 12),
+            
+                // Date
+                Obx(() => InkWell(
+                  onTap: () => _pickDate(context),
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: "Date".tr,
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.calendar_month, color: Colors.black87),
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Text(
+                      _dateText(controller.selectedDate.value),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                )),
+            
+                const SizedBox(height: 12),
+            
+                // Wallet dropdown
+                Obx(() => DropdownButtonFormField<String>(
+                  value: controller.selectedWallet.value,
+                  items: controller.wallets
+                      .map((w) => DropdownMenuItem(value: w, child: Text(w.tr)))
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) controller.selectedWallet.value = v;
+                  },
+                  dropdownColor: Colors.white, // ✅ dropdown background color
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    labelText: "Wallet".tr,
+                    border: OutlineInputBorder(),
+                  ),
+                )),
+            
+            
+                const SizedBox(height: 12),
+            
+                // Source
+                TextField(
+                  controller: controller.sourceC,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) {
+                    FocusScope.of(context).unfocus();
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Source".tr,
+                    hintText: "From where this money came from".tr,
+                    border: OutlineInputBorder(),
                   ),
                 ),
-              )),
-          
-              const SizedBox(height: 12),
-          
-              // Wallet dropdown
-              Obx(() => DropdownButtonFormField<String>(
-                value: controller.selectedWallet.value,
-                items: controller.wallets
-                    .map((w) => DropdownMenuItem(value: w, child: Text(w.tr)))
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) controller.selectedWallet.value = v;
-                },
-                dropdownColor: Colors.white, // ✅ dropdown background color
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  labelText: "Wallet".tr,
-                  border: OutlineInputBorder(),
-                ),
-              )),
-          
-          
-              const SizedBox(height: 12),
-          
-              // Source
-              TextField(
-                controller: controller.sourceC,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) {
-                  FocusScope.of(context).unfocus();
-                },
-                decoration: InputDecoration(
-                  labelText: "Source".tr,
-                  hintText: "From where this money came from".tr,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-          
-              const SizedBox(height: 12),
-          
-              // Note
-              TextField(
-                controller: controller.noteC,
-                maxLines: 3,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) {
-                  FocusScope.of(context).unfocus();
-                },
-                decoration: InputDecoration(
-                  labelText: "Note (optional)".tr,
-                  hintText: "Anything you want to remember about this saving...".tr,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-          
-              const SizedBox(height: 14),
-          
-              // Add button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  label: Text(
-                    "Add".tr,
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+            
+                const SizedBox(height: 12),
+            
+                // Note
+                TextField(
+                  controller: controller.noteC,
+                  maxLines: 3,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) {
+                    FocusScope.of(context).unfocus();
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Note (optional)".tr,
+                    hintText: "Anything you want to remember about this saving...".tr,
+                    border: OutlineInputBorder(),
                   ),
-                  onPressed: controller.addSaving,
                 ),
-              ),
-            ],
+            
+                const SizedBox(height: 14),
+            
+                // Add button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    label: Text(
+                      "Add".tr,
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                    ),
+                    onPressed: controller.addSaving,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

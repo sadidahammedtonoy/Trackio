@@ -1,84 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sadid/Presentation/Share/Background.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
   const PrivacyPolicyPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
-      appBar: AppBar(
-        title: Text("Privacy Policy".tr),
-        titleSpacing: -10,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        foregroundColor: Colors.black,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: [
-          _Header(
-            title: "Privacy Policy".tr,
-            subtitle:
-            "Your privacy matters to us. This explains how your data is collected, stored, and protected.".tr,
-          ),
+    return background(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Privacy Policy".tr),
+          titleSpacing: -10,
+        ),
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            _Header(
+              title: "Privacy Policy".tr,
+              subtitle:
+              "Your privacy matters to us. This explains how your data is collected, stored, and protected.".tr,
+            ),
 
-          _Section(
-            title: "Information We Collect".tr,
-            points: [
-              "Account information from Firebase Authentication (email, UID, display name, profile image if available).".tr,
-              "Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.".tr,
-              "Anonymous (guest) users are assigned a temporary UID by Firebase.".tr,
-            ],
-          ),
+            _Section(
+              title: "Information We Collect".tr,
+              points: [
+                "Account information from Firebase Authentication (email, UID, display name, profile image if available).".tr,
+                "Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.".tr,
+                "Anonymous (guest) users are assigned a temporary UID by Firebase.".tr,
+              ],
+            ),
 
-          _Section(
-            title: "How We Use Your Information".tr,
-            points: [
-              "To securely store and sync your financial data across devices.".tr,
-              "To generate summaries, reports, and insights about your spending and income.".tr,
-              "To improve app performance, stability, and security.".tr,
-            ],
-          ),
+            _Section(
+              title: "How We Use Your Information".tr,
+              points: [
+                "To securely store and sync your financial data across devices.".tr,
+                "To generate summaries, reports, and insights about your spending and income.".tr,
+                "To improve app performance, stability, and security.".tr,
+              ],
+            ),
 
-          _Section(
-            title: "Data Storage & Security".tr,
-            points: [
-              "All data is stored in Firebase Firestore under your unique user ID (UID).".tr,
-              "Firebase security rules restrict access so only your account can read or write your data.".tr,
-              "We do not store your passwords on our servers.".tr,
-            ],
-          ),
+            _Section(
+              title: "Data Storage & Security".tr,
+              points: [
+                "All data is stored in Firebase Firestore under your unique user ID (UID).".tr,
+                "Firebase security rules restrict access so only your account can read or write your data.".tr,
+                "We do not store your passwords on our servers.".tr,
+              ],
+            ),
 
-          _Section(
-            title: "Guest (Anonymous) Accounts".tr,
-            points: [
-              "Guest users can use the app without creating an account.".tr,
-              "Data is linked to an anonymous Firebase UID.".tr,
-              "If you log out or delete the guest account, the data may be permanently lost.".tr,
-            ],
-          ),
+            _Section(
+              title: "Guest (Anonymous) Accounts".tr,
+              points: [
+                "Guest users can use the app without creating an account.".tr,
+                "Data is linked to an anonymous Firebase UID.".tr,
+                "If you log out or delete the guest account, the data may be permanently lost.".tr,
+              ],
+            ),
 
-          _Section(
-            title: "Data Sharing".tr,
-            points: [
-              "We do not sell or rent your personal data.".tr,
-              "Data may be processed by Firebase services to provide authentication and cloud storage.".tr,
-              "We may disclose data if required by law.".tr,
-            ],
-          ),
+            _Section(
+              title: "Data Sharing".tr,
+              points: [
+                "We do not sell or rent your personal data.".tr,
+                "Data may be processed by Firebase services to provide authentication and cloud storage.".tr,
+                "We may disclose data if required by law.".tr,
+              ],
+            ),
 
-          _Section(
-            title: "Account Deletion".tr,
-            points: [
-              "You can delete your account from the app settings.".tr,
-              "Once deleted, your data may be permanently removed and cannot be recovered.".tr,
-            ],
-          ),
+            _Section(
+              title: "Account Deletion".tr,
+              points: [
+                "You can delete your account from the app settings.".tr,
+                "Once deleted, your data may be permanently removed and cannot be recovered.".tr,
+              ],
+            ),
 
-          _Footer(),
-        ],
+            _Footer(),
+          ],
+        ),
       ),
     );
   }
@@ -200,15 +199,16 @@ class _Card extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 8,
-            offset: Offset(0, 5),
-          ),
-        ],
+        border: Border.all(color: Colors.black12),
+        // boxShadow: const [
+        //   BoxShadow(
+        //     color: Color(0x0F000000),
+        //     blurRadius: 8,
+        //     offset: Offset(0, 5),
+        //   ),
+        // ],
       ),
       child: child,
     );

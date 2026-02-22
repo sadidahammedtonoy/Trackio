@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -357,6 +358,104 @@ class dashboardPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 15),
+
+            // ================================Start==========================
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Text(
+                "Weekly Overview".tr,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Obx(() {
+              if (controller.isLoading.value) {
+                return Center(child: CircularProgressIndicator.adaptive(
+                  backgroundColor: Colors.white,
+                ));
+              }
+
+              // Calculate max for chart scaling
+              final maxAmount = controller.weeklyAmounts.reduce((a, b) => a > b ? a : b) + 1;
+
+              return AspectRatio(
+                aspectRatio: 1.7,
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: maxAmount,
+
+                    // Show actual amount on tap
+                    barTouchData: BarTouchData(
+                      enabled: true,
+                      touchTooltipData: BarTouchTooltipData(
+                        tooltipBgColor: Colors.cyan,
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          final amount = controller.weeklyAmounts[group.x.toInt()];
+                          return BarTooltipItem(
+                            '৳${numberTranslation.toBnDigits(amount.toStringAsFixed(0))}',
+                            TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          );
+                        },
+                      ),
+                    ),
+
+                    titlesData: FlTitlesData(
+                      show: true,
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (value, meta) {
+                            int index = value.toInt();
+                            if (index < 0 || index > 6) return const SizedBox();
+                            return Text(
+                              controller.labels[index].tr,
+                              style: TextStyle(fontSize: 12, color: Colors.black),
+                            );
+                          },
+                        ),
+                      ),
+                      leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    ),
+
+                    gridData: FlGridData(show: false),
+                    borderData: FlBorderData(show: false),
+
+                    // Bars
+                    barGroups: List.generate(7, (i) {
+                      final amount = controller.weeklyAmounts[i];
+                      return BarChartGroupData(
+                        x: i,
+                        barRods: [
+                          BarChartRodData(
+                            toY: amount,
+                            color: amount == 0 ? Colors.redAccent : Colors.cyan.withOpacity(0.7), // expense in red
+                            width: 18,
+                            borderRadius: BorderRadius.circular(50),
+                            backDrawRodData: BackgroundBarChartRodData(
+                              show: true,
+                              toY: maxAmount,
+                              color: Colors.grey.withOpacity(0.1),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                  swapAnimationDuration: Duration.zero,
+                ),
+              );
+            }),
+
+
+
+            // ================================End==========================
+
+            const SizedBox(height: 15),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Text(
@@ -432,6 +531,8 @@ class dashboardPage extends StatelessWidget {
     );
   }
 }
+
+
 
 Future<bool> showDeleteTransactionDialog() async {
   if (GetPlatform.isIOS) {

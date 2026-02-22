@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/AppColors.dart';
+import 'package:sadid/Presentation/Share/Background.dart';
 import '../Controller/Controller.dart';
 
 class HelpSupportPage extends StatelessWidget {
@@ -10,57 +11,58 @@ class HelpSupportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
-      appBar: AppBar(
-        title: Text("Help & Support".tr),
-        centerTitle: false,
-        titleSpacing: -10,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        foregroundColor: Colors.black,
-        actions: [
-          IconButton(
-            onPressed: controller.openReportSheet,
-            icon: const Icon(Icons.bug_report_outlined),
-            tooltip: "Report a problem".tr,
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: [
-          _SearchBar(controller: controller),
-          const SizedBox(height: 12),
-          _ContactCard(controller: controller),
-          const SizedBox(height: 12),
-          _CategoryChips(controller: controller),
-          const SizedBox(height: 12),
-          const _FaqHeader(),
-          const SizedBox(height: 10),
-          Obx(() {
-            final list = controller.filteredFaqs;
-
-            if (list.isEmpty) {
-              return _EmptyState(
-                onClear: () {
-                  controller.search.value = "";
-                  controller.selectedCategory.value = "All";
-                },
-              );
-            }
-
-            return Column(
-              children: list.map((f) {
-                return _FaqTile(
-                  question: f["q"].toString(),
-                  answer: f["a"].toString(),
-                  tag: f["category"].toString(),
+    return background(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Help & Support".tr),
+          centerTitle: false,
+          titleSpacing: -10,
+          // backgroundColor: Colors.white,
+          elevation: 0.5,
+          // foregroundColor: Colors.black,
+          actions: [
+            IconButton(
+              onPressed: controller.openReportSheet,
+              icon: const Icon(Icons.bug_report_outlined),
+              tooltip: "Report a problem".tr,
+            ),
+          ],
+        ),
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            _SearchBar(controller: controller),
+            const SizedBox(height: 12),
+            _ContactCard(controller: controller),
+            const SizedBox(height: 12),
+            _CategoryChips(controller: controller),
+            const SizedBox(height: 12),
+            const _FaqHeader(),
+            const SizedBox(height: 10),
+            Obx(() {
+              final list = controller.filteredFaqs;
+      
+              if (list.isEmpty) {
+                return _EmptyState(
+                  onClear: () {
+                    controller.search.value = "";
+                    controller.selectedCategory.value = "All";
+                  },
                 );
-              }).toList(),
-            );
-          }),
-        ],
+              }
+      
+              return Column(
+                children: list.map((f) {
+                  return _FaqTile(
+                    question: f["q"].toString(),
+                    answer: f["a"].toString(),
+                    tag: f["category"].toString(),
+                  );
+                }).toList(),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -78,15 +80,15 @@ class _SearchBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 8,
-            offset: Offset(0, 5),
-          ),
-        ],
+        // boxShadow: const [
+        //   BoxShadow(
+        //     color: Color(0x0F000000),
+        //     blurRadius: 8,
+        //     offset: Offset(0, 5),
+        //   ),
+        // ],
       ),
       child: Row(
         children: [
@@ -235,7 +237,7 @@ class _FaqTile extends StatelessWidget {
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 10),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-        leading: const Icon(Icons.help_outline),
+        leading: const Icon(Icons.help_outline, color: Colors.black54,),
         title: Text(
           question.tr,
           style: const TextStyle(fontWeight: FontWeight.w600),
@@ -304,15 +306,15 @@ class _Card extends StatelessWidget {
       margin: margin ?? EdgeInsets.zero,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 8,
-            offset: Offset(0, 5),
-          ),
-        ],
+        // boxShadow: const [
+        //   BoxShadow(
+        //     color: Color(0x0F000000),
+        //     blurRadius: 8,
+        //     offset: Offset(0, 5),
+        //   ),
+        // ],
       ),
       child: child,
     );

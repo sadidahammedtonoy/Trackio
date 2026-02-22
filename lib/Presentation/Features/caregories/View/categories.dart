@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/AppColors.dart';
+import 'package:sadid/Presentation/Share/Background.dart';
 import '../Controller/Controller.dart';
 
 class categories extends StatelessWidget {
@@ -11,131 +15,143 @@ class categories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Categories".tr),
-        titleSpacing: -10,
-      ),
-      floatingActionButton: FloatingActionButton(
-        shape: CircleBorder(),
-        backgroundColor: Colors.white,
-        onPressed: () => _openAddDialog(),
-        child: Icon(Icons.add, color: AppColors.primary,),
-      ),
-      body: Obx(() {
-        final list = controller.categories;
-
-        if (list.isEmpty) {
-          return Center(
-            child: Text("No categories yet".tr),
-          );
-        }
-
-        return ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: list.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
-          itemBuilder: (context, index) {
-            final item = list[index];
-            final id = item["id"].toString();
-            final name = (item["name"] ?? "").toString();
-            final createdAtText = _formatCreatedAt(item["createdAt"]);
-
-            return Dismissible(
-              key: ValueKey(id),
-
-              // ✅ BOTH swipe directions allowed
-              direction: DismissDirection.horizontal,
-
-              // Background for LEFT ➜ RIGHT (Edit)
-              background: _swipeBg(
-                color: const Color(0xFF1976D2),
-                icon: Icons.edit,
-                text: "Edit".tr,
-                alignLeft: true,
-              ),
-
-              // Background for RIGHT ➜ LEFT (Delete)
-              secondaryBackground: _swipeBg(
-                color: const Color(0xFFD32F2F),
-                icon: Icons.delete,
-                text: "Delete".tr,
-                alignLeft: false,
-              ),
-
-              // ✅ Decide what happens before dismiss
-              confirmDismiss: (direction) async {
-                if (direction == DismissDirection.startToEnd) {
-                  // Left ➜ Right = EDIT (do not dismiss)
-                  _openEditDialog(categoryId: id, currentName: name);
-                  return false;
-                } else if (direction == DismissDirection.endToStart) {
-                  // Right ➜ Left = DELETE (confirm)
-                  final ok = await _confirmDelete(name);
-                  if (ok == true) {
-                    await controller.deleteCategory(id);
-                    return true; // remove from list animation
+    return background(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Categories".tr),
+          titleSpacing: -10,
+        ),
+        floatingActionButton: FloatingActionButton(
+          shape: CircleBorder(),
+          backgroundColor: Colors.white,
+          onPressed: () => _openAddDialog(),
+          child: Icon(Icons.add, color: AppColors.primary,),
+        ),
+        body: Obx(() {
+          final list = controller.categories;
+      
+          if (list.isEmpty) {
+            return Center(
+              child: Text("No categories yet".tr),
+            );
+          }
+      
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: list.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              final item = list[index];
+              final id = item["id"].toString();
+              final name = (item["name"] ?? "").toString();
+              final createdAtText = _formatCreatedAt(item["createdAt"]);
+      
+              return Dismissible(
+                key: ValueKey(id),
+      
+                // ✅ BOTH swipe directions allowed
+                direction: DismissDirection.horizontal,
+      
+                // Background for LEFT ➜ RIGHT (Edit)
+                background: _swipeBg(
+                  color: const Color(0xFF1976D2),
+                  icon: Icons.edit,
+                  text: "Edit".tr,
+                  alignLeft: true,
+                ),
+      
+                // Background for RIGHT ➜ LEFT (Delete)
+                secondaryBackground: _swipeBg(
+                  color: const Color(0xFFD32F2F),
+                  icon: Icons.delete,
+                  text: "Delete".tr,
+                  alignLeft: false,
+                ),
+      
+                // ✅ Decide what happens before dismiss
+                confirmDismiss: (direction) async {
+                  if (direction == DismissDirection.startToEnd) {
+                    // Left ➜ Right = EDIT (do not dismiss)
+                    _openEditDialog(categoryId: id, currentName: name);
+                    return false;
+                  } else if (direction == DismissDirection.endToStart) {
+                    // Right ➜ Left = DELETE (confirm)
+                    final ok = await _confirmDelete(name);
+                    if (ok == true) {
+                      await controller.deleteCategory(id);
+                      return true; // remove from list animation
+                    }
+                    return false;
                   }
                   return false;
-                }
-                return false;
-              },
-
-              child: _categoryTile(
-                name: name,
-                createdAtText: createdAtText,
-              ),
-            );
-          },
-        );
-      }),
+                },
+      
+                child: _categoryTile(
+                  name: name,
+                  createdAtText: createdAtText,
+                ),
+              );
+            },
+          );
+        }),
+      ),
     );
   }
 
   // ---------- UI widgets ----------
 
-  Widget _categoryTile({required String name, required String createdAtText}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          )
-        ],
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 18,
-            backgroundColor: Color(0xFFF2F4F7),
-            child: Icon(Icons.label_outline, color: Colors.black87, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name.tr,
-                  style: const TextStyle(
-                    fontSize: 15.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  createdAtText,
-                  style: const TextStyle(fontSize: 12.5, color: Colors.black54),
-                ),
-              ],
+  Widget _categoryTile({
+    required String name,
+    required String createdAtText,
+  }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 2, sigmaY: 3),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.20),
             ),
           ),
-        ],
+          child: Row(
+            children: [
+              const CircleAvatar(
+                radius: 18,
+                backgroundColor: Color(0xFFF2F4F7),
+                child: Icon(Icons.label_outline,
+                    color: Colors.black87, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name.tr,
+                      style: const TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black, // Important for dark background
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      createdAtText,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -175,45 +191,75 @@ class categories extends StatelessWidget {
   void _openAddDialog() {
     final tc = TextEditingController();
 
-    Get.dialog(
-      barrierDismissible: false,
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Add Category".tr),
-        content: TextField(
-          controller: tc,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: "Category name".tr,
-          ),
-        ),
-        actions: [
-          Row(
+    if (Platform.isIOS) {
+      // 🍎 iOS Dialog
+      Get.dialog(
+        CupertinoAlertDialog(
+          title: Text("Add Category".tr),
+          content: Column(
             children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () => Get.back(),
-                  child: Text("Cancel".tr, style: TextStyle(color: Colors.black87),),
-                ),
-              ),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final name = tc.text;
-                    Get.back();
-                    await controller.addCategory(name);
-                  },
-                  child: Text("Add".tr, style: TextStyle(color: Colors.white),),
-                ),
+              const SizedBox(height: 10),
+              CupertinoTextField(
+                controller: tc,
+                autofocus: true,
+                placeholder: "Category name".tr,
+                padding: const EdgeInsets.all(12),
               ),
             ],
-          )
-
-        ],
-      ),
-    );
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Get.back(),
+              child: Text("Cancel".tr),
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () async {
+                final name = tc.text.trim();
+                Get.back();
+                await controller.addCategory(name);
+              },
+              child: Text("Add".tr),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // 🤖 Android Dialog
+      Get.dialog(
+        AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text("Add Category".tr),
+          content: TextField(
+            controller: tc,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: "Category name".tr,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text("Cancel".tr),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final name = tc.text.trim();
+                Get.back();
+                await controller.addCategory(name);
+              },
+              child: Text("Add".tr),
+            ),
+          ],
+        ),
+      );
+    }
   }
-
   void _openEditDialog({
     required String categoryId,
     required String currentName,

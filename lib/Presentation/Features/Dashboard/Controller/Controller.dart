@@ -3,7 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../Transcations/Model/tranModel.dart';
+import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 
 class dashboardController extends GetxController {
 
@@ -294,6 +300,7 @@ class dashboardController extends GetxController {
       // cache the latest list (even if empty)
       cachedTodayItems.assignAll(list);
     });
+    fetchWeeklyExpenses();
   }
 
   bool _mapEquals(Map<String, double> a, Map<String, double> b) {
@@ -365,6 +372,41 @@ class dashboardController extends GetxController {
       return total; // ✅ number
     });
   }
+
+  var weeklyAmounts = <double>[0, 0, 0, 0, 0, 0, 0].obs; // sum of amounts per day
+  var labels = <String>[].obs; // day labels
+  var isLoading = true.obs;
+
+  void fetchWeeklyExpenses() {
+    streamAllItems().listen((items) {
+      final now = DateTime.now();
+      final map = <String, double>{};
+      final dateFormat = DateFormat('yyyy-MM-dd');
+
+      // Initialize last 7 days
+      for (int i = 0; i < 7; i++) {
+        final day = now.subtract(Duration(days: 6 - i));
+        map[dateFormat.format(day)] = 0.0;
+      }
+
+      for (final item in items) {
+        // Only consider Expense type
+        if (item.type != 'Expense') continue;
+
+        final itemDate = dateFormat.format(item.date);
+        if (map.containsKey(itemDate)) {
+          map[itemDate] = map[itemDate]! + item.amount;
+        }
+      }
+
+      weeklyAmounts.value = map.values.toList();
+      labels.value = map.keys
+          .map((d) => DateFormat.E().format(DateTime.parse(d)))
+          .toList();
+      isLoading.value = false;
+    });
+  }
+
 
   Stream<double> streamTotalSavings() {
     final user = FirebaseAuth.instance.currentUser;

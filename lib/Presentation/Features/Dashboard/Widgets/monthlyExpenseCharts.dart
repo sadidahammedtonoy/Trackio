@@ -106,7 +106,7 @@ class CategoryPieChart extends StatelessWidget {
                       height: 12,
                       decoration: BoxDecoration(
                         color: color,
-                        borderRadius: BorderRadius.circular(3),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
                     const SizedBox(width: 6),

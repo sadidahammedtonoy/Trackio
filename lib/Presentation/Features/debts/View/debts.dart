@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sadid/App/routes.dart';
 import '../../../../Core/numberTranslation.dart';
+import '../../AddTransactions/Controller/Controller.dart';
 import '../../Transcations/Model/tranModel.dart';
 import '../../editTransactions/Controller/Controller.dart';
 import '../../editTransactions/View/editTransactions.dart';
@@ -51,139 +53,153 @@ class deptsPage extends StatelessWidget {
                       spacing: 20,
                       children: [
                         Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(18.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: Colors.white,
-                              border: Border.all(
-                              color: Colors.orange,
-                              width: 1,
-                              style: BorderStyle.solid,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.orange.withOpacity(0.5),
-                                  blurRadius: 10,
-                                  spreadRadius: 0.5,
-                                  offset: const Offset(4, 1), // x, y
+                          child: GestureDetector(
+                            onTap: (){
+                              final addTran = Get.find<addTranscationsController>();
+                              addTran.selectedType.value = "Lent";
+                              Get.toNamed(routes.addTranscations_screen);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(18.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.white,
+                                border: Border.all(
+                                color: Colors.orange,
+                                width: 1,
+                                style: BorderStyle.solid,
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 5,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Lent".tr,
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.orange,
-                                      ),
-                                    ),
-                                    Tooltip(
-                                      message: "Lent means giving money to another person with the expectation that it will be returned in the future.".tr,
-                                      triggerMode: TooltipTriggerMode.tap,
-                                      padding: const EdgeInsets.all(8),
-                                      margin: const EdgeInsets.all(8),
-                                      textStyle: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      ),
-                                      child: const Icon(
-                                        Icons.info_outline,
-                                        size: 15,
-                                        color: Colors.grey,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Text(
-                                  "৳${numberTranslation.toBnDigits(data["lent"]!.toStringAsFixed(1))}",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.orange,
-                                    fontSize: 25,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.orange.withOpacity(0.5),
+                                    blurRadius: 10,
+                                    spreadRadius: 0.5,
+                                    offset: const Offset(4, 1), // x, y
                                   ),
-                                ),
-                                Text(
-                                  "You Will Receive.".tr,
-                                  style: TextStyle(color: Colors.black54, fontSize: 12),
-                                ),
-                              ],
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 5,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Lent".tr,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                      Tooltip(
+                                        message: "Lent means giving money to another person with the expectation that it will be returned in the future.".tr,
+                                        triggerMode: TooltipTriggerMode.tap,
+                                        padding: const EdgeInsets.all(8),
+                                        margin: const EdgeInsets.all(8),
+                                        textStyle: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                        ),
+                                        child: const Icon(
+                                          Icons.info_outline,
+                                          size: 15,
+                                          color: Colors.grey,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Text(
+                                    "৳${numberTranslation.toBnDigits(data["lent"]!.toStringAsFixed(1))}",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.orange,
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                  Text(
+                                    "You Will Receive.".tr,
+                                    style: TextStyle(color: Colors.black54, fontSize: 12),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                         Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(18.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: Colors.white,
-                              border: Border.all(
-                                color: Colors.purple,
-                                width: 0.5,
-                                style: BorderStyle.solid,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.purple.withOpacity(0.5),
-                                  blurRadius: 10,
-                                  spreadRadius: 1,
-                                  offset: const Offset(4, 1), // x, y
+                          child: GestureDetector(
+                            onTap: (){
+                final addTran = Get.find<addTranscationsController>();
+                addTran.selectedType.value = "Borrow";
+                Get.toNamed(routes.addTranscations_screen);
+                },
+                            child: Container(
+                              padding: const EdgeInsets.all(18.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: Colors.purple,
+                                  width: 0.5,
+                                  style: BorderStyle.solid,
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 5,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Borrow".tr,
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.purple,
-                                      ),
-                                    ),
-                                    Tooltip(
-                                      message: "Borrow means money you received and must repay later.".tr,
-                                      triggerMode: TooltipTriggerMode.tap,
-                                      padding: const EdgeInsets.all(8),
-                                      margin: const EdgeInsets.all(8),
-                                      textStyle: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      ),
-                                      child: const Icon(
-                                        Icons.info_outline,
-                                        size: 15,
-                                        color: Colors.grey,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Text(
-                                  "৳${numberTranslation.toBnDigits(data["borrow"]!.toStringAsFixed(1))}",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.purple,
-                                    fontSize: 25,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.purple.withOpacity(0.5),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
+                                    offset: const Offset(4, 1), // x, y
                                   ),
-                                ),
-                                Text(
-                                  "You Need to Pay.".tr,
-                                  style: TextStyle(color: Colors.black54, fontSize: 12),
-                                ),
-                              ],
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 5,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Borrow".tr,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.purple,
+                                        ),
+                                      ),
+                                      Tooltip(
+                                        message: "Borrow means money you received and must repay later.".tr,
+                                        triggerMode: TooltipTriggerMode.tap,
+                                        padding: const EdgeInsets.all(8),
+                                        margin: const EdgeInsets.all(8),
+                                        textStyle: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                        ),
+                                        child: const Icon(
+                                          Icons.info_outline,
+                                          size: 15,
+                                          color: Colors.grey,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Text(
+                                    "৳${numberTranslation.toBnDigits(data["borrow"]!.toStringAsFixed(1))}",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.purple,
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                  Text(
+                                    "You Need to Pay.".tr,
+                                    style: TextStyle(color: Colors.black54, fontSize: 12),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
