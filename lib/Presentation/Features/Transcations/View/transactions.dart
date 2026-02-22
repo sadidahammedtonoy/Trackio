@@ -22,7 +22,14 @@ class transcations_page extends StatelessWidget {
 
   double _sectionTotal(List<TranItem> list) {
     return list.fold(0.0, (sum, t) {
-      if (t.type == "Expense" || t.type == "Lent") return sum - t.amount;
+      if (t.type == "Lent" || t.type == "Borrow") {
+        return sum;
+      }
+
+      if (t.type == "Expense") {
+        return sum - t.amount;
+      }
+
       return sum + t.amount;
     });
   }
