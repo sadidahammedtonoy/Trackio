@@ -45,7 +45,6 @@ class CategoryPieChart extends StatelessWidget {
         return Center(
           child: Text(
             "No Transactions for analysis".tr,
-            style: TextStyle(fontWeight: FontWeight.w600),
           ),
         );
       }
