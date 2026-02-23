@@ -5,6 +5,7 @@ import '../Presentation/Authentication/Signup/View/Signup.dart';
 import '../Presentation/Documentation/privacy.dart';
 import '../Presentation/Documentation/terms.dart';
 import '../Presentation/Features/AddTransactions/View/AddTransactions.dart';
+import '../Presentation/Features/Background/View/Background.dart';
 import '../Presentation/Features/Change Password/View/changePassword.dart';
 import '../Presentation/Features/caregories/View/categories.dart';
 import '../Presentation/Features/helpSupport/View/helpSupport.dart';
@@ -28,6 +29,7 @@ class routes {
   static const String signup_screen = '/signup';
   static const String ForgotPasswordScreen_screen = '/ForgotPasswordScreen';
   static const String MakePermanentDialog_screen = '/MakePermanentDialog';
+  static const String backgroundSelection_screen = '/backgroundSelection';
 
 
   static final pages = [
@@ -44,6 +46,7 @@ class routes {
     GetPage( name: signup_screen, binding: InitialBinding(), page: () => signup()),
     GetPage( name: ForgotPasswordScreen_screen, binding: InitialBinding(), page: () => ForgotPasswordScreen()),
     GetPage( name: MakePermanentDialog_screen, binding: InitialBinding(), page: () => MakePermanentDialog()),
+    GetPage( name: backgroundSelection_screen, binding: InitialBinding(), page: () => backgroundSelection()),
 
 
 

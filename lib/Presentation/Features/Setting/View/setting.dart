@@ -102,6 +102,21 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
+              GestureDetector(
+                onTap: () {
+                  Get.toNamed(routes.backgroundSelection_screen);
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.settings_display_sharp, size: 25),
+                    const SizedBox(width: 10),
+                    Text("Change Background".tr, style: TextStyle(fontSize: 18.sp)),
+                    const Spacer(),
+                    const Icon(Icons.arrow_right),
+                  ],
+                ),
+              ),
+
 
               Text("Money Management".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),),
               GestureDetector(

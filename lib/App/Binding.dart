@@ -3,6 +3,7 @@ import '../Presentation/Authentication/ForgetPassword/Controller/Controller.dart
 import '../Presentation/Authentication/Login/Controller/Controller.dart';
 import '../Presentation/Authentication/Signup/Controller/Controller.dart';
 import '../Presentation/Features/AddTransactions/Controller/Controller.dart';
+import '../Presentation/Features/Background/Controller/Controller.dart';
 import '../Presentation/Features/Change Password/Controller/Controller.dart';
 import '../Presentation/Features/Dashboard/Controller/Controller.dart';
 import '../Presentation/Features/Setting/Controller/Controller.dart';
@@ -34,6 +35,8 @@ class InitialBinding extends Bindings {
     Get.lazyPut<signupController>(() => signupController(), fenix: true);
     Get.lazyPut<ForgotPasswordController>(() => ForgotPasswordController(), fenix: true);
     Get.lazyPut<editTransactionsController>(() => editTransactionsController(), fenix: true);
+    Get.lazyPut<editTransactionsController>(() => editTransactionsController(), fenix: true);
+    Get.lazyPut<backgroundController>(() => backgroundController(), fenix: true);
 
 
   }
