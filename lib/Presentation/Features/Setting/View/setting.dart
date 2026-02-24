@@ -110,7 +110,7 @@ class setting_page extends StatelessWidget {
                   children: [
                     const Icon(Icons.settings_display_sharp, size: 25),
                     const SizedBox(width: 10),
-                    Text("Change Background".tr, style: TextStyle(fontSize: 18.sp)),
+                    Text("Theme".tr, style: TextStyle(fontSize: 18.sp)),
                     const Spacer(),
                     const Icon(Icons.arrow_right),
                   ],

@@ -7,18 +7,7 @@ import '../Controller/Controller.dart';
 class CategoryPieChart extends StatelessWidget {
   const CategoryPieChart({super.key});
 
-  // 🎨 20+ colors (ordered: first blue, second orange)
   static const List<Color> _palette = [
-    Colors.blue,
-    Colors.orange,
-    Colors.green,
-    Colors.purple,
-    Colors.red,
-    Colors.teal,
-    Colors.indigo,
-    Colors.pink,
-    Colors.brown,
-    Colors.cyan,
     Color(0xFF4CAF50),
     Color(0xFFFF9800),
     Color(0xFF9C27B0),
@@ -30,7 +19,17 @@ class CategoryPieChart extends StatelessWidget {
     Color(0xFFCDDC39),
     Color(0xFF673AB7),
     Color(0xFF00BCD4),
-    Color(0xFFE91E63),
+    Colors.redAccent,
+    Colors.orange,
+    Colors.green,
+    Colors.purple,
+    Colors.blue,
+    Colors.teal,
+    Colors.indigo,
+    Colors.pink,
+    Colors.brown,
+    Colors.cyan,
+
   ];
 
   @override
@@ -58,6 +57,8 @@ class CategoryPieChart extends StatelessWidget {
         final entry = entries[i];
         final value = entry.value;
         final percent = total == 0 ? 0 : (value / total) * 100;
+
+
 
         return PieChartSectionData(
           value: value,
@@ -94,7 +95,9 @@ class CategoryPieChart extends StatelessWidget {
               spacing: 14,
               runSpacing: 12,
               children: List.generate(entries.length, (i) {
-                final entry = entries[i];
+                final sortedEntries = [...entries]
+                  ..sort((a, b) => b.value.compareTo(a.value));
+                final entry = sortedEntries[i];
                 final color = _palette[i % _palette.length];
 
                 return Row(

@@ -27,10 +27,7 @@ class MakePermanentDialog extends StatelessWidget {
               children: [
                 // Background image
                 Positioned.fill(
-                  child: Image.asset(
-                    "assets/Cream and Beige Illustrative Background Portrait Document A4.png",
-                    fit: BoxFit.cover, // ✅ important
-                  ),
+                  child: Container(color: Colors.white,)
                 ),
 
                 // Main content
@@ -186,6 +183,7 @@ class MakePermanentDialog extends StatelessWidget {
                           Text(
                             "This upgrades your guest account to a permanent account."
                                 .tr,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.grey.shade700,
                               fontSize: 12,

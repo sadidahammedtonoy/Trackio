@@ -560,7 +560,6 @@ class AppTranslation extends Translations {
       "Sat": "Sat",
       "Sun": "Sun",
       "Weekly Overview": "Weekly Overview",
-
       "Change App Background": "Change App Background",
       "Images Background": "Images Background",
       "Plain Background": "Plain Background",
@@ -569,7 +568,8 @@ class AppTranslation extends Translations {
       "Select a Color": "Select a Color",
       "Swipe Down to Return": "Swipe Down to Return",
       "Background saved successfully": "Background saved successfully",
-      "": "",
+      "Theme": "Theme",
+
       "": "",
       "": "",
       "": "",
@@ -577,6 +577,7 @@ class AppTranslation extends Translations {
       "": "",
     },
     'bn_BD': {
+      "Theme": "থিম",
       "Mon": "সোম",
       "Tue": "মঙ্গল",
       "Wed": "বুধ",
