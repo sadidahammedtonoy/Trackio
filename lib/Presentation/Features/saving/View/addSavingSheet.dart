@@ -148,7 +148,7 @@ class AddSavingSheet extends StatelessWidget {
                   child: InputDecorator(
                     decoration: InputDecoration(
                       labelText: "Date".tr,
-                      filled: true,
+                      filled: false,
                       fillColor: Colors.white,
                       suffixIcon: Icon(Icons.calendar_month, color: Colors.black87),
                       border: OutlineInputBorder(),
@@ -171,9 +171,9 @@ class AddSavingSheet extends StatelessWidget {
                   onChanged: (v) {
                     if (v != null) controller.selectedWallet.value = v;
                   },
-                  dropdownColor: Colors.white, // ✅ dropdown background color
+                  dropdownColor: Colors.white,
                   decoration: InputDecoration(
-                    filled: true,
+                    filled: false,
                     fillColor: Colors.white,
                     labelText: "Wallet".tr,
                     border: OutlineInputBorder(),

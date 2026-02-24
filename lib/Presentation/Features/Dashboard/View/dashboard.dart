@@ -295,57 +295,60 @@ class dashboardPage extends StatelessWidget {
                             builder: (context, snapshot) {
                               final saving = snapshot.data ?? 0.0;
 
-                              return Container(
-                                padding: EdgeInsets.all(15),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.white,
-                                  border: Border.all(
-                                    color: Colors.cyan,
-                                    width: 1,
+                              return GestureDetector(
+                                onTap: () => Get.toNamed(routes.saving_screen),
+                                child: Container(
+                                  padding: EdgeInsets.all(15),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      color: Colors.cyan,
+                                      width: 1,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.cyan.withOpacity(0.5),
+                                        offset: const Offset(4, 1),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.cyan.withOpacity(0.5),
-                                      offset: const Offset(4, 1),
-                                      blurRadius: 10,
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.cyan.withAlpha(150),
-                                        shape: BoxShape.circle,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.cyan.withAlpha(150),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.savings_outlined,
+                                          size: 30,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                      child: Icon(
-                                        Icons.savings_outlined,
-                                        size: 30,
-                                        color: Colors.white,
+                                      const SizedBox(height: 20, width: 110),
+                                      Text(
+                                        "Saving".tr,
+                                        style: TextStyle(fontSize: 16.sp),
                                       ),
-                                    ),
-                                    const SizedBox(height: 20, width: 110),
-                                    Text(
-                                      "Saving".tr,
-                                      style: TextStyle(fontSize: 16.sp),
-                                    ),
-                                    StreamBuilder<double>(
-                                      stream: controller.streamTotalSavings(),
-                                      builder: (_, snap) {
-                                        final total = snap.data ?? 0.0;
-                                        return Text(
-                                          "৳${numberTranslation.toBnDigits((total + saving).toStringAsFixed(1))}",
-                                          style: TextStyle(
-                                            fontSize: 22.sp,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
+                                      StreamBuilder<double>(
+                                        stream: controller.streamTotalSavings(),
+                                        builder: (_, snap) {
+                                          final total = snap.data ?? 0.0;
+                                          return Text(
+                                            "৳${numberTranslation.toBnDigits((total + saving).toStringAsFixed(1))}",
+                                            style: TextStyle(
+                                              fontSize: 22.sp,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               );
                             },

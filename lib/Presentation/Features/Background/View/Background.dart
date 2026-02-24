@@ -299,6 +299,10 @@ class _ImageCarouselSliderState extends State<ImageCarouselSlider> {
     "assets/Green and Purple Watercolor Background Document A4.jpg",
     "assets/Brown Floral Watercolor Minimalist Notes Background A4 Document.jpg",
     "assets/Blue Watercolor Background Document.jpg",
+    "assets/Blue and White Simple Watercolor Background Instagram Story.jpg",
+    "assets/Blue Cute Simple Background Instagram Story.jpg",
+    "assets/Green Aesthetic Poster Portrait.jpg",
+    "assets/Green Modern Welcome Spring (Instagram Story).jpg"
   ];
 
   @override
