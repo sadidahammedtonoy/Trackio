@@ -871,25 +871,34 @@ class _TransactionTile extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(18.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: typeColor.withOpacity(0.5),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 15,
-                      spreadRadius: 1,
-                      offset: const Offset(4, 1), // x, y
-                    ),
-                  ],
                 ),
-                child: Text(
-                  item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
-                  style: TextStyle(
-                    color: typeColor,
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w600,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 7.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(18.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: typeColor.withOpacity(0.08),
+                          blurRadius: 15,
+                          spreadRadius: 1,
+                          offset: const Offset(4, 1), // x, y
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
+                      style: TextStyle(
+                        color: typeColor,
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ),

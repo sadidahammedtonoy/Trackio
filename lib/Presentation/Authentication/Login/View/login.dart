@@ -5,7 +5,6 @@ import 'package:sadid/App/routes.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
 
 import '../Controller/Controller.dart';
-import 'package:lottie/lottie.dart';
 
 class login extends StatelessWidget {
   login({super.key});
@@ -39,79 +38,116 @@ class login extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(50),
-                            border: Border.all(
-                              color: Colors.black,
-                              width: 1,
-                            )
+                            border: Border.all(color: Colors.black, width: 1),
                           ),
-                          child: Obx(() => Center(child: Text(controller.language.value))),
+                          child: Obx(
+                            () =>
+                                Center(child: Text(controller.language.value)),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 20),
                     Align(
-                        alignment: Alignment.center,
-                        child: Column(
-                          children: [
-                            // Lottie.asset("assets/json/3D Money Icon.json", height: 100),
-                            Image.asset("assets/logo.jpeg", width: 150,),
-                            // Text("Trackio", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),),
-                            Text("Keep a clear record of where your money goes.".tr, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),)
-                          ],
-                        )),
-                    const SizedBox(height: 35,),
-                    Text("Email Address".tr, style: TextStyle(fontWeight: FontWeight.w500),),
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: [
+                          // Lottie.asset("assets/json/3D Money Icon.json", height: 100),
+                          Image.asset("assets/logo.jpeg", width: 150),
+                          // Text("Trackio", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),),
+                          Text(
+                            "Keep a clear record of where your money goes.".tr,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 35),
+                    Text(
+                      "Email Address".tr,
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                     TextFormField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email address'.tr;
-                        } else if(GetUtils.isEmail(value) == false){
+                        } else if (GetUtils.isEmail(value) == false) {
                           return 'Please enter a valid email address'.tr;
                         }
                         return null;
-                      }, controller: emailController,
+                      },
+                      controller: emailController,
                       decoration: InputDecoration(
                         hintText: "Enter your email address".tr,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                      )
+                      ),
                     ),
-                    const SizedBox(height: 10,),
-                    Text("Password".tr, style: TextStyle(fontWeight: FontWeight.w500),),
-                    Obx(() => TextFormField(
+                    const SizedBox(height: 10),
+                    Text(
+                      "Password".tr,
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    Obx(
+                      () => TextFormField(
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password'.tr;
                           }
                           return null;
-                        }, controller: passwordController,
+                        },
+                        controller: passwordController,
                         obscureText: controller.password.value,
                         decoration: InputDecoration(
-                            suffixIcon: GestureDetector(
-                                onTap: (){
-                                  controller.password.value = !controller.password.value;
-                                },
-                                child: Icon(controller.password.value ? Icons.visibility_off : Icons.visibility, color: Colors.black)),
-                            hintText: "Enter your password".tr,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            )
-                        )
-                    ),),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              controller.password.value =
+                                  !controller.password.value;
+                            },
+                            child: Icon(
+                              controller.password.value
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.black,
+                            ),
+                          ),
+                          hintText: "Enter your password".tr,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
                     Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(onPressed: () => Get.toNamed(routes.ForgotPasswordScreen_screen), child: Text("Forget Password".tr, style: TextStyle(color: Colors.red),))),
-                    ElevatedButton(onPressed: () async {
-                      if(_formKey.currentState!.validate()){
-                        await controller.loginWithEmailPassword(
-                        email: emailController.text,
-                        password: passwordController.text
-                        );
-                
-                      }
-                    }, child: Text("Log In".tr, style: TextStyle(color: Colors.white),)),
-                    const SizedBox(height: 10,),
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () =>
+                            Get.toNamed(routes.ForgotPasswordScreen_screen),
+                        child: Text(
+                          "Forget Password".tr,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await controller.loginWithEmailPassword(
+                            email: emailController.text,
+                            password: passwordController.text,
+                          );
+                        }
+                      },
+                      child: Text(
+                        "Log In".tr,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -135,13 +171,16 @@ class login extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10,),
+                    const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 80.0),
                       child: Row(
                         children: [
                           Expanded(child: Divider()),
-                          Text("  OR  ".tr, style: TextStyle(color: Colors.black),),
+                          Text(
+                            "  OR  ".tr,
+                            style: TextStyle(color: Colors.black),
+                          ),
                           Expanded(child: Divider()),
                         ],
                       ),
@@ -161,7 +200,7 @@ class login extends StatelessWidget {
                     //     style: TextStyle(color: Colors.black),
                     //   ),
                     // ),
-                    const SizedBox(height: 10,),
+                    const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () => controller.loginAsGuest(),
                       child: Card(
@@ -174,7 +213,10 @@ class login extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 "Continue as Guest".tr,
-                                style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
@@ -191,18 +233,21 @@ class login extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.asset(assets_path.google, width: 30,),
+                              Image.asset(assets_path.google, width: 30),
                               const SizedBox(width: 10),
                               Text(
                                 "Continue with Google".tr,
-                                style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ),
                     ),
-                        ],
+                  ],
                 ),
               ),
             ),
