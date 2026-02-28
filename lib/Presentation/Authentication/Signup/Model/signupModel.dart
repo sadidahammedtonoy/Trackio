@@ -24,18 +24,14 @@ class signUpModel {
 
   @override
   String toString() {
-    return 'signUpModel{' +
-        ' name: $name,' +
+    return 'signUpModel{'
+            ' name: $name,' +
         ' email: $email,' +
         ' password: $password,' +
         '}';
   }
 
-  signUpModel copyWith({
-    String? name,
-    String? email,
-    String? password,
-  }) {
+  signUpModel copyWith({String? name, String? email, String? password}) {
     return signUpModel(
       name: name ?? this.name,
       email: email ?? this.email,
@@ -43,13 +39,8 @@ class signUpModel {
     );
   }
 
-
   Map<String, dynamic> toMap() {
-    return {
-      'name': this.name,
-      'email': this.email,
-      'password': this.password,
-    };
+    return {'name': name, 'email': email, 'password': password};
   }
 
   factory signUpModel.fromMap(Map<String, dynamic> map) {
@@ -60,6 +51,5 @@ class signUpModel {
     );
   }
 
-
-//</editor-fold>
+  //</editor-fold>
 }

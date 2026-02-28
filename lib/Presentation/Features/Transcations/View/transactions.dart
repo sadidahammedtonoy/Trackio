@@ -14,6 +14,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class transcations_page extends StatelessWidget {
   final controller = Get.put(transactionsController());
 
+   transcations_page({super.key});
+
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
@@ -48,20 +50,22 @@ class transcations_page extends StatelessWidget {
     controller.setMonthFromDate(DateTime.now());
 
     return Scaffold(
-      appBar: AppBar(title: Obx(() {
-        final selected = controller.selectedMonthKey.value;
-        return Text(
-          selected == null ? "All Transactions".tr : "Month: $selected",
-        );
-      }),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.filter_list, color: Colors.black),
-          onPressed: () {
-            _showMonthFilterSheet(context);
-          },
-        ),
-      ],),
+      appBar: AppBar(
+        title: Obx(() {
+          final selected = controller.selectedMonthKey.value;
+          return Text(
+            selected == null ? "All Transactions".tr : "Month: $selected",
+          );
+        }),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list, color: Colors.black),
+            onPressed: () {
+              _showMonthFilterSheet(context);
+            },
+          ),
+        ],
+      ),
       body: Obx(() {
         return Column(
           children: [
@@ -86,14 +90,20 @@ class transcations_page extends StatelessWidget {
 
                   final now = DateTime.now();
                   final grouped = _groupByDate(items);
-                  final days = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
+                  final days = grouped.keys.toList()
+                    ..sort((a, b) => b.compareTo(a));
 
                   String titleForDay(DateTime day) {
                     if (_isSameDay(day, now)) return "Today Transactions".tr;
-                    if (_isSameDay(day, now.subtract(const Duration(days: 1)))) {
+                    if (_isSameDay(
+                      day,
+                      now.subtract(const Duration(days: 1)),
+                    )) {
                       return "Yesterday Transactions".tr;
                     }
-                    return numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(day));
+                    return numberTranslation.formatDateBnFromString(
+                      DateFormat('dd MMM yyyy').format(day),
+                    );
                   }
 
                   Widget header(DateTime day, List<TranItem> list) {
@@ -107,7 +117,10 @@ class transcations_page extends StatelessWidget {
                         children: [
                           Text(
                             titleForDay(day),
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           Text(
                             "${isPositive ? '+' : ''}${numberTranslation.toBnDigits(total.toStringAsFixed(0))}",
@@ -147,7 +160,7 @@ class transcations_page extends StatelessWidget {
                     ),
                   );
                 },
-              )
+              ),
             ),
           ],
         );
@@ -172,9 +185,7 @@ Future<bool> showDeleteTransactionDialog() async {
         title: Text("Delete Transaction".tr),
         content: Padding(
           padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            "Are you sure you want to delete this transaction?".tr,
-          ),
+          child: Text("Are you sure you want to delete this transaction?".tr),
         ),
         actions: [
           CupertinoDialogAction(
@@ -198,9 +209,7 @@ Future<bool> showDeleteTransactionDialog() async {
         backgroundColor: Colors.white,
         title: Text("Delete Transaction".tr),
         content: Text("Are you sure you want to delete this transaction?".tr),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
@@ -208,10 +217,7 @@ Future<bool> showDeleteTransactionDialog() async {
           ),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: Text(
-              "Delete".tr,
-              style: const TextStyle(color: Colors.red),
-            ),
+            child: Text("Delete".tr, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -221,12 +227,8 @@ Future<bool> showDeleteTransactionDialog() async {
   }
 }
 
-
 class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({
-    required this.item,
-    required this.onDelete,
-  });
+  const _TransactionTile({required this.item, required this.onDelete});
 
   final TranItem item;
   final Future<void> Function() onDelete;
@@ -241,7 +243,9 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateText = numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date));
+    final dateText = numberTranslation.formatDateBnFromString(
+      DateFormat('dd MMM yyyy').format(item.date),
+    );
     final typeColor = _typeColor(item.type);
 
     return Dismissible(
@@ -282,7 +286,7 @@ class _TransactionTile extends StatelessWidget {
         if (direction == DismissDirection.startToEnd) {
           print("Edit this");
           Get.find<editTransactionsController>().assignValues(item);
-          Get.to(editTransactions(model: item,));
+          Get.to(editTransactions(model: item));
           return false;
         }
 
@@ -297,7 +301,6 @@ class _TransactionTile extends StatelessWidget {
 
         return false;
       },
-
 
       secondaryBackground: Container(
         margin: const EdgeInsets.only(bottom: 10),
@@ -330,111 +333,214 @@ class _TransactionTile extends StatelessWidget {
       //
       //   return true;
       // },
-
-
       child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: GestureDetector(
-          onLongPress: (){
+          onLongPress: () {
             Get.dialog(
-                Dialog(
-                  backgroundColor: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 10,
-                      children: [
-                        Row(
-                          spacing: 5,
-                          children: [
-                            Text(item.type.tr, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24.sp, color: typeColor),),
-                            Text("Transaction".tr, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22.sp, color: Colors.black),),
-                          ],
+              Dialog(
+                backgroundColor: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
+                    children: [
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Text(
+                            item.type.tr,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 24.sp,
+                              color: typeColor,
+                            ),
+                          ),
+                          Text(
+                            "Transaction".tr,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 22.sp,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "৳ ${numberTranslation.toBnDigits("${item.amount}")}",
+                          style: TextStyle(
+                            fontSize: 30.sp,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
                         ),
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: Text("৳ ${numberTranslation.toBnDigits("${item.amount}")}", style: TextStyle(fontSize: 30.sp, fontWeight: FontWeight.w800, color: Colors.black),)),
-                        Divider(),
+                      ),
+                      Divider(),
 
-                        item.type == "Lent" || item.type == "Borrow" ? Row(
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.person, color: Colors.black, size: 15,),
-                            Text("Person Name:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(item.category, style: TextStyle(fontSize: 16.sp),),
-                          ],
-                        ) :
-                        Row(
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.category, color: Colors.black, size: 15,),
-                            Text("Category:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(item.category.isEmpty ? "Uncategorized".tr : item.category.tr, style: TextStyle(fontSize: 16.sp,),),
-                          ],
+                      item.type == "Lent" || item.type == "Borrow"
+                          ? Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.person,
+                                  color: Colors.black,
+                                  size: 15,
+                                ),
+                                Text(
+                                  "Person Name:".tr,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  item.category,
+                                  style: TextStyle(fontSize: 16.sp),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.category,
+                                  color: Colors.black,
+                                  size: 15,
+                                ),
+                                Text(
+                                  "Category:".tr,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  item.category.isEmpty
+                                      ? "Uncategorized".tr
+                                      : item.category.tr,
+                                  style: TextStyle(fontSize: 16.sp),
+                                ),
+                              ],
+                            ),
+
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Icon(
+                            Icons.account_balance_wallet,
+                            color: Colors.black,
+                            size: 15,
+                          ),
+                          Text(
+                            "Wallet:".tr,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            item.wallet.tr,
+                            style: TextStyle(fontSize: 16.sp),
+                          ),
+                        ],
+                      ),
+
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Icon(
+                            Icons.date_range_rounded,
+                            color: Colors.black,
+                            size: 15,
+                          ),
+                          Text(
+                            "Date:".tr,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(dateText, style: TextStyle(fontSize: 16.sp)),
+                        ],
+                      ),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 5,
+                        children: [
+                          Icon(
+                            Icons.edit_note_outlined,
+                            color: Colors.black,
+                            size: 15,
+                          ),
+                          Text(
+                            "Remark:".tr,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              item.note.isEmpty ? "No Remark".tr : item.note,
+                              style: TextStyle(fontSize: 16.sp),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      ElevatedButton(
+                        onPressed: () => Get.back(),
+                        child: Text(
+                          "Close".tr,
+                          style: TextStyle(color: Colors.white),
                         ),
-
-                        Row(
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.account_balance_wallet, color: Colors.black, size: 15,),
-                            Text("Wallet:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(item.wallet.tr, style: TextStyle(fontSize: 16.sp),),
-                          ],
-                        ),
-
-                        Row(
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.date_range_rounded, color: Colors.black, size: 15,),
-                            Text("Date:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(dateText, style: TextStyle(fontSize: 16.sp),),
-                          ],
-                        ),
-
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.edit_note_outlined, color: Colors.black, size: 15,),
-                            Text("Remark:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Expanded(child: Text(item.note.isEmpty ? "No Remark".tr : item.note, style: TextStyle(fontSize: 16.sp),)),
-                          ],
-                        ),
-
-                        ElevatedButton(onPressed: () => Get.back(), child: Text("Close".tr, style: TextStyle(color: Colors.white),))
-
-
-
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                )
+                ),
+              ),
             );
           },
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(18.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: typeColor.withOpacity(0.5),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 15,
-                      spreadRadius: 1,
-                      offset: const Offset(4, 1), // x, y
-                    ),
-                  ],
                 ),
-                child: Text(
-                  item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
-                  style: TextStyle(color: typeColor, fontSize: 20.sp, fontWeight: FontWeight.w600),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 7.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(18.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 15,
+                          spreadRadius: 1,
+                          offset: const Offset(4, 1), // x, y
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
+                      style: TextStyle(
+                        color: typeColor,
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 15,),
+              const SizedBox(width: 15),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,10 +550,18 @@ class _TransactionTile extends StatelessWidget {
                       spacing: 5,
                       children: [
                         Text(
-                          item.category.isEmpty ? "Uncategorized".tr : item.category.tr,
+                          item.category.isEmpty
+                              ? "Uncategorized".tr
+                              : item.category.tr,
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
-                        item.marked ? Icon(Icons.check_circle, color: Colors.green, size: 15,) : SizedBox.shrink()
+                        item.marked
+                            ? Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 15,
+                              )
+                            : SizedBox.shrink(),
                       ],
                     ),
                     Row(
@@ -455,7 +569,10 @@ class _TransactionTile extends StatelessWidget {
                       children: [
                         Text(
                           item.wallet.tr,
-                          style: const TextStyle(color: Colors.black54, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -467,14 +584,21 @@ class _TransactionTile extends StatelessWidget {
                 children: [
                   Text(
                     "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
-                    style: TextStyle(fontWeight: FontWeight.w800, color: typeColor),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: typeColor,
+                    ),
                   ),
                   Text(
                     dateText,
-                    style: const TextStyle(color: Colors.black54, fontSize: 12, fontStyle: FontStyle.italic,),
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -491,9 +615,7 @@ void _showMonthFilterSheet(BuildContext context) {
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: Container(
         padding: const EdgeInsets.only(bottom: 30),
-        decoration: const BoxDecoration(
-          color: Colors.white
-        ),
+        decoration: const BoxDecoration(color: Colors.white),
         child: StreamBuilder<List<String>>(
           stream: controller.streamMonthKeys(),
           builder: (context, snap) {
@@ -551,10 +673,7 @@ void _showMonthFilterSheet(BuildContext context) {
                 // --- Divider ---
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Divider(
-                    height: 1,
-                    color: Color(0xFFE5E7EB),
-                  ),
+                  child: Divider(height: 1, color: Color(0xFFE5E7EB)),
                 ),
 
                 const SizedBox(height: 8),
@@ -562,30 +681,36 @@ void _showMonthFilterSheet(BuildContext context) {
                 // --- "All Months" Option ---
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Obx(() => _MonthTile(
-                    icon: Icons.sick_outlined,
-                    label: "All Months".tr,
-                    isSelected: controller.selectedMonth.value == null,
-                    onTap: () {
-                      controller.selectMonth(null);
-                      Get.back();
-                    },
-                  )),
+                  child: Obx(
+                    () => _MonthTile(
+                      icon: Icons.sick_outlined,
+                      label: "All Months".tr,
+                      isSelected: controller.selectedMonth.value == null,
+                      onTap: () {
+                        controller.selectMonth(null);
+                        Get.back();
+                      },
+                    ),
+                  ),
                 ),
 
                 // --- Month List ---
-                ...months.map((m) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Obx(() => _MonthTile(
-                    icon: Icons.calendar_month_outlined,
-                    label: numberTranslation.formatMonthYearBnFromKey(m),
-                    isSelected: controller.selectedMonth.value == m,
-                    onTap: () {
-                      controller.selectMonth(m);
-                      Get.back();
-                    },
-                  )),
-                )),
+                ...months.map(
+                  (m) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Obx(
+                      () => _MonthTile(
+                        icon: Icons.calendar_month_outlined,
+                        label: numberTranslation.formatMonthYearBnFromKey(m),
+                        isSelected: controller.selectedMonth.value == m,
+                        onTap: () {
+                          controller.selectMonth(m);
+                          Get.back();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
 
                 const SizedBox(height: 8),
               ],
@@ -617,10 +742,10 @@ class _MonthTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Cyan palette
-    const Color cyanAccent = Color(0xFF06B6D4);   // vibrant cyan
-    const Color cyanBg = Color(0xFFECFEFF);       // very light cyan bg
-    const Color neutralBg = Color(0xFFF3F4F6);    // default grey bg
-    const Color neutralIcon = Color(0xFF6B7280);  // default grey icon
+    const Color cyanAccent = Color(0xFF06B6D4); // vibrant cyan
+    const Color cyanBg = Color(0xFFECFEFF); // very light cyan bg
+    const Color neutralBg = Color(0xFFF3F4F6); // default grey bg
+    const Color neutralIcon = Color(0xFF6B7280); // default grey icon
 
     return Material(
       color: Colors.transparent,
@@ -636,7 +761,9 @@ class _MonthTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             color: isSelected ? cyanBg : Colors.transparent,
             border: Border.all(
-              color: isSelected ? cyanAccent.withOpacity(0.35) : Colors.transparent,
+              color: isSelected
+                  ? cyanAccent.withOpacity(0.35)
+                  : Colors.transparent,
               width: 1.5,
             ),
           ),
