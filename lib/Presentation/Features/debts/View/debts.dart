@@ -26,7 +26,8 @@ class deptsPage extends StatelessWidget {
             StreamBuilder<Map<String, double>>(
               stream: controller.streamTotalLentBorrow(),
               builder: (context, snapshot) {
-                final data = snapshot.data ?? {"lent": 0.0, "borrow": 0.0, "net": 0.0};
+                final data =
+                    snapshot.data ?? {"lent": 0.0, "borrow": 0.0, "net": 0.0};
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,8 +55,9 @@ class deptsPage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            onTap: (){
-                              final addTran = Get.find<addTranscationsController>();
+                            onTap: () {
+                              final addTran =
+                                  Get.find<addTranscationsController>();
                               addTran.selectedType.value = "Lent";
                               Get.toNamed(routes.addTranscations_screen);
                             },
@@ -65,9 +67,9 @@ class deptsPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(15),
                                 color: Colors.white,
                                 border: Border.all(
-                                color: Colors.orange,
-                                width: 1,
-                                style: BorderStyle.solid,
+                                  color: Colors.orange,
+                                  width: 1,
+                                  style: BorderStyle.solid,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
@@ -83,7 +85,8 @@ class deptsPage extends StatelessWidget {
                                 spacing: 5,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         "Lent".tr,
@@ -94,7 +97,9 @@ class deptsPage extends StatelessWidget {
                                         ),
                                       ),
                                       Tooltip(
-                                        message: "Lent means giving money to another person with the expectation that it will be returned in the future.".tr,
+                                        message:
+                                            "Lent means giving money to another person with the expectation that it will be returned in the future."
+                                                .tr,
                                         triggerMode: TooltipTriggerMode.tap,
                                         padding: const EdgeInsets.all(8),
                                         margin: const EdgeInsets.all(8),
@@ -107,7 +112,7 @@ class deptsPage extends StatelessWidget {
                                           size: 15,
                                           color: Colors.grey,
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                   Text(
@@ -120,7 +125,10 @@ class deptsPage extends StatelessWidget {
                                   ),
                                   Text(
                                     "You Will Receive.".tr,
-                                    style: TextStyle(color: Colors.black54, fontSize: 12),
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -129,11 +137,12 @@ class deptsPage extends StatelessWidget {
                         ),
                         Expanded(
                           child: GestureDetector(
-                            onTap: (){
-                final addTran = Get.find<addTranscationsController>();
-                addTran.selectedType.value = "Borrow";
-                Get.toNamed(routes.addTranscations_screen);
-                },
+                            onTap: () {
+                              final addTran =
+                                  Get.find<addTranscationsController>();
+                              addTran.selectedType.value = "Borrow";
+                              Get.toNamed(routes.addTranscations_screen);
+                            },
                             child: Container(
                               padding: const EdgeInsets.all(18.0),
                               decoration: BoxDecoration(
@@ -170,7 +179,9 @@ class deptsPage extends StatelessWidget {
                                         ),
                                       ),
                                       Tooltip(
-                                        message: "Borrow means money you received and must repay later.".tr,
+                                        message:
+                                            "Borrow means money you received and must repay later."
+                                                .tr,
                                         triggerMode: TooltipTriggerMode.tap,
                                         padding: const EdgeInsets.all(8),
                                         margin: const EdgeInsets.all(8),
@@ -183,7 +194,7 @@ class deptsPage extends StatelessWidget {
                                           size: 15,
                                           color: Colors.grey,
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                   Text(
@@ -196,7 +207,10 @@ class deptsPage extends StatelessWidget {
                                   ),
                                   Text(
                                     "You Need to Pay.".tr,
-                                    style: TextStyle(color: Colors.black54, fontSize: 12),
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -210,51 +224,55 @@ class deptsPage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 15),
-            StreamBuilder<List<TranItem>>(
-              stream: controller.streamLentBorrowTransactions(),
-              initialData: controller.cachedLentBorrow, // ✅ instant
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
-                }
+            Expanded(
+              child: StreamBuilder<List<TranItem>>(
+                stream: controller.streamLentBorrowTransactions(),
+                initialData: controller.cachedLentBorrow, // ✅ instant
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text("Error: ${snapshot.error}"));
+                  }
 
-                final live = snapshot.data ?? const <TranItem>[];
-                final cached = controller.cachedLentBorrow;
+                  final live = snapshot.data ?? const <TranItem>[];
+                  final cached = controller.cachedLentBorrow;
 
-                // ✅ keep cached until live arrives
-                final items = live.isNotEmpty ? live : cached;
+                  // ✅ keep cached until live arrives
+                  final items = live.isNotEmpty ? live : cached;
 
-                if (items.isEmpty) {
-                  return Center(
-                    child: Text("No lent or borrow transactions".tr),
+                  if (items.isEmpty) {
+                    return Center(
+                      child: Text("No lent or borrow transactions".tr),
+                    );
+                  }
+
+                  return SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Transactions".tr,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        ...items.map(
+                          (t) => _TransactionTile(
+                            item: t,
+                            onDelete: () async {
+                              await controller.deleteMonthlyTransaction(
+                                monthKey: t.monthKey,
+                                transactionId: t.id,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   );
-                }
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Transactions".tr,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    ...items.map(
-                      (t) => _TransactionTile(
-                        item: t,
-                        onDelete: () async {
-                          await controller.deleteMonthlyTransaction(
-                            monthKey: t.monthKey,
-                            transactionId: t.id,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
+                },
+              ),
             ),
           ],
         ),
@@ -271,9 +289,7 @@ Future<bool> showDeleteTransactionDialog() async {
         title: Text("Delete Transaction".tr),
         content: Padding(
           padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            "Are you sure you want to delete this transaction?".tr,
-          ),
+          child: Text("Are you sure you want to delete this transaction?".tr),
         ),
         actions: [
           CupertinoDialogAction(
@@ -297,9 +313,7 @@ Future<bool> showDeleteTransactionDialog() async {
         backgroundColor: Colors.white,
         title: Text("Delete Transaction".tr),
         content: Text("Are you sure you want to delete this transaction?".tr),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
@@ -307,10 +321,7 @@ Future<bool> showDeleteTransactionDialog() async {
           ),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: Text(
-              "Delete".tr,
-              style: const TextStyle(color: Colors.red),
-            ),
+            child: Text("Delete".tr, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -320,13 +331,8 @@ Future<bool> showDeleteTransactionDialog() async {
   }
 }
 
-
-
 class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({
-    required this.item,
-    required this.onDelete,
-  });
+  const _TransactionTile({required this.item, required this.onDelete});
 
   final TranItem item;
   final Future<void> Function() onDelete;
@@ -341,12 +347,13 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateText = numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date));
+    final dateText = numberTranslation.formatDateBnFromString(
+      DateFormat('dd MMM yyyy').format(item.date),
+    );
     final typeColor = _typeColor(item.type);
 
     return Dismissible(
       key: ValueKey(item.id),
-
 
       direction: DismissDirection.horizontal,
 
@@ -377,7 +384,7 @@ class _TransactionTile extends StatelessWidget {
         // ✅ Swipe Left → Right = Edit (DON'T dismiss)
         if (direction == DismissDirection.startToEnd) {
           Get.find<editTransactionsController>().assignValues(item);
-          Get.to(editTransactions(model: item,));
+          Get.to(editTransactions(model: item));
           return false;
         }
 
@@ -392,7 +399,6 @@ class _TransactionTile extends StatelessWidget {
 
         return false;
       },
-
 
       secondaryBackground: Container(
         margin: const EdgeInsets.only(bottom: 10),
@@ -415,117 +421,228 @@ class _TransactionTile extends StatelessWidget {
         ),
       ),
 
-
-
-
       child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: GestureDetector(
-          onLongPress: (){
+          onLongPress: () {
             Get.dialog(
-                Dialog(
-                  backgroundColor: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 10,
-                      children: [
-                        Row(
-                          spacing: 5,
-                          children: [
-                            Text(item.type.tr, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24.sp, color: typeColor),),
-                            Text("Transaction".tr, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22.sp, color: Colors.black),),
-                          ],
+              Dialog(
+                backgroundColor: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
+                    children: [
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Text(
+                            item.type.tr,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 24.sp,
+                              color: typeColor,
+                            ),
+                          ),
+                          Text(
+                            "Transaction".tr,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 22.sp,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "৳ ${numberTranslation.toBnDigits("${item.amount}")}",
+                          style: TextStyle(
+                            fontSize: 30.sp,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
                         ),
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: Text("৳ ${numberTranslation.toBnDigits("${item.amount}")}", style: TextStyle(fontSize: 30.sp, fontWeight: FontWeight.w800, color: Colors.black),)),
-                        Divider(),
-                        item.type == "Lent" || item.type == "Borrow" ? Row(
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.person, color: Colors.black, size: 15,),
-                            Text("Person Name:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(item.category.isEmpty ? "No Name".tr : item.category.tr, style: TextStyle(fontSize: 16.sp),),
-                          ],
-                        ) :
-                        Row(
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.category, color: Colors.black, size: 15,),
-                            Text("Category:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(item.category, style: TextStyle(fontSize: 16.sp,),),
-                          ],
-                        ),
-
-                        Row(
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.account_balance_wallet, color: Colors.black, size: 15,),
-                            Text("Wallet:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(item.wallet, style: TextStyle(fontSize: 16.sp),),
-                          ],
-                        ),
-
-                        Row(
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.date_range_rounded, color: Colors.black, size: 15,),
-                            Text("Date:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Text(dateText, style: TextStyle(fontSize: 16.sp),),
-                          ],
-                        ),
-
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 5,
-                          children: [
-                            Icon(Icons.edit_note_outlined, color: Colors.black, size: 15,),
-                            Text("Remark:".tr, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),),
-                            Expanded(child: Text(item.note.isEmpty ? "No Remark".tr : item.note.tr, style: TextStyle(fontSize: 16.sp),)),
-                          ],
-                        ),
-
-                        ElevatedButton(onPressed: () => Get.find<debtsController>().toggleTransactionMarked(monthKey: item.monthKey, transactionId: item.id),
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: item.marked ? Colors.orange : Colors.green,
+                      ),
+                      Divider(),
+                      item.type == "Lent" || item.type == "Borrow"
+                          ? Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.person,
+                                  color: Colors.black,
+                                  size: 15,
+                                ),
+                                Text(
+                                  "Person Name:".tr,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  item.category.isEmpty
+                                      ? "No Name".tr
+                                      : item.category.tr,
+                                  style: TextStyle(fontSize: 16.sp),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.category,
+                                  color: Colors.black,
+                                  size: 15,
+                                ),
+                                Text(
+                                  "Category:".tr,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  item.category,
+                                  style: TextStyle(fontSize: 16.sp),
+                                ),
+                              ],
                             ),
 
-                            child: Text("Mark as ${item.marked ? "Pending".tr : "Completed".tr}".tr, style: TextStyle(color: Colors.white),)),
-                        ElevatedButton(onPressed: () => Get.back(), child: Text("Close".tr, style: TextStyle(color: Colors.white),))
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Icon(
+                            Icons.account_balance_wallet,
+                            color: Colors.black,
+                            size: 15,
+                          ),
+                          Text(
+                            "Wallet:".tr,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(item.wallet, style: TextStyle(fontSize: 16.sp)),
+                        ],
+                      ),
 
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Icon(
+                            Icons.date_range_rounded,
+                            color: Colors.black,
+                            size: 15,
+                          ),
+                          Text(
+                            "Date:".tr,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(dateText, style: TextStyle(fontSize: 16.sp)),
+                        ],
+                      ),
 
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 5,
+                        children: [
+                          Icon(
+                            Icons.edit_note_outlined,
+                            color: Colors.black,
+                            size: 15,
+                          ),
+                          Text(
+                            "Remark:".tr,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              item.note.isEmpty ? "No Remark".tr : item.note.tr,
+                              style: TextStyle(fontSize: 16.sp),
+                            ),
+                          ),
+                        ],
+                      ),
 
-                      ],
-                    ),
+                      ElevatedButton(
+                        onPressed: () =>
+                            Get.find<debtsController>().toggleTransactionMarked(
+                              monthKey: item.monthKey,
+                              transactionId: item.id,
+                            ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: item.marked
+                              ? Colors.orange
+                              : Colors.green,
+                        ),
+
+                        child: Text(
+                          "Mark as ${item.marked ? "Pending".tr : "Completed".tr}"
+                              .tr,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Get.back(),
+                        child: Text(
+                          "Close".tr,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                )
+                ),
+              ),
             );
           },
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(18.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: typeColor.withOpacity(0.5),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 15,
-                      spreadRadius: 1,
-                      offset: const Offset(4, 1), // x, y
-                    ),
-                  ],
                 ),
-                child: Text(
-                  item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
-                  style: TextStyle(color: typeColor, fontSize: 20.sp, fontWeight: FontWeight.w600),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 7.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(18.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 15,
+                          spreadRadius: 1,
+                          offset: const Offset(4, 1), // x, y
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
+                      style: TextStyle(
+                        color: typeColor,
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 15,),
+              const SizedBox(width: 15),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,10 +652,18 @@ class _TransactionTile extends StatelessWidget {
                       spacing: 5,
                       children: [
                         Text(
-                          item.category.isEmpty ? "No Name".tr : item.category.tr,
+                          item.category.isEmpty
+                              ? "No Name".tr
+                              : item.category.tr,
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
-                        item.marked ? Icon(Icons.check_circle, color: Colors.green, size: 15,) : SizedBox.shrink()
+                        item.marked
+                            ? Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 15,
+                              )
+                            : SizedBox.shrink(),
                       ],
                     ),
                     Row(
@@ -546,7 +671,10 @@ class _TransactionTile extends StatelessWidget {
                       children: [
                         Text(
                           item.wallet.tr,
-                          style: const TextStyle(color: Colors.black54, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -558,14 +686,21 @@ class _TransactionTile extends StatelessWidget {
                 children: [
                   Text(
                     "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
-                    style: TextStyle(fontWeight: FontWeight.w800, color: typeColor),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: typeColor,
+                    ),
                   ),
                   Text(
                     dateText,
-                    style: const TextStyle(color: Colors.black54, fontSize: 12, fontStyle: FontStyle.italic,),
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),

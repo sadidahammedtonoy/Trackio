@@ -28,7 +28,7 @@ class AiScreen extends StatelessWidget {
                     final aiModel aiModelContext = controller.aiModels[index];
                     final text = aiModelContext.text;
 
-                    if (text == null || text.trim().isEmpty) {
+                    if (text.trim().isEmpty) {
                       return const SizedBox.shrink();
                     }
 

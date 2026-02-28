@@ -5,14 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../Transcations/Model/tranModel.dart';
-import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class dashboardController extends GetxController {
-
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
@@ -33,28 +28,24 @@ class dashboardController extends GetxController {
         .collection('items')
         .snapshots()
         .map((snap) {
-      double expense = 0, income = 0, saving = 0;
+          double expense = 0, income = 0, saving = 0;
 
-      for (final d in snap.docs) {
-        final data = d.data();
-        final type = (data['type'] ?? '').toString();
+          for (final d in snap.docs) {
+            final data = d.data();
+            final type = (data['type'] ?? '').toString();
 
-        final raw = data['amount'];
-        final amount = (raw is String)
-            ? double.tryParse(raw) ?? 0.0
-            : (raw as num?)?.toDouble() ?? 0.0;
+            final raw = data['amount'];
+            final amount = (raw is String)
+                ? double.tryParse(raw) ?? 0.0
+                : (raw as num?)?.toDouble() ?? 0.0;
 
-        if (type == "Expense") expense += amount;
-        if (type == "Income") income += amount;
-        if (type == "Saving") saving += amount;
-      }
+            if (type == "Expense") expense += amount;
+            if (type == "Income") income += amount;
+            if (type == "Saving") saving += amount;
+          }
 
-      return {
-        "expense": expense,
-        "income": income,
-        "saving": saving,
-      };
-    });
+          return {"expense": expense, "income": income, "saving": saving};
+        });
   }
 
   Stream<double> streamTodayExpense() {
@@ -72,30 +63,30 @@ class dashboardController extends GetxController {
         .collection('items')
         .snapshots()
         .map((snap) {
-      double total = 0;
+          double total = 0;
 
-      for (final doc in snap.docs) {
-        final data = doc.data();
+          for (final doc in snap.docs) {
+            final data = doc.data();
 
-        final type = (data['type'] ?? '').toString();
-        if (type != "Expense") continue;
+            final type = (data['type'] ?? '').toString();
+            if (type != "Expense") continue;
 
-        final ts = data['date'];
-        final date = (ts is Timestamp) ? ts.toDate().toLocal() : null;
-        if (date == null) continue;
+            final ts = data['date'];
+            final date = (ts is Timestamp) ? ts.toDate().toLocal() : null;
+            if (date == null) continue;
 
-        if (!_isSameDay(date, now)) continue;
+            if (!_isSameDay(date, now)) continue;
 
-        final raw = data['amount'];
-        final amount = (raw is String)
-            ? double.tryParse(raw) ?? 0.0
-            : (raw as num?)?.toDouble() ?? 0.0;
+            final raw = data['amount'];
+            final amount = (raw is String)
+                ? double.tryParse(raw) ?? 0.0
+                : (raw as num?)?.toDouble() ?? 0.0;
 
-        total += amount;
-      }
+            total += amount;
+          }
 
-      return total;
-    });
+          return total;
+        });
   }
 
   Stream<List<TranItem>> streamAllItems() {
@@ -118,9 +109,7 @@ class dashboardController extends GetxController {
             .get();
 
         all.addAll(
-          itemsSnap.docs.map(
-                (d) => TranItem.fromDoc(d, monthKey: monthDoc.id),
-          ),
+          itemsSnap.docs.map((d) => TranItem.fromDoc(d, monthKey: monthDoc.id)),
         );
       }
 
@@ -168,11 +157,10 @@ class dashboardController extends GetxController {
         .snapshots()
         .map(
           (snap) => snap.docs
-          .map((d) => TranItem.fromDoc(d, monthKey: currentMonthKey))
-          .toList(),
-    );
+              .map((d) => TranItem.fromDoc(d, monthKey: currentMonthKey))
+              .toList(),
+        );
   }
-
 
   // ✅ Expense-by-category (pie chart data)
   Stream<Map<String, double>> streamCategorySummary() {
@@ -181,7 +169,9 @@ class dashboardController extends GetxController {
 
       for (final t in items) {
         if (t.type != "Expense") continue; // expense-only pie
-        final cat = t.category.trim().isEmpty ? "Uncategorized" : t.category.trim();
+        final cat = t.category.trim().isEmpty
+            ? "Uncategorized"
+            : t.category.trim();
         map[cat] = (map[cat] ?? 0) + t.amount;
       }
 
@@ -267,15 +257,15 @@ class dashboardController extends GetxController {
         .doc('summary')
         .snapshots()
         .map((doc) {
-      if (!doc.exists) return 0.0;
+          if (!doc.exists) return 0.0;
 
-      final data = doc.data() as Map<String, dynamic>;
-      final raw = data['overallSaving'];
+          final data = doc.data() as Map<String, dynamic>;
+          final raw = data['overallSaving'];
 
-      return (raw is String)
-          ? double.tryParse(raw) ?? 0.0
-          : (raw as num?)?.toDouble() ?? 0.0;
-    });
+          return (raw is String)
+              ? double.tryParse(raw) ?? 0.0
+              : (raw as num?)?.toDouble() ?? 0.0;
+        });
   }
 
   final RxMap<String, double> cachedCategoryMap = <String, double>{}.obs;
@@ -334,7 +324,7 @@ class dashboardController extends GetxController {
       DateTime(now.year, now.month, now.day),
     );
 
-    return diff.inDays;
+    return diff.inDays + 1;
   }
 
   Stream<double> streamThisMonthSavings() {
@@ -351,29 +341,37 @@ class dashboardController extends GetxController {
         .collection('savings')
         .doc('items')
         .collection('list')
-    // ⚠️ Requires `date` field stored as Timestamp in each doc
+        // ⚠️ Requires `date` field stored as Timestamp in each doc
         .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
         .where('date', isLessThan: Timestamp.fromDate(endOfMonth))
         .snapshots()
         .map((snap) {
-      double total = 0.0;
+          double total = 0.0;
 
-      for (final d in snap.docs) {
-        final data = d.data();
-        final raw = data['amount'];
+          for (final d in snap.docs) {
+            final data = d.data();
+            final raw = data['amount'];
 
-        final amount = (raw is String)
-            ? double.tryParse(raw) ?? 0.0
-            : (raw as num?)?.toDouble() ?? 0.0;
+            final amount = (raw is String)
+                ? double.tryParse(raw) ?? 0.0
+                : (raw as num?)?.toDouble() ?? 0.0;
 
-        total += amount;
-      }
+            total += amount;
+          }
 
-      return total; // ✅ number
-    });
+          return total; // ✅ number
+        });
   }
 
-  var weeklyAmounts = <double>[0, 0, 0, 0, 0, 0, 0].obs; // sum of amounts per day
+  var weeklyAmounts = <double>[
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  ].obs; // sum of amounts per day
   var labels = <String>[].obs; // day labels
   var isLoading = true.obs;
 
@@ -407,7 +405,6 @@ class dashboardController extends GetxController {
     });
   }
 
-
   Stream<double> streamTotalSavings() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return const Stream.empty();
@@ -420,23 +417,20 @@ class dashboardController extends GetxController {
         .collection('list')
         .snapshots()
         .map((snap) {
-      double total = 0.0;
+          double total = 0.0;
 
-      for (final d in snap.docs) {
-        final data = d.data();
-        final raw = data['amount'];
+          for (final d in snap.docs) {
+            final data = d.data();
+            final raw = data['amount'];
 
-        final amount = (raw is String)
-            ? double.tryParse(raw) ?? 0.0
-            : (raw as num?)?.toDouble() ?? 0.0;
+            final amount = (raw is String)
+                ? double.tryParse(raw) ?? 0.0
+                : (raw as num?)?.toDouble() ?? 0.0;
 
-        total += amount;
-      }
+            total += amount;
+          }
 
-      return total; // ✅ return number
-    });
+          return total; // ✅ return number
+        });
   }
-
-
-
 }

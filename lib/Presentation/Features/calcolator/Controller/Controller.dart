@@ -28,7 +28,9 @@ class CalculatorController extends GetxController {
     if (v == '.' && expr.value.endsWith('.')) return;
 
     // avoid "++" or "*/" etc
-    if (_isOperator(v) && expr.value.isNotEmpty && _isOperator(expr.value.characters.last)) {
+    if (_isOperator(v) &&
+        expr.value.isNotEmpty &&
+        _isOperator(expr.value.characters.last)) {
       // replace last operator with new operator
       expr.value = expr.value.substring(0, expr.value.length - 1) + v;
       return;
@@ -58,11 +60,13 @@ class CalculatorController extends GetxController {
     final lastChunk = s.substring(start);
 
     // if chunk already starts with '-', remove it; else add '-'
-    if (start > 0 && s[start - 1] == '-' && (start - 2 < 0 || _isOperator(s[start - 2]) || s[start - 2] == '(')) {
+    if (start > 0 &&
+        s[start - 1] == '-' &&
+        (start - 2 < 0 || _isOperator(s[start - 2]) || s[start - 2] == '(')) {
       // remove the unary minus before number
       expr.value = s.substring(0, start - 1) + lastChunk;
     } else {
-      expr.value = s.substring(0, start) + '-' + lastChunk;
+      expr.value = '${s.substring(0, start)}-$lastChunk';
     }
   }
 
@@ -93,9 +97,7 @@ class CalculatorController extends GetxController {
 
     try {
       // Convert UI operators to parser operators
-      String e = expr.value
-          .replaceAll('×', '*')
-          .replaceAll('÷', '/');
+      String e = expr.value.replaceAll('×', '*').replaceAll('÷', '/');
 
       // Replace any trailing operator
       if (e.isNotEmpty && _isOperator(e[e.length - 1])) {
@@ -108,13 +110,13 @@ class CalculatorController extends GetxController {
 
       final val = exp.evaluate(EvaluationType.REAL, ctx);
       result.value = _pretty(val);
-
     } catch (_) {
       result.value = 'Error';
     }
   }
 
-  bool _isOperator(String c) => c == '+' || c == '-' || c == '×' || c == '÷' || c == '*' || c == '/';
+  bool _isOperator(String c) =>
+      c == '+' || c == '-' || c == '×' || c == '÷' || c == '*' || c == '/';
 
   String _pretty(num v) {
     // remove .0

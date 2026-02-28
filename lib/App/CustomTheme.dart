@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'AppColors.dart';
-
 final ThemeData customTheme = ThemeData(
   scaffoldBackgroundColor: Colors.transparent,
   // scaffoldBackgroundColor: Color(0xFFF2F2F6),

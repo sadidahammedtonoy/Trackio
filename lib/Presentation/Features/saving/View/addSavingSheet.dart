@@ -3,14 +3,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
 
+import '../../../../App/assets_path.dart';
+import '../../calcolator/View/calculator.dart';
 import '../Controller/Controller.dart';
 
 class AddSavingSheet extends StatelessWidget {
   final savingController controller;
-  const AddSavingSheet({required this.controller});
+  const AddSavingSheet({super.key, required this.controller});
 
   String _dateText(DateTime d) => DateFormat('dd MMM yyyy').format(d);
 
@@ -26,18 +29,27 @@ class AddSavingSheet extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CupertinoButton(
                       padding: EdgeInsets.zero,
-                      child: Text("Cancel".tr, style: TextStyle(color: Colors.black),),
+                      child: Text(
+                        "Cancel".tr,
+                        style: TextStyle(color: Colors.black),
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                     CupertinoButton(
                       padding: EdgeInsets.zero,
-                      child: Text("Done".tr, style: TextStyle(color: AppColors.primary),),
+                      child: Text(
+                        "Done".tr,
+                        style: TextStyle(color: AppColors.primary),
+                      ),
                       onPressed: () {
                         controller.selectedDate.value = temp;
                         Navigator.pop(context);
@@ -69,12 +81,12 @@ class AddSavingSheet extends StatelessWidget {
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              dialogBackgroundColor: Colors.white,
               colorScheme: const ColorScheme.light(
                 primary: Colors.black,
                 onPrimary: Colors.white,
                 onSurface: Colors.black,
               ),
+              dialogTheme: DialogThemeData(backgroundColor: Colors.white),
             ),
             child: child!,
           );
@@ -86,14 +98,9 @@ class AddSavingSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return background(
       child: Scaffold(
-        appBar: AppBar(
-          titleSpacing: -10,
-          title: Text("Add Saving".tr)
-      
-        ),
+        appBar: AppBar(titleSpacing: -10, title: Text("Add Saving".tr)),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: SingleChildScrollView(
@@ -101,29 +108,31 @@ class AddSavingSheet extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Obx(() => Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        controller.motivationTitle.value.tr,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                Obx(
+                  () => Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          controller.motivationTitle.value.tr,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        controller.motivationSubtitle.value.tr,
-                        style: const TextStyle(
+                        const SizedBox(height: 4),
+                        Text(
+                          controller.motivationSubtitle.value.tr,
+                          style: const TextStyle(
                             color: Colors.black54,
-                            fontSize: 13
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                )),
+                ),
                 const SizedBox(height: 12),
                 // Amount
                 TextField(
@@ -139,50 +148,58 @@ class AddSavingSheet extends StatelessWidget {
                     border: OutlineInputBorder(),
                   ),
                 ),
-            
+
                 const SizedBox(height: 12),
-            
+
                 // Date
-                Obx(() => InkWell(
-                  onTap: () => _pickDate(context),
-                  child: InputDecorator(
+                Obx(
+                  () => InkWell(
+                    onTap: () => _pickDate(context),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: "Date".tr,
+                        filled: false,
+                        fillColor: Colors.white,
+                        suffixIcon: Icon(
+                          Icons.calendar_month,
+                          color: Colors.black87,
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Text(
+                        _dateText(controller.selectedDate.value),
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Wallet dropdown
+                Obx(
+                  () => DropdownButtonFormField<String>(
+                    initialValue: controller.selectedWallet.value,
+                    items: controller.wallets
+                        .map(
+                          (w) => DropdownMenuItem(value: w, child: Text(w.tr)),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) controller.selectedWallet.value = v;
+                    },
+                    dropdownColor: Colors.white,
                     decoration: InputDecoration(
-                      labelText: "Date".tr,
                       filled: false,
                       fillColor: Colors.white,
-                      suffixIcon: Icon(Icons.calendar_month, color: Colors.black87),
+                      labelText: "Wallet".tr,
                       border: OutlineInputBorder(),
                     ),
-                    child: Text(
-                      _dateText(controller.selectedDate.value),
-                      style: const TextStyle(color: Colors.black),
-                    ),
                   ),
-                )),
-            
+                ),
+
                 const SizedBox(height: 12),
-            
-                // Wallet dropdown
-                Obx(() => DropdownButtonFormField<String>(
-                  value: controller.selectedWallet.value,
-                  items: controller.wallets
-                      .map((w) => DropdownMenuItem(value: w, child: Text(w.tr)))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) controller.selectedWallet.value = v;
-                  },
-                  dropdownColor: Colors.white,
-                  decoration: InputDecoration(
-                    filled: false,
-                    fillColor: Colors.white,
-                    labelText: "Wallet".tr,
-                    border: OutlineInputBorder(),
-                  ),
-                )),
-            
-            
-                const SizedBox(height: 12),
-            
+
                 // Source
                 TextField(
                   controller: controller.sourceC,
@@ -196,9 +213,9 @@ class AddSavingSheet extends StatelessWidget {
                     border: OutlineInputBorder(),
                   ),
                 ),
-            
+
                 const SizedBox(height: 12),
-            
+
                 // Note
                 TextField(
                   controller: controller.noteC,
@@ -209,25 +226,43 @@ class AddSavingSheet extends StatelessWidget {
                   },
                   decoration: InputDecoration(
                     labelText: "Note (optional)".tr,
-                    hintText: "Anything you want to remember about this saving...".tr,
+                    hintText:
+                        "Anything you want to remember about this saving...".tr,
                     border: OutlineInputBorder(),
                   ),
                 ),
-            
+
                 const SizedBox(height: 14),
-            
+
                 // Add button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     label: Text(
                       "Add".tr,
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     onPressed: controller.addSaving,
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+        floatingActionButton: GestureDetector(
+          onTap: () {
+            Get.dialog(CalculatorDialog(), barrierDismissible: true);
+          },
+          child: SizedBox(
+            width: 50,
+            height: 50,
+            child: Lottie.asset(
+              assets_path.calculator,
+              fit: BoxFit.contain,
+              repeat: false,
             ),
           ),
         ),

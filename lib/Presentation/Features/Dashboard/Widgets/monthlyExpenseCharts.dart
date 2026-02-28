@@ -37,7 +37,6 @@ class CategoryPieChart extends StatelessWidget {
     final controller = Get.find<dashboardController>();
 
     return Obx(() {
-      // ✅ Always use cached data (instant, no flicker)
       final data = controller.cachedCategoryMap;
 
       if (data.isEmpty) {
@@ -48,21 +47,21 @@ class CategoryPieChart extends StatelessWidget {
         );
       }
 
-      // Stable order for colors + legend
-      final entries = data.entries.toList();
+      // ✅ Sort entries high → low
+      final sortedEntries = data.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
 
-      final total = entries.fold<double>(0.0, (sum, e) => sum + e.value);
+      final total = sortedEntries.fold<double>(0.0, (sum, e) => sum + e.value);
 
-      final sections = List.generate(entries.length, (i) {
-        final entry = entries[i];
+      // PieChart sections
+      final sections = List.generate(sortedEntries.length, (i) {
+        final entry = sortedEntries[i];
         final value = entry.value;
         final percent = total == 0 ? 0 : (value / total) * 100;
 
-
-
         return PieChartSectionData(
           value: value,
-          color: _palette[i % _palette.length],
+          color: _palette[i % _palette.length], // color now matches sorted order
           radius: 70,
           title: percent >= 8 ? "${percent.toStringAsFixed(0)}%" : "",
           titleStyle: const TextStyle(
@@ -94,11 +93,9 @@ class CategoryPieChart extends StatelessWidget {
             Wrap(
               spacing: 14,
               runSpacing: 12,
-              children: List.generate(entries.length, (i) {
-                final sortedEntries = [...entries]
-                  ..sort((a, b) => b.value.compareTo(a.value));
+              children: List.generate(sortedEntries.length, (i) {
                 final entry = sortedEntries[i];
-                final color = _palette[i % _palette.length];
+                final color = _palette[i % _palette.length]; // color matches pie
 
                 return Row(
                   mainAxisSize: MainAxisSize.min,

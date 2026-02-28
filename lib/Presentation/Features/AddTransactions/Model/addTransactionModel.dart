@@ -39,8 +39,8 @@ class addTranModel {
 
   @override
   String toString() {
-    return 'addTranModel{' +
-        ' type: $type,' +
+    return 'addTranModel{'
+            ' type: $type,' +
         ' date: $date,' +
         ' amount: $amount,' +
         ' wallet: $wallet,' +
@@ -69,12 +69,12 @@ class addTranModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'type': this.type,
-      'date': this.date,
-      'amount': this.amount,
-      'wallet': this.wallet,
-      'category': this.category,
-      'note': this.note,
+      'type': type,
+      'date': date,
+      'amount': amount,
+      'wallet': wallet,
+      'category': category,
+      'note': note,
     };
   }
 

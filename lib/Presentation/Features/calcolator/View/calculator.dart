@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sadid/App/AppColors.dart';
 import '../Controller/Controller.dart';
 
 class CalculatorDialog extends StatelessWidget {
@@ -37,34 +36,41 @@ class CalculatorDialog extends StatelessWidget {
               ),
 
               // Display
-              Obx(() => Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      c.expr.value.isEmpty ? "0" : c.expr.value,
-                      textAlign: TextAlign.right,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      c.result.value,
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: c.result.value == 'Error' ? Colors.red : Colors.black,
+              Obx(
+                () => Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        c.expr.value.isEmpty ? "0" : c.expr.value,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        c.result.value,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: c.result.value == 'Error'
+                              ? Colors.red
+                              : Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              )),
+              ),
 
               const SizedBox(height: 12),
 
@@ -137,7 +143,7 @@ class CalculatorDialog extends StatelessWidget {
           for (int i = 0; i < rowBtns.length; i++) ...[
             Expanded(child: _btn(rowBtns[i])),
             if (i != rowBtns.length - 1) const SizedBox(width: 8),
-          ]
+          ],
         ],
       ),
     );
@@ -189,11 +195,11 @@ class _CalcBtn {
   final int span;
 
   _CalcBtn(
-      this.label, {
-        required this.onTap,
-        this.isOp = false,
-        this.isEqual = false,
-        this.isTop = false,
-        this.span = 1,
-      });
+    this.label, {
+    required this.onTap,
+    this.isOp = false,
+    this.isEqual = false,
+    this.isTop = false,
+    this.span = 1,
+  });
 }

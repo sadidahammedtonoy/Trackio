@@ -29,19 +29,14 @@ class settingController extends GetxController {
       Get.offAllNamed(routes.login_screen);
 
       AppSnackbar.show("Logged out successfully".tr);
-    } catch (e, s) {
+    } catch (e) {
       AppLoader.hide();
 
-      AppSnackbar.show(
-        "Unable to logout. Please try again.".tr,
-      );
+      AppSnackbar.show("Unable to logout. Please try again.".tr);
     }
   }
 
-  Future<void> showLogoutDialog({
-    required VoidCallback onConfirm,
-  }) async {
-
+  Future<void> showLogoutDialog({required VoidCallback onConfirm}) async {
     if (GetPlatform.isIOS) {
       // iOS Style (Cupertino)
       await Get.dialog(
@@ -51,7 +46,8 @@ class settingController extends GetxController {
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               isGuestUser()
-                  ? "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe.".tr
+                  ? "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe."
+                        .tr
                   : "Are you sure you want to logout?".tr,
             ),
           ),
@@ -80,7 +76,8 @@ class settingController extends GetxController {
           title: Text("Logout".tr),
           content: Text(
             isGuestUser()
-                ? "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe.".tr
+                ? "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe."
+                      .tr
                 : "Are you sure you want to logout?".tr,
           ),
           shape: RoundedRectangleBorder(
@@ -111,7 +108,6 @@ class settingController extends GetxController {
       );
     }
   }
-
 
   String getUserName() {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -217,7 +213,7 @@ class settingController extends GetxController {
     }
 
     final isEmailUser = user.providerData.any(
-          (p) => p.providerId == EmailAuthProvider.PROVIDER_ID,
+      (p) => p.providerId == EmailAuthProvider.PROVIDER_ID,
     );
 
     final passCtrl = TextEditingController();
@@ -234,9 +230,9 @@ class settingController extends GetxController {
             const SizedBox(height: 8),
             Text(
               "${"delete_warning_title".tr}\n\n"
-                  "${"delete_warning_1".tr}\n"
-                  "${"delete_warning_2".tr}\n"
-                  "${"delete_warning_3".tr}",
+              "${"delete_warning_1".tr}\n"
+              "${"delete_warning_2".tr}\n"
+              "${"delete_warning_3".tr}",
             ),
             const SizedBox(height: 12),
 
@@ -248,18 +244,18 @@ class settingController extends GetxController {
               const SizedBox(height: 8),
               GetPlatform.isIOS
                   ? CupertinoTextField(
-                controller: passCtrl,
-                obscureText: true,
-                placeholder: "Current password".tr,
-              )
+                      controller: passCtrl,
+                      obscureText: true,
+                      placeholder: "Current password".tr,
+                    )
                   : TextField(
-                controller: passCtrl,
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: "Current password".tr,
-                ),
-              ),
+                      controller: passCtrl,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        hintText: "Current password".tr,
+                      ),
+                    ),
               const SizedBox(height: 6),
               Text(
                 "Note: Password is required to delete an email/password account."
@@ -275,7 +271,8 @@ class settingController extends GetxController {
             ] else ...[
               Text(
                 "${"You are signed in with Google/Apple/other provider.".tr}\n"
-                    "If deletion fails, you may need to re-login and try again.".tr,
+                        "If deletion fails, you may need to re-login and try again."
+                    .tr,
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
@@ -292,8 +289,9 @@ class settingController extends GetxController {
           content: Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Align(
-                alignment: Alignment.centerLeft,
-                child: buildContent()),
+              alignment: Alignment.centerLeft,
+              child: buildContent(),
+            ),
           ),
           actions: [
             CupertinoDialogAction(
@@ -371,7 +369,7 @@ class settingController extends GetxController {
 
       // 🔐 Email/Password account: re-auth required
       final isEmailUser = user.providerData.any(
-            (p) => p.providerId == EmailAuthProvider.PROVIDER_ID,
+        (p) => p.providerId == EmailAuthProvider.PROVIDER_ID,
       );
 
       if (isEmailUser) {
@@ -418,7 +416,7 @@ class settingController extends GetxController {
         AppSnackbar.show("Current password is incorrect.".tr);
       } else if (e.code == 'requires-recent-login') {
         AppSnackbar.show(
-                "For security, please login again and then delete your account.".tr,
+          "For security, please login again and then delete your account.".tr,
         );
       } else {
         AppSnackbar.show(e.message ?? "Account deletion failed.".tr);
@@ -483,7 +481,9 @@ class settingController extends GetxController {
     }
 
     if (!isEmailPasswordUser()) {
-      AppSnackbar.show("Name change is available for email/password accounts only.".tr);
+      AppSnackbar.show(
+        "Name change is available for email/password accounts only.".tr,
+      );
       return;
     }
 
@@ -501,10 +501,7 @@ class settingController extends GetxController {
       await user.updateDisplayName(newName);
 
       // ✅ Update Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .set({
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         "name": newName,
         "updatedAt": FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -517,8 +514,4 @@ class settingController extends GetxController {
       AppSnackbar.show("Failed. Try again.");
     }
   }
-
-
-
-
 }

@@ -1,13 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../Core/loading.dart';
 import '../../../../Core/snakbar.dart';
-
 
 class HelpSupportController extends GetxController {
   final search = "".obs;
@@ -27,43 +25,43 @@ class HelpSupportController extends GetxController {
       "category": "Account",
       "q": "How do I log in as Guest?",
       "a":
-      "Tap 'Continue as Guest' on the login screen. Your data will be stored under an anonymous Firebase UID. If you logout as guest, data may be lost.",
+          "Tap 'Continue as Guest' on the login screen. Your data will be stored under an anonymous Firebase UID. If you logout as guest, data may be lost.",
     },
     {
       "category": "Account",
       "q": "How do I change my password?",
       "a":
-      "Password change is available only for Email/Password accounts. Go to Settings → Security → Change Password.",
+          "Password change is available only for Email/Password accounts. Go to Settings → Security → Change Password.",
     },
     {
       "category": "Data & Sync",
       "q": "Where is my data stored?",
       "a":
-      "Your financial records are stored in Firebase Firestore using your UID, so only your account can access your data.",
+          "Your financial records are stored in Firebase Firestore using your UID, so only your account can access your data.",
     },
     {
       "category": "Data & Sync",
       "q": "Why is my data not syncing?",
       "a":
-      "Please check internet connection, login status, and try again. If you are in guest mode and logged out, previous data may not be recoverable.",
+          "Please check internet connection, login status, and try again. If you are in guest mode and logged out, previous data may not be recoverable.",
     },
     {
       "category": "Transactions",
       "q": "How do I add income/expense?",
       "a":
-      "Go to Add Transaction → Press on (+) icon → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Add Transaction Button.",
+          "Go to Add Transaction → Press on (+) icon → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Add Transaction Button.",
     },
     {
       "category": "Security",
       "q": "Is my data secure?",
       "a":
-      "We use Firebase Authentication and Firestore security rules. Your data is linked to your UID. Keep your device secure and use a strong password.",
+          "We use Firebase Authentication and Firestore security rules. Your data is linked to your UID. Keep your device secure and use a strong password.",
     },
     {
       "category": "Troubleshooting",
       "q": "The app is slow or stuck on loading. What should I do?",
       "a":
-      "Close and reopen the app, check network, and update to the latest version. You can also clear cache from Settings if available.",
+          "Close and reopen the app, check network, and update to the latest version. You can also clear cache from Settings if available.",
     },
   ].obs;
 
@@ -105,7 +103,10 @@ class HelpSupportController extends GetxController {
                   Expanded(
                     child: Text(
                       "Report a problem".tr,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -135,8 +136,11 @@ class HelpSupportController extends GetxController {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.send, color: Colors.white,),
-                  label: Text("Submit".tr, style: TextStyle(color: Colors.white),),
+                  icon: const Icon(Icons.send, color: Colors.white),
+                  label: Text(
+                    "Submit".tr,
+                    style: TextStyle(color: Colors.white),
+                  ),
                   onPressed: () async {
                     final title = titleCtrl.text.trim();
                     final details = detailsCtrl.text.trim();
@@ -149,15 +153,14 @@ class HelpSupportController extends GetxController {
                     // TODO: Send to Firestore / API / email
                     Get.back();
                     await sendUserReportToFirebase(
-                    title: titleCtrl.text,
-                    message: detailsCtrl.text,
-                    category: selectedCategory.value,
-                    extra: {
-                      "screen": "HelpSupportPage",
-                      "appVersion": "1.0.0",
-                    },
+                      title: titleCtrl.text,
+                      message: detailsCtrl.text,
+                      category: selectedCategory.value,
+                      extra: {
+                        "screen": "HelpSupportPage",
+                        "appVersion": "1.0.0",
+                      },
                     );
-
                   },
                 ),
               ),
@@ -224,4 +227,3 @@ class HelpSupportController extends GetxController {
     }
   }
 }
-

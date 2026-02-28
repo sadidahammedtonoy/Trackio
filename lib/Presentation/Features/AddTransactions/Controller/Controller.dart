@@ -15,8 +15,6 @@ class addTranscationsController extends GetxController {
   final categories = <Map<String, dynamic>>[].obs;
   final selectedCategoryId = RxnString();
 
-
-
   Future<void> fetchCategories() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -27,24 +25,16 @@ class addTranscationsController extends GetxController {
         .collection('categories')
         .get();
 
-    categories.value = snap.docs
-        .map((d) => {
-      "id": d.id,
-      ...d.data(),
-    })
-        .toList();
+    categories.value = snap.docs.map((d) => {"id": d.id, ...d.data()}).toList();
 
     // Safety: reset invalid selection
     if (selectedCategoryId.value != null) {
-      final exists =
-      categories.any((e) => e["id"] == selectedCategoryId.value);
+      final exists = categories.any((e) => e["id"] == selectedCategoryId.value);
       if (!exists) selectedCategoryId.value = null;
     }
   }
 
-  Future<String?> addMonthlyTransaction({
-    required addTranModel model,
-  }) async {
+  Future<String?> addMonthlyTransaction({required addTranModel model}) async {
     AppLoader.show(message: "Adding transaction...".tr);
 
     try {
@@ -52,7 +42,7 @@ class addTranscationsController extends GetxController {
       if (user == null) {
         AppSnackbar.show("User not logged in".tr);
         throw Exception("User not logged in");
-      };
+      }
 
       final monthKey =
           "${model.date.year}-${model.date.month.toString().padLeft(2, '0')}";
@@ -69,7 +59,7 @@ class addTranscationsController extends GetxController {
       }, SetOptions(merge: true));
 
       final ref = monthRef.collection('items').doc();
-      if(model.type == "Lent" || model.type == "Borrow"){
+      if (model.type == "Lent" || model.type == "Borrow") {
         await ref.set({
           "type": model.type,
           "date": Timestamp.fromDate(model.date),
@@ -81,7 +71,7 @@ class addTranscationsController extends GetxController {
           "createdAt": FieldValue.serverTimestamp(),
           "marked": false,
         });
-      }else{
+      } else {
         await ref.set({
           "type": model.type,
           "date": Timestamp.fromDate(model.date),
@@ -93,7 +83,6 @@ class addTranscationsController extends GetxController {
           "createdAt": FieldValue.serverTimestamp(),
         });
       }
-
 
       AppLoader.hide();
       Get.back();
@@ -113,5 +102,4 @@ class addTranscationsController extends GetxController {
     super.onInit();
     fetchCategories();
   }
-
 }

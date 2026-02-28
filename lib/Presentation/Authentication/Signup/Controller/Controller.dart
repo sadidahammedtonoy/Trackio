@@ -12,7 +12,8 @@ class signupController extends GetxController {
   var confirmPassword = true.obs;
 
   void togglePassword() => password.value = !password.value;
-  void toggleConfirmPassword() => confirmPassword.value = !confirmPassword.value;
+  void toggleConfirmPassword() =>
+      confirmPassword.value = !confirmPassword.value;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -39,7 +40,7 @@ class signupController extends GetxController {
       );
 
       final user = credential.user;
-      if (user == null){
+      if (user == null) {
         AppSnackbar.show("Account creation failed. Please try again.".tr);
         throw Exception("Account creation failed. Please try again.");
       }
@@ -70,7 +71,7 @@ class signupController extends GetxController {
       final msg = _firebaseAuthErrorMessage(e);
       AppSnackbar.show(msg.tr);
       return null;
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       AppLoader.hide();
       // Firestore related errors
       AppSnackbar.show("Could not save user info. Please try again.".tr);
@@ -98,7 +99,8 @@ class signupController extends GetxController {
       case 'weak-password':
         return "Password is too weak. Use at least 6 characters.".tr;
       case 'operation-not-allowed':
-        return "Email/password accounts are not enabled in Firebase Console.".tr;
+        return "Email/password accounts are not enabled in Firebase Console."
+            .tr;
       case 'network-request-failed':
         return "No internet connection. Please check your network.".tr;
       case 'too-many-requests':
@@ -106,11 +108,8 @@ class signupController extends GetxController {
       case 'user-disabled':
         return "This account has been disabled. Contact support.".tr;
       default:
-      // Fallback to message if available
+        // Fallback to message if available
         return e.message ?? "Something went wrong. Please try again.".tr;
     }
   }
-
-
-
 }

@@ -24,9 +24,7 @@ class loginController extends GetxController {
 
     final code = Get.locale?.languageCode ?? 'en';
 
-    language = (code == 'bn')
-        ? "বাংলা".obs
-        : "English".obs;
+    language = (code == 'bn') ? "বাংলা".obs : "English".obs;
   }
 
   /// Optional loader flag (you already use it in google sign-in)
@@ -50,11 +48,7 @@ class loginController extends GetxController {
   }
 
   DocumentReference<Map<String, dynamic>> _langDoc(String uid) {
-    return _db
-        .collection('users')
-        .doc(uid)
-        .collection('settings')
-        .doc('app');
+    return _db.collection('users').doc(uid).collection('settings').doc('app');
   }
 
   Locale _localeFromToggle() {
@@ -110,11 +104,11 @@ class loginController extends GetxController {
       if (user == null) {
         AppSnackbar.show("Anonymous user is null".tr);
         throw Exception("Anonymous user is null");
-      };
+      }
       if (!user.isAnonymous) {
         AppSnackbar.show("User is not anonymous".tr);
         throw Exception("User is not anonymous");
-      };
+      }
 
       // Apply local language immediately (guest has no firebase settings)
       Get.updateLocale(_localeFromToggle());
@@ -123,10 +117,9 @@ class loginController extends GetxController {
       AppSnackbar.show("Logged in as guest".tr);
       Get.find<caregoriesController>().addDefaultCategories();
 
-
       // Navigate
       Get.offAllNamed(routes.navbar_screen);
-    } catch (e, s) {
+    } catch (e) {
       AppLoader.hide();
       AppSnackbar.show("Unable to continue as guest. Please try again.".tr);
     }
@@ -201,8 +194,7 @@ class loginController extends GetxController {
         return null;
       }
 
-      if (e.code == 'wrong-password' ||
-          e.code == 'INVALID_LOGIN_CREDENTIALS') {
+      if (e.code == 'wrong-password' || e.code == 'INVALID_LOGIN_CREDENTIALS') {
         AppSnackbar.show("Incorrect password.".tr);
         return null;
       }
@@ -229,7 +221,7 @@ class loginController extends GetxController {
 
       // 2) Get auth details
       final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
+          await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
