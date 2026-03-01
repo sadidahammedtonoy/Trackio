@@ -14,7 +14,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class transcations_page extends StatelessWidget {
   final controller = Get.put(transactionsController());
 
-   transcations_page({super.key});
+  transcations_page({super.key});
 
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -45,6 +45,79 @@ class transcations_page extends StatelessWidget {
     return map;
   }
 
+  Map<String, double> _calculateCategoryTotals(List<TranItem> items) {
+    final totals = <String, double>{};
+    for (final t in items) {
+      String key;
+      if (t.type == "Lent" || t.type == "Borrow") {
+        key = t.type;
+      } else {
+        key = t.category.isEmpty ? "Uncategorized" : t.category;
+      }
+      totals[key] = (totals[key] ?? 0.0) + t.amount;
+    }
+    return totals;
+  }
+
+  Widget _buildSummary(List<TranItem> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
+    final totals = _calculateCategoryTotals(items);
+
+    return Container(
+      height: 40.h,
+      margin: EdgeInsets.only(bottom: 10.h, top: 8.h),
+      child: ListView.separated(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        scrollDirection: Axis.horizontal,
+        itemCount: totals.length,
+        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        itemBuilder: (context, index) {
+          final entry = totals.entries.elementAt(index);
+          return Obx(() {
+            final isSelected = controller.selectedCategoryFilter.value == entry.key;
+            return GestureDetector(
+              onTap: () => controller.toggleCategoryFilter(entry.key),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(horizontal: 14.w),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.primary : AppColors.primary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: isSelected ? AppColors.primary : AppColors.primary.withOpacity(0.15),
+                  ),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "${entry.key.tr}: ",
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        "৳${numberTranslation.toBnDigits(entry.value.toStringAsFixed(0))}",
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: isSelected ? Colors.white : AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          });
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     controller.setMonthFromDate(DateTime.now());
@@ -53,11 +126,27 @@ class transcations_page extends StatelessWidget {
       appBar: AppBar(
         title: Obx(() {
           final selected = controller.selectedMonthKey.value;
-          return Text(
-            selected == null ? "All Transactions".tr : "Month: $selected",
+          if (selected == null) return Text("All Transactions".tr);
+          
+          final formattedDate = numberTranslation.formatMonthYearBnFromKey(selected);
+          return Row(
+            children: [
+              Text("Month".tr),
+              const Text(": "),
+              Text(formattedDate),
+            ],
           );
         }),
         actions: [
+          Obx(() => IconButton(
+            icon: Icon(
+              controller.isSearchVisible.value ? Icons.close : Icons.search,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              controller.toggleSearch();
+            },
+          )),
           IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.black),
             onPressed: () {
@@ -67,101 +156,182 @@ class transcations_page extends StatelessWidget {
         ],
       ),
       body: Obx(() {
-        return Column(
+        return Stack(
           children: [
-            // ✅ List area
-            Expanded(
-              child: StreamBuilder<List<TranItem>>(
-                stream: controller.streamTxnForUI(),
-                initialData: controller.cachedTxnForUI(), // ✅ show instantly
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text("Error: ${snapshot.error}"));
-                  }
+            Column(
+              children: [
+                if (controller.isSearchVisible.value)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: TextFormField(
+                      autofocus: true,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: "Search Category or Remark...".tr,
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.primary),
+                        ),
+                      ),
+                      onChanged: (val) => controller.setSearchQuery(val),
+                    ),
+                  ),
+                // ✅ List area
+                Expanded(
+                  child: StreamBuilder<List<TranItem>>(
+                    stream: controller.streamTxnForUI(),
+                    initialData: controller.cachedTxnForUI(), // ✅ show instantly
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(child: Text("Error: ${snapshot.error}"));
+                      }
 
-                  // ✅ Prefer live data; if live is empty but cache has items, keep cache
-                  final live = snapshot.data ?? const <TranItem>[];
-                  final cached = controller.cachedTxnForUI();
-                  final items = live.isNotEmpty ? live : cached;
+                      // We use cachedTxnForUI to handle searching and category filtering
+                      final items = controller.cachedTxnForUI();
 
-                  if (items.isEmpty) {
-                    return Center(child: Text("No transactions yet".tr));
-                  }
+                      if (items.isEmpty && controller.searchQuery.isEmpty && controller.selectedCategoryFilter.value == null) {
+                         // If everything is empty (no filters, no search, no data)
+                         // But if we have live data from stream, use it.
+                         final live = snapshot.data ?? const <TranItem>[];
+                         if (live.isEmpty) return Center(child: Text("No transactions found".tr));
+                      }
 
-                  final now = DateTime.now();
-                  final grouped = _groupByDate(items);
-                  final days = grouped.keys.toList()
-                    ..sort((a, b) => b.compareTo(a));
+                      if (items.isEmpty) {
+                         return Center(child: Text("No matching transactions found".tr));
+                      }
 
-                  String titleForDay(DateTime day) {
-                    if (_isSameDay(day, now)) return "Today Transactions".tr;
-                    if (_isSameDay(
-                      day,
-                      now.subtract(const Duration(days: 1)),
-                    )) {
-                      return "Yesterday Transactions".tr;
-                    }
-                    return numberTranslation.formatDateBnFromString(
-                      DateFormat('dd MMM yyyy').format(day),
-                    );
-                  }
+                      final isMonthSelected = controller.selectedMonthKey.value != null;
 
-                  Widget header(DateTime day, List<TranItem> list) {
-                    final total = _sectionTotal(list);
-                    final isPositive = total >= 0;
+                      final now = DateTime.now();
+                      final grouped = _groupByDate(items);
+                      final days = grouped.keys.toList()
+                        ..sort((a, b) => b.compareTo(a));
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            titleForDay(day),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
+                      String titleForDay(DateTime day) {
+                        if (_isSameDay(day, now)) return "Today Transactions".tr;
+                        if (_isSameDay(
+                          day,
+                          now.subtract(const Duration(days: 1)),
+                        )) {
+                          return "Yesterday Transactions".tr;
+                        }
+                        return numberTranslation.formatDateBnFromString(
+                          DateFormat('dd MMM yyyy').format(day),
+                        );
+                      }
+
+                      Widget header(DateTime day, List<TranItem> list) {
+                        final total = _sectionTotal(list);
+                        final isPositive = total >= 0;
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                titleForDay(day),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                "${isPositive ? '+' : ''}${numberTranslation.toBnDigits(total.toStringAsFixed(0))}",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: isPositive ? Colors.green : Colors.red,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            "${isPositive ? '+' : ''}${numberTranslation.toBnDigits(total.toStringAsFixed(0))}",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: isPositive ? Colors.green : Colors.red,
+                        );
+                      }
+
+                      Widget buildTile(TranItem t) => _TransactionTile(
+                        item: t,
+                        onDelete: () async {
+                          await controller.deleteMonthlyTransaction(
+                            monthKey: t.monthKey,
+                            transactionId: t.id,
+                          );
+                        },
+                      );
+
+                      return Column(
+                        children: [
+                          if (isMonthSelected) 
+                             StreamBuilder<List<TranItem>>(
+                               stream: controller.streamTxnForUI(),
+                               builder: (context, snap) {
+                                  // Always calculate summary from ALL items in the current month/view, ignoring category filter
+                                  return _buildSummary(snap.data ?? controller.cachedMonthItems);
+                               }
+                             ),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              controller: controller.scrollController,
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: days.expand((day) {
+                                  final list = grouped[day]!;
+                                  return [
+                                    header(day, list),
+                                    ...list.map(buildTile),
+                                    const SizedBox(height: 14),
+                                  ];
+                                }).toList(),
+                              ),
                             ),
                           ),
                         ],
-                      ),
-                    );
-                  }
-
-                  Widget buildTile(TranItem t) => _TransactionTile(
-                    item: t,
-                    onDelete: () async {
-                      await controller.deleteMonthlyTransaction(
-                        monthKey: t.monthKey,
-                        transactionId: t.id,
                       );
                     },
-                  );
-
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: days.expand((day) {
-                        final list = grouped[day]!;
-                        return [
-                          header(day, list),
-                          ...list.map(buildTile),
-                          const SizedBox(height: 14),
-                        ];
-                      }).toList(),
-                    ),
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
+            if (controller.showScrollToTop.value)
+              Positioned(
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: OutlinedButton.icon(
+                    onPressed: controller.scrollToTop,
+                    label: Text(
+                      "Scroll to top".tr,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    icon: const Icon(Icons.arrow_upward, size: 16, color: Color(0xFF06B6D4)),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.black.withOpacity(0.7),
+                      side: const BorderSide(color: Color(0xFF06B6D4), width: 1.2),
+                      shape: const StadiumBorder(),
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                ),
+              ),
           ],
         );
       }),
@@ -628,7 +798,7 @@ void _showMonthFilterSheet(BuildContext context) {
                 // --- Drag Handle ---
                 Center(
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 12, bottom: 20),
+                    padding: const EdgeInsets.only(top: 12),
                     child: Container(
                       width: 40,
                       height: 4,
@@ -685,7 +855,7 @@ void _showMonthFilterSheet(BuildContext context) {
                     () => _MonthTile(
                       icon: Icons.sick_outlined,
                       label: "All Months".tr,
-                      isSelected: controller.selectedMonth.value == null,
+                      isSelected: controller.selectedMonthKey.value == null,
                       onTap: () {
                         controller.selectMonth(null);
                         Get.back();
@@ -702,7 +872,7 @@ void _showMonthFilterSheet(BuildContext context) {
                       () => _MonthTile(
                         icon: Icons.calendar_month_outlined,
                         label: numberTranslation.formatMonthYearBnFromKey(m),
-                        isSelected: controller.selectedMonth.value == m,
+                        isSelected: controller.selectedMonthKey.value == m,
                         onTap: () {
                           controller.selectMonth(m);
                           Get.back();
