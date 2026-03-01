@@ -10,7 +10,6 @@ class AppSnackbar {
     /// Close any previous snackbar (optional)
     if (Get.isSnackbarOpen) Get.closeAllSnackbars();
 
-
     Get.rawSnackbar(
       title: title.isEmpty ? null : title,
       message: message,
