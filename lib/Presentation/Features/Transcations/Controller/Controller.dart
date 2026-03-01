@@ -14,6 +14,45 @@ class transactionsController extends GetxController {
   // ✅ month filter toggle: null = ALL months
   final RxnString selectedMonthKey = RxnString(null);
 
+  // Search logic
+  final RxBool isSearchVisible = false.obs;
+  final RxString searchQuery = ''.obs;
+
+  // Category filter logic
+  final RxnString selectedCategoryFilter = RxnString(null);
+
+  void toggleCategoryFilter(String category) {
+    if (selectedCategoryFilter.value == category) {
+      selectedCategoryFilter.value = null;
+    } else {
+      selectedCategoryFilter.value = category;
+    }
+  }
+
+  // Scroll to top logic
+  final ScrollController scrollController = ScrollController();
+  final RxBool showScrollToTop = false.obs;
+  Timer? _scrollStopTimer;
+
+  void toggleSearch() {
+    isSearchVisible.value = !isSearchVisible.value;
+    if (!isSearchVisible.value) {
+      searchQuery.value = '';
+    }
+  }
+
+  void setSearchQuery(String query) {
+    searchQuery.value = query;
+  }
+
+  void scrollToTop() {
+    scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   void setMonthFromDate(DateTime date) {
     monthKey.value = "${date.year}-${date.month.toString().padLeft(2, '0')}";
   }
@@ -21,6 +60,8 @@ class transactionsController extends GetxController {
   void selectMonth(String? key) {
     // null => show ALL transactions
     selectedMonthKey.value = key;
+    // reset category filter when month changes
+    selectedCategoryFilter.value = null;
   }
 
   final RxList<TranItem> cachedAllItems = <TranItem>[].obs;
@@ -32,6 +73,21 @@ class transactionsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    scrollController.addListener(() {
+      if (scrollController.offset > 300) {
+        showScrollToTop.value = true;
+        
+        // Reset timer whenever user scrolls
+        _scrollStopTimer?.cancel();
+        _scrollStopTimer = Timer(const Duration(seconds: 1), () {
+          showScrollToTop.value = false;
+        });
+      } else {
+        showScrollToTop.value = false;
+        _scrollStopTimer?.cancel();
+      }
+    });
 
     // Keep "all items" hot
     _allSub = streamAllItems().listen((list) {
@@ -56,6 +112,8 @@ class transactionsController extends GetxController {
   void onClose() {
     _allSub?.cancel();
     _monthSub?.cancel();
+    _scrollStopTimer?.cancel();
+    scrollController.dispose();
     super.onClose();
   }
 
@@ -68,7 +126,27 @@ class transactionsController extends GetxController {
   /// ✅ Cached fallback for UI
   List<TranItem> cachedTxnForUI() {
     final isAll = selectedMonthKey.value == null;
-    return isAll ? cachedAllItems : cachedMonthItems;
+    var items = isAll ? cachedAllItems : cachedMonthItems;
+    
+    // Apply Category Filter
+    if (selectedCategoryFilter.value != null) {
+      final cat = selectedCategoryFilter.value!;
+      items = items.where((item) {
+        if (item.type == "Lent" || item.type == "Borrow") {
+          return item.type == cat;
+        }
+        final displayCat = item.category.isEmpty ? "Uncategorized" : item.category;
+        return displayCat == cat;
+      }).toList().obs;
+    }
+
+    if (searchQuery.isEmpty) return items;
+    
+    return items.where((item) {
+      final categoryMatch = item.category.toLowerCase().contains(searchQuery.value.toLowerCase());
+      final remarkMatch = item.note.toLowerCase().contains(searchQuery.value.toLowerCase());
+      return categoryMatch || remarkMatch;
+    }).toList();
   }
 
   // ✅ Existing (month basis)
@@ -182,4 +260,3 @@ class transactionsController extends GetxController {
   }
 
 }
-

@@ -11,6 +11,21 @@ import '../../Transcations/Model/tranModel.dart';
 class debtsController extends GetxController {
   final RxBool showBorrowInfo = false.obs;
 
+  // Search logic
+  final RxBool isSearchVisible = false.obs;
+  final RxString searchQuery = ''.obs;
+
+  void toggleSearch() {
+    isSearchVisible.value = !isSearchVisible.value;
+    if (!isSearchVisible.value) {
+      searchQuery.value = '';
+    }
+  }
+
+  void setSearchQuery(String query) {
+    searchQuery.value = query;
+  }
+
   // Cache
   final RxList<TranItem> cachedLentBorrow = <TranItem>[].obs;
   StreamSubscription<List<TranItem>>? _lentBorrowSub;

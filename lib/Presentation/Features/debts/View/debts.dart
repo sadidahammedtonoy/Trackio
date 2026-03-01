@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/App/routes.dart';
 import '../../../../Core/numberTranslation.dart';
 import '../../AddTransactions/Controller/Controller.dart';
@@ -18,11 +19,54 @@ class deptsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Debts".tr), centerTitle: false),
+      appBar: AppBar(
+        title: Text("Debts".tr),
+        centerTitle: false,
+        actions: [
+          Obx(() => IconButton(
+            icon: Icon(
+              controller.isSearchVisible.value ? Icons.close : Icons.search,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              controller.toggleSearch();
+            },
+          )),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: Column(
           children: [
+            Obx(() => controller.isSearchVisible.value
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 15, top: 5),
+                    child: TextFormField(
+                      autofocus: true,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: "Search Name or Remark...".tr,
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.primary),
+                        ),
+                      ),
+                      onChanged: (val) => controller.setSearchQuery(val),
+                    ),
+                  )
+                : const SizedBox.shrink()),
             StreamBuilder<Map<String, double>>(
               stream: controller.streamTotalLentBorrow(),
               builder: (context, snapshot) {
@@ -32,24 +76,7 @@ class deptsPage extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     Text("Balance: ", style: TextStyle(fontSize: 28.sp)),
-                    //     Text(
-                    //       "৳${data["net"]!.toStringAsFixed(2)}",
-                    //       style: TextStyle(
-                    //         color: (data["net"] ?? 0) >= 0
-                    //             ? Colors.green
-                    //             : Colors.red,
-                    //         fontSize: 28.sp,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    //
                     const SizedBox(height: 10),
-
                     Row(
                       spacing: 20,
                       children: [
@@ -237,40 +264,53 @@ class deptsPage extends StatelessWidget {
                   final cached = controller.cachedLentBorrow;
 
                   // ✅ keep cached until live arrives
-                  final items = live.isNotEmpty ? live : cached;
+                  final rawItems = live.isNotEmpty ? live : cached;
 
-                  if (items.isEmpty) {
-                    return Center(
-                      child: Text("No lent or borrow transactions".tr),
+                  // Apply Search Filter
+                  return Obx(() {
+                    final query = controller.searchQuery.value.toLowerCase();
+                    final items = query.isEmpty
+                        ? rawItems
+                        : rawItems.where((item) {
+                            return item.category.toLowerCase().contains(query) ||
+                                   item.note.toLowerCase().contains(query);
+                          }).toList();
+
+                    if (items.isEmpty) {
+                      return Center(
+                        child: Text(query.isEmpty
+                            ? "No lent or borrow transactions".tr
+                            : "No matching results found".tr),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Transactions".tr,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ...items.map(
+                            (t) => _TransactionTile(
+                              item: t,
+                              onDelete: () async {
+                                await controller.deleteMonthlyTransaction(
+                                  monthKey: t.monthKey,
+                                  transactionId: t.id,
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     );
-                  }
-
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Transactions".tr,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        ...items.map(
-                          (t) => _TransactionTile(
-                            item: t,
-                            onDelete: () async {
-                              await controller.deleteMonthlyTransaction(
-                                monthKey: t.monthKey,
-                                transactionId: t.id,
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+                  });
                 },
               ),
             ),

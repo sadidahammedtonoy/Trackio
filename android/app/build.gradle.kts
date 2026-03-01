@@ -41,11 +41,16 @@ android {
 
     buildTypes {
         getByName("release") {
-            // Correct Kotlin DSL syntax
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // Enable minification and resource shrinking
+            isMinifyEnabled = true
+            isShrinkResources = true
 
             signingConfig = signingConfigs.getByName("debug") // or your release config
+            
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
