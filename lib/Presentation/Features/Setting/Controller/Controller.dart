@@ -1,21 +1,58 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import '../../../../App/routes.dart';
 import '../../../../Core/loading.dart';
 import '../../../../Core/snakbar.dart';
 
 class settingController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ImagePicker _picker = ImagePicker();
+
+  final RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
+  StreamSubscription? _userSub;
+
+  @override
+  void onInit() {
+    super.onInit();
+    listenToUserData();
+  }
+
+  @override
+  void onClose() {
+    _userSub?.cancel();
+    super.onClose();
+  }
+
+  void listenToUserData() {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    _userSub?.cancel();
+    _userSub = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .snapshots()
+        .listen((snap) {
+      if (snap.exists) {
+        userData.value = snap.data() ?? {};
+      }
+    });
+  }
+
   Future<void> logout() async {
     try {
       AppLoader.show(message: "Logging out...".tr);
 
       final user = _auth.currentUser;
 
-      // If guest, delete anonymous account
       if (user != null && user.isAnonymous) {
         await user.delete();
       } else {
@@ -23,22 +60,17 @@ class settingController extends GetxController {
       }
 
       await Future.delayed(const Duration(milliseconds: 100));
-
       AppLoader.hide();
-
       Get.offAllNamed(routes.login_screen);
-
       AppSnackbar.show("Logged out successfully".tr);
     } catch (e) {
       AppLoader.hide();
-
       AppSnackbar.show("Unable to logout. Please try again.".tr);
     }
   }
 
   Future<void> showLogoutDialog({required VoidCallback onConfirm}) async {
     if (GetPlatform.isIOS) {
-      // iOS Style (Cupertino)
       await Get.dialog(
         CupertinoAlertDialog(
           title: Text("Logout".tr),
@@ -69,7 +101,6 @@ class settingController extends GetxController {
         barrierDismissible: false,
       );
     } else {
-      // Android Style (Material)
       await Get.dialog(
         AlertDialog(
           backgroundColor: Colors.white,
@@ -109,104 +140,59 @@ class settingController extends GetxController {
     }
   }
 
-  String getUserName() {
-    final User? user = FirebaseAuth.instance.currentUser;
+  Stream<String> userNameStream() {
+    final user = FirebaseAuth.instance.currentUser;
 
-    // Not logged in at all
     if (user == null) {
-      return "Guest";
+      return Stream.value("Guest");
     }
 
-    // Anonymous (guest) user
     if (user.isAnonymous) {
-      return "Guest User";
+      return Stream.value("Guest User");
     }
 
-    // Logged-in user with display name
-    if (user.displayName != null && user.displayName!.trim().isNotEmpty) {
-      return user.displayName!;
-    }
+    return FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .snapshots()
+        .map((doc) {
+      if (doc.exists &&
+          doc.data() != null &&
+          doc.data()!['name'] != null &&
+          doc.data()!['name'].toString().isNotEmpty) {
+        return doc.data()!['name'];
+      }
 
-    // Fallbacks
-    if (user.email != null && user.email!.isNotEmpty) {
-      return user.email!.split('@').first;
-    }
-
-    return "User";
+      return "User";
+    });
   }
 
   String? getUserEmail() {
+    if (userData.isNotEmpty && userData['email'] != null && userData['email'].toString().isNotEmpty) {
+      return userData['email'];
+    }
     final User? user = FirebaseAuth.instance.currentUser;
-
-    // Not logged in or anonymous user → no email
-    if (user == null || user.isAnonymous) {
-      return "anonymous@trackio.com";
-    }
-
-    // Email-based login
-    if (user.email != null && user.email!.trim().isNotEmpty) {
-      return user.email!;
-    }
-
-    // Some providers store email in providerData
-    for (final info in user.providerData) {
-      if (info.email != null && info.email!.trim().isNotEmpty) {
-        return info.email;
-      }
-    }
-
-    return null;
+    if (user == null || user.isAnonymous) return "guest@trackio.com";
+    return user.email ?? "User";
   }
 
-  String? getUserProfileImage() {
-    final User? user = FirebaseAuth.instance.currentUser;
-
-    // No user at all
-    if (user == null) {
-      return null;
-    }
-
-    // Anonymous (guest) users usually have no photo
-    if (user.isAnonymous) {
-      return null;
-    }
-
-    // Primary photoURL (most common)
-    if (user.photoURL != null && user.photoURL!.trim().isNotEmpty) {
-      return user.photoURL;
-    }
-
-    // Fallback: check provider data (Google, Apple, etc.)
-    for (final provider in user.providerData) {
-      if (provider.photoURL != null && provider.photoURL!.trim().isNotEmpty) {
-        return provider.photoURL;
-      }
-    }
-
-    return null;
-  }
 
   bool isEmailPasswordUser() {
     final User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) return false;
-
-    // Anonymous users are not email/password users
-    if (user.isAnonymous) return false;
-
-    // Check provider list
+    if (user == null || user.isAnonymous) return false;
     for (final provider in user.providerData) {
-      if (provider.providerId == EmailAuthProvider.PROVIDER_ID) {
-        return true;
-      }
+      if (provider.providerId == EmailAuthProvider.PROVIDER_ID) return true;
     }
-
     return false;
+  }
+
+  bool isGuestUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    return user?.isAnonymous ?? true;
   }
 
   Future<void> confirmDeleteAccount() async {
     final user = _auth.currentUser;
-
     if (user == null) {
       AppSnackbar.show("No user found.".tr);
       return;
@@ -235,7 +221,6 @@ class settingController extends GetxController {
               "${"delete_warning_3".tr}",
             ),
             const SizedBox(height: 12),
-
             if (isEmailUser) ...[
               Text(
                 "To confirm, enter your current password:".tr,
@@ -282,7 +267,6 @@ class settingController extends GetxController {
     }
 
     if (GetPlatform.isIOS) {
-      /// 🍎 iOS Style
       await Get.dialog(
         CupertinoAlertDialog(
           title: Text("Delete Account".tr),
@@ -312,7 +296,6 @@ class settingController extends GetxController {
         barrierDismissible: false,
       );
     } else {
-      /// 🤖 Android Style
       await Get.dialog(
         AlertDialog(
           backgroundColor: Colors.white,
@@ -358,7 +341,6 @@ class settingController extends GetxController {
 
       AppLoader.show(message: "Deleting account...".tr);
 
-      // 👤 Guest account: delete directly
       if (user.isAnonymous) {
         await user.delete();
         AppLoader.hide();
@@ -367,7 +349,6 @@ class settingController extends GetxController {
         return;
       }
 
-      // 🔐 Email/Password account: re-auth required
       final isEmailUser = user.providerData.any(
         (p) => p.providerId == EmailAuthProvider.PROVIDER_ID,
       );
@@ -380,38 +361,29 @@ class settingController extends GetxController {
             message: "Email not found for this account.",
           );
         }
-
         if (currentPassword.isEmpty) {
           AppLoader.hide();
           AppSnackbar.show("Please enter your current password.".tr);
           return;
         }
-
         final cred = EmailAuthProvider.credential(
           email: email,
           password: currentPassword,
         );
-
         await user.reauthenticateWithCredential(cred);
         await user.delete();
-
         AppLoader.hide();
         AppSnackbar.show("Account deleted successfully.".tr);
         Get.offAllNamed(routes.login_screen);
         return;
       }
 
-      // 🌐 Other providers (Google/Apple/etc.)
-      // Try delete; if requires recent login, show message.
       await user.delete();
-
       AppLoader.hide();
       AppSnackbar.show("Account deleted successfully.".tr);
       Get.offAllNamed(routes.login_screen);
     } on FirebaseAuthException catch (e) {
       AppLoader.hide();
-
-      // Common Firebase cases
       if (e.code == 'wrong-password') {
         AppSnackbar.show("Current password is incorrect.".tr);
       } else if (e.code == 'requires-recent-login') {
@@ -425,11 +397,6 @@ class settingController extends GetxController {
       AppLoader.hide();
       AppSnackbar.show("Account deletion failed. Please try again.".tr);
     }
-  }
-
-  bool isGuestUser() {
-    final user = FirebaseAuth.instance.currentUser;
-    return user?.isAnonymous ?? true;
   }
 
   final Rx<Locale> currentLocale = const Locale('bn', 'BD').obs;
@@ -447,14 +414,10 @@ class settingController extends GetxController {
     Get.updateLocale(locale);
   }
 
-  // ✅ Local change first, firebase save later (no await needed from UI)
   void changeLanguageInstant(Locale locale) {
-    _applyLocale(locale); // instant UI update
-
+    _applyLocale(locale);
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return; // guest -> only local
-
-    // fire-and-forget save (silent)
+    if (user == null) return;
     _saveLocaleToFirebase(user.uid, locale);
   }
 
@@ -465,53 +428,161 @@ class settingController extends GetxController {
         "countryCode": locale.countryCode,
         "updatedAt": FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-    } catch (_) {
-      // keep silent (no UI block)
-    }
+    } catch (_) {}
   }
 
   final nameC = TextEditingController();
 
   Future<void> changeName() async {
     final user = FirebaseAuth.instance.currentUser;
-
     if (user == null) {
-      AppSnackbar.show("No user found.");
+      AppSnackbar.show("No user found.".tr);
       return;
     }
-
-    if (!isEmailPasswordUser()) {
-      AppSnackbar.show(
-        "Name change is available for email/password accounts only.".tr,
-      );
+    if (user.isAnonymous) {
+      AppSnackbar.show("Name change is not available for guest accounts.".tr);
       return;
     }
 
     final newName = nameC.text.trim();
     if (newName.isEmpty) {
-      AppSnackbar.show("Please enter your name.");
+      AppSnackbar.show("Please enter your name.".tr);
       return;
     }
     Get.back();
 
-    AppLoader.show(message: "Updating name...");
+    AppLoader.show(message: "Updating name...".tr);
 
     try {
-      // ✅ Update Firebase Auth
       await user.updateDisplayName(newName);
-
-      // ✅ Update Firestore
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         "name": newName,
         "updatedAt": FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
       AppLoader.hide();
-      Get.offAllNamed(routes.navbar_screen);
-      AppSnackbar.show("Name updated successfully.");
+      AppSnackbar.show("Name updated successfully.".tr);
     } catch (e) {
       AppLoader.hide();
-      AppSnackbar.show("Failed. Try again.");
+      AppSnackbar.show("Failed. Try again.".tr);
+    }
+  }
+
+  Future<String?> uploadImageToCloudinary(File imageFile) async {
+    const cloudName = "dagym82bv";
+    const uploadPreset = "trackio";
+    final uri = Uri.parse("https://api.cloudinary.com/v1_1/$cloudName/image/upload");
+
+    var request = http.MultipartRequest("POST", uri);
+    request.fields['upload_preset'] = uploadPreset;
+    request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      final respStr = await response.stream.bytesToString();
+      final jsonResp = jsonDecode(respStr);
+      return jsonResp['secure_url'];
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> pickAndUploadImage(ImageSource source) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    if (user.isAnonymous) {
+      AppSnackbar.show("Profile image upload is for permanent accounts only.".tr);
+      return;
+    }
+
+    try {
+      final XFile? image = await _picker.pickImage(source: source);
+      if (image == null) return;
+
+      AppLoader.show(message: "Uploading image...".tr);
+      final String? downloadUrl = await uploadImageToCloudinary(File(image.path));
+
+      if (downloadUrl == null) {
+        AppLoader.hide();
+        AppSnackbar.show("Failed to upload image to server.".tr);
+        return;
+      }
+
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        "photoUrl": downloadUrl,
+        "updatedAt": FieldValue.serverTimestamp(),
+      });
+
+      await user.updatePhotoURL(downloadUrl);
+      AppLoader.hide();
+      AppSnackbar.show("Profile image updated successfully.".tr);
+    } catch (e) {
+      AppLoader.hide();
+      AppSnackbar.show("Failed to upload image. Please try again.".tr);
+    }
+  }
+
+  void showImageSourceDialog() {
+    if (GetPlatform.isIOS) {
+      Get.dialog(
+        CupertinoActionSheet(
+          title: Text("Select Image Source".tr),
+          actions: [
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Get.back();
+                pickAndUploadImage(ImageSource.camera);
+              },
+              child: Text("Camera".tr),
+            ),
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Get.back();
+                pickAndUploadImage(ImageSource.gallery);
+              },
+              child: Text("Gallery".tr),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Get.back(),
+            child: Text("Cancel".tr),
+          ),
+        ),
+      );
+    } else {
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text("Select Image Source".tr),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: Text("Camera".tr),
+                onTap: () {
+                  Get.back();
+                  pickAndUploadImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: Text("Gallery".tr),
+                onTap: () {
+                  Get.back();
+                  pickAndUploadImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text("Cancel".tr, style: const TextStyle(color: Colors.black)),
+            ),
+          ],
+        ),
+      );
     }
   }
 }

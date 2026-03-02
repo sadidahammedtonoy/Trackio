@@ -53,6 +53,7 @@ class signupController extends GetxController {
         "uid": user.uid,
         "name": name,
         "email": email,
+        "photoUrl" : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png",
         "provider": "password",
         "createdAt": FieldValue.serverTimestamp(),
         "updatedAt": FieldValue.serverTimestamp(),
