@@ -573,8 +573,26 @@ class AppTranslation extends Translations {
       "Search Name or Remark...": "Search Name or Remark...",
       "Search Category or Remark...": "Search Category or Remark...",
       "Month": "Month",
-      "": "",
-      "": "",
+      "Guest": "Guest",
+      "Guest User": "Guest User",
+      "User": "User",
+      "Name change is not available for guest accounts.":
+          "Name change is not available for guest accounts.",
+      "Updating name...": "Updating name...",
+      "Name updated successfully.": "Name updated successfully.",
+      "Profile image upload is for permanent accounts only.":
+          "Profile image upload is for permanent accounts only.",
+      "Uploading image...": "Uploading image...",
+      "Failed to upload image to server.": "Failed to upload image to server.",
+      "Profile image updated successfully.":
+          "Profile image updated successfully.",
+      "Failed to upload image. Please try again.":
+          "Failed to upload image. Please try again.",
+      "Select Image Source": "Select Image Source",
+      "Camera": "Camera",
+      "Gallery": "Gallery",
+      "Name change is available for permanent accounts only.":
+          "Name change is available for permanent accounts only.",
     },
     'bn_BD': {
       "Month": "মাস",
@@ -996,27 +1014,19 @@ class AppTranslation extends Translations {
       "Where is my data stored?": "আমার ডাটা কোথায় সংরক্ষণ করা হয়?",
       "Your financial records are stored in Firebase Firestore using your UID, so only your account can access your data.":
           "আপনার আর্থিক তথ্য Firebase Firestore-এ আপনার UID ব্যবহার করে সংরক্ষণ করা হয়, তাই শুধু আপনার অ্যাকাউন্টই এই ডাটায় অ্যাক্সেস করতে পারে।",
-
       "Why is my data not syncing?": "আমার ডাটা কেন সিঙ্ক হচ্ছে না?",
       "Please check internet connection, login status, and try again. If you are in guest mode and logged out, previous data may not be recoverable.":
           "অনুগ্রহ করে ইন্টারনেট সংযোগ ও লগইন অবস্থা চেক করে আবার চেষ্টা করুন। আপনি যদি গেস্ট মোডে থেকে লগআউট করেন, তাহলে আগের ডাটা পুনরুদ্ধার করা নাও যেতে পারে।",
-
       "How do I add income/expense?": "আমি কীভাবে আয়/খরচ যোগ করবো?",
       "Go to Add Transaction → Press on (+) icon → choose type (Income/Expense/Saving/Lend/Borrow) → add amount, category, and date → Add Transaction Button.":
           "Add Transaction এ যান → (+) আইকনে চাপুন → ধরন নির্বাচন করুন (Income/Expense/Saving/Lend/Borrow) → পরিমাণ, ক্যাটাগরি ও তারিখ যোগ করুন → Add Transaction বাটনে চাপুন।",
-      "No savings yet.": "এখনও কোনো সঞ্চয় যোগ করা হয়নি।",
-
       "Is my data secure?": "আমার ডাটা কি নিরাপদ?",
       "We use Firebase Authentication and Firestore security rules. Your data is linked to your UID. Keep your device secure and use a strong password.":
           "আমরা Firebase Authentication এবং Firestore সিকিউরিটি রুল ব্যবহার করি। আপনার ডাটা আপনার UID-এর সাথে যুক্ত। আপনার ডিভাইস সুরক্ষিত রাখুন এবং শক্তিশালী পাসওয়ার্ড ব্যবহার করুন।",
-
       "The app is slow or stuck on loading. What should I do?":
           "অ্যাপটি ধীরগতির বা লোডিংয়ে আটকে আছে। আমি কী করবো?",
       "Close and reopen the app, check network, and update to the latest version. You can also clear cache from Settings if available.":
           "অ্যাপ বন্ধ করে আবার খুলুন, নেটওয়ার্ক চেক করুন এবং সর্বশেষ ভার্সনে আপডেট করুন। প্রয়োজনে Settings থেকে ক্যাশ ক্লিয়ার করতে পারেন।",
-
-      "Mark as Pending": "পেন্ডিং হিসেবে চিহ্নিত করুন",
-      "Mark as Completed": "সম্পন্ন হিসেবে চিহ্নিত করুন",
       "Report a problem": "সমস্যা রিপোর্ট করুন",
       "Title": "শিরোনাম",
       "Describe the issue": "সমস্যার বিবরণ লিখুন",
@@ -1052,18 +1062,15 @@ class AppTranslation extends Translations {
       "Choose Language": "ভাষা নির্বাচন করুন",
       "Choose your preferred language for the app":
           "অ্যাপের জন্য আপনার পছন্দের ভাষা নির্বাচন করুন",
-
       "Adding transaction...": "লেনদেন যোগ করা হচ্ছে...",
       "User not logged in": "ব্যবহারকারী লগইন করা নেই",
       "Transaction added successfully": "লেনদেন সফলভাবে যোগ করা হয়েছে",
       "Fail to add Transaction": "লেনদেন যোগ করতে ব্যর্থ হয়েছে",
-
       "Category name can't be empty": "ক্যাটাগরির নাম খালি রাখা যাবে না",
       "Category already exists": "এই ক্যাটাগরিটি ইতিমধ্যেই আছে",
       "Another category already has this name":
           "অন্য একটি ক্যাটাগরির একই নাম রয়েছে",
       "Please fill in all fields.": "অনুগ্রহ করে সব তথ্য পূরণ করুন।",
-
       "New password must be at least 6 characters.":
           "নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
       "Updating password...": "পাসওয়ার্ড আপডেট করা হচ্ছে...",
@@ -1084,65 +1091,6 @@ class AppTranslation extends Translations {
           "এতে মোট সেভিংস ০ হয়ে যাবে। আপনি কি চালিয়ে যেতে চান?",
       "Add to Overall Saving": "মোট সেভিংসে যোগ করুন",
       "Enter amount": "পরিমাণ লিখুন",
-      "Save before you spend": "খরচের আগে সেভ করুন",
-      "Treat your savings like a bill you pay to yourself first.":
-          "আপনার সেভিংসকে নিজের জন্য আগে পরিশোধ করা একটি বিলের মতো ভাবুন।",
-
-      "Consistency beats intensity": "নিয়মিততা শক্তির চেয়ে বেশি কার্যকর",
-      "Small, regular savings add up faster than rare big ones.":
-          "ছোট কিন্তু নিয়মিত সেভিংস, মাঝে মাঝে বড় সেভিংসের চেয়ে দ্রুত জমে।",
-
-      "Turn goals into habits": "লক্ষ্যকে অভ্যাসে পরিণত করুন",
-      "When saving becomes routine, progress feels effortless.":
-          "সেভিংস যখন অভ্যাসে পরিণত হয়, অগ্রগতি সহজ মনে হয়।",
-
-      "Every amount counts": "প্রতিটি টাকাই গুরুত্বপূর্ণ",
-      "Even spare change moves you closer to your goals.":
-          "অল্প টাকাও আপনাকে লক্ষ্য অর্জনের কাছাকাছি নিয়ে যায়।",
-
-      "Make your money work": "আপনার টাকাকে কাজে লাগান",
-      "Plan your savings so your future has more options.":
-          "ভবিষ্যতে বেশি সুযোগ পেতে আপনার সেভিংস পরিকল্পনা করুন।",
-
-      "Protect your peace of mind": "মানসিক শান্তি নিশ্চিত করুন",
-      "Savings give you freedom from sudden expenses.":
-          "সেভিংস হঠাৎ খরচের চাপ থেকে মুক্তি দেয়।",
-
-      "Build momentum": "গতি তৈরি করুন",
-      "The first step is the hardest—keep going after that.":
-          "প্রথম পদক্ষেপটাই সবচেয়ে কঠিন—তারপর চালিয়ে যান।",
-
-      "Design your future": "নিজের ভবিষ্যৎ তৈরি করুন",
-      "Your daily choices shape your financial tomorrow.":
-          "প্রতিদিনের সিদ্ধান্তই আপনার আর্থিক ভবিষ্যৎ গড়ে তোলে।",
-
-      "Less stress, more control": "কম চাপ, বেশি নিয়ন্ত্রণ",
-      "Having savings means fewer worries when plans change.":
-          "সেভিংস থাকলে পরিকল্পনা বদলালে দুশ্চিন্তা কম হয়।",
-
-      "Reward your discipline": "নিজের শৃঙ্খলাকে পুরস্কৃত করুন",
-      "Celebrate every milestone, no matter how small.":
-          "ছোট হোক বা বড়—প্রতিটি অর্জন উদযাপন করুন।",
-
-      "Save with a purpose": "উদ্দেশ্য নিয়ে সেভ করুন",
-      "Name your goal so each deposit feels meaningful.":
-          "লক্ষ্যের নাম দিন, তাহলে প্রতিটি জমা অর্থপূর্ণ মনে হবে।",
-
-      "Start where you are": "আপনি যেখানে আছেন, সেখান থেকেই শুরু করুন",
-      "You don’t need perfection—just begin today.":
-          "পারফেক্ট হওয়ার দরকার নেই—আজই শুরু করুন।",
-
-      "Choose progress today": "আজই অগ্রগতি বেছে নিন",
-      "A small decision now creates big impact later.":
-          "আজকের ছোট সিদ্ধান্ত ভবিষ্যতে বড় প্রভাব ফেলে।",
-
-      "Grow your cushion": "আপনার সেভিংস কুশন বড় করুন",
-      "A stronger savings cushion brings confidence.":
-          "বড় সেভিংস কুশন আত্মবিশ্বাস এনে দেয়।",
-
-      "Your future deserves care": "আপনার ভবিষ্যৎ যত্নের যোগ্য",
-      "Put aside a little today for a better tomorrow.":
-          "ভালো আগামীর জন্য আজ একটু আলাদা করে রাখুন।",
       "Transaction not found": "লেনদেন খুঁজে পাওয়া যায়নি",
       "Marked as completed": "সম্পন্ন হিসেবে চিহ্নিত করা হয়েছে",
       "Marked as pending": "পেন্ডিং হিসেবে চিহ্নিত করা হয়েছে",
@@ -1178,66 +1126,27 @@ class AppTranslation extends Translations {
       "Are you sure you want to delete": "আপনি কি নিশ্চিতভাবে মুছতে চান",
       "No": "না",
       "Edit": "সম্পাদনা",
-      "Electronic": "ইলেকট্রনিক্স",
-      "Grocery": "মুদি বাজার",
-      "Shopping": "কেনাকাটা",
-      "Transportation": "যাতায়াত",
-      "Meal": "খাবার",
-      "Food": "খাবার",
-      "House Rent": "বাড়ি ভাড়া",
-      "Utilities": "বিদ্যুৎ-পানি-গ্যাস",
-      "Internet": "ইন্টারনেট",
-      "Mobile Recharge": "মোবাইল রিচার্জ",
-      "Fuel": "জ্বালানি",
-      "Home Maintenance": "বাড়ির রক্ষণাবেক্ষণ",
-      "Cleaning": "পরিষ্কার-পরিচ্ছন্নতা",
-      "Furniture": "আসবাবপত্র",
-      "Appliances": "গৃহস্থালি যন্ত্রপাতি",
-
-      // 🎓 Health & Growth
-      "Health": "স্বাস্থ্য",
-      "Medical": "চিকিৎসা",
-      "Medicine": "ওষুধ",
-      "Fitness": "ফিটনেস",
-      "Education": "শিক্ষা",
-      "Tuition": "কোচিং/টিউশন",
-      "Books": "বই",
-      "Online Courses": "অনলাইন কোর্স",
-      "Skills": "দক্ষতা উন্নয়ন",
-
-      // 🎉 Lifestyle & Fun
-      "Entertainment": "বিনোদন",
-      "Movies": "সিনেমা",
-      "Games": "গেমস",
-      "Music": "সঙ্গীত",
-      "Subscription": "সাবস্ক্রিপশন",
-      "Travel": "ভ্রমণ",
-      "Vacation": "ছুটি",
-      "Cafe": "ক্যাফে",
-      "Dining Out": "বাইরে খাওয়া",
-      "Gifts": "উপহার",
-
-      // 💼 Work & Income
-      "Salary": "বেতন",
-      "Freelance": "ফ্রিল্যান্স",
-      "Business": "ব্যবসা",
-      "Project": "প্রজেক্ট",
-      "Bonus": "বোনাস",
-      "Commission": "কমিশন",
-      "Investment": "বিনিয়োগ",
-      "Interest": "সুদ",
-      "Refund": "ফেরত পাওয়া টাকা",
-      "Part-time": "খণ্ডকালীন কাজ",
-
-      // 🏦 Finance & Misc
-      "Insurance": "বীমা",
-      "Loan Repayment": "ঋণ পরিশোধ",
-      "Charity": "দান",
-      "Donation": "অনুদান",
-      "Family Support": "পরিবারের সহায়তা",
-      "Emergency": "জরুরি খরচ",
-      "Fees": "ফি",
-      "Taxes": "কর",
+      "Guest": "অতিথি",
+      "Guest User": "অতিথি ব্যবহারকারী",
+      "User": "ব্যবহারকারী",
+      "Name change is not available for guest accounts.":
+          "গেস্ট অ্যাকাউন্টের জন্য নাম পরিবর্তনের সুবিধা নেই।",
+      "Updating name...": "নাম আপডেট করা হচ্ছে...",
+      "Name updated successfully.": "নাম সফলভাবে আপডেট করা হয়েছে।",
+      "Profile image upload is for permanent accounts only.":
+          "প্রোফাইল ছবি আপলোড শুধুমাত্র স্থায়ী অ্যাকাউন্টের জন্য।",
+      "Uploading image...": "ছবি আপলোড করা হচ্ছে...",
+      "Failed to upload image to server.":
+          "সার্ভারে ছবি আপলোড করতে ব্যর্থ হয়েছে।",
+      "Profile image updated successfully.":
+          "প্রোফাইল ছবি সফলভাবে আপডেট করা হয়েছে।",
+      "Failed to upload image. Please try again.":
+          "ছবি আপলোড করতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+      "Select Image Source": "ছবির উৎস নির্বাচন করুন",
+      "Camera": "ক্যামেরা",
+      "Gallery": "গ্যালারি",
+      "Name change is available for permanent accounts only.":
+          "নাম পরিবর্তনের সুবিধা শুধুমাত্র স্থায়ী অ্যাকাউন্টের জন্য উপলব্ধ।",
     },
   };
 }

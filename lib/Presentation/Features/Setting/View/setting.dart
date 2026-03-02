@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,50 +25,86 @@ class setting_page extends StatelessWidget {
             spacing: 15,
             children: [
               const SizedBox(height: 0),
-              Row(
-                spacing: 10,
-                children: [
-                  controller.getUserProfileImage() == null
-                      ? Icon(Icons.person, size: 30)
-                      : CircleAvatar(
-                          radius: 30,
-                          backgroundImage: NetworkImage(
-                            controller.getUserProfileImage() ?? "",
-                          ),
-                        ),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              GetBuilder<settingController>(
+                builder: (controller) {
+                  return Row(
+                    spacing: 10,
                     children: [
-                      Text(
-                        controller.getUserName(),
-                        style: TextStyle(fontSize: 25.sp),
+                      StreamBuilder<DocumentSnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          String imageUrl =
+                              "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
+
+                          if (snapshot.hasData && snapshot.data!.exists) {
+                            final data =
+                                snapshot.data!.data() as Map<String, dynamic>;
+                            if (data['photoUrl'] != null &&
+                                data['photoUrl'].toString().isNotEmpty) {
+                              imageUrl = data['photoUrl'];
+                            }
+                          }
+
+                          return GestureDetector(
+                            onTap: () => controller.showImageSourceDialog(),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: NetworkImage(imageUrl),
+                            ),
+                          );
+                        },
                       ),
-                      Text(
-                        controller.getUserEmail() ?? "",
-                        style: TextStyle(fontSize: 16.sp),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          StreamBuilder<String>(
+                            stream: controller.userNameStream(),
+                            builder: (context, snapshot) {
+                              return Text(
+                                snapshot.data ?? "User",
+                                style: TextStyle(fontSize: 25.sp),
+                              );
+                            },
+                          ),
+                          Text(
+                            controller.getUserEmail() ?? "",
+                            style: TextStyle(fontSize: 16.sp),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
-
               Text(
                 "Manage Profile".tr,
                 style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
               ),
               GestureDetector(
-                onTap: () {
-                  if (!controller.isEmailPasswordUser()) {
+                onTap: () async {
+                  if (controller.isGuestUser()) {
                     AppSnackbar.show(
-                      "Name change is available for email/password accounts only."
+                      "Name change is available for permanent accounts only."
                           .tr,
                     );
                     return;
                   }
 
                   final user = FirebaseAuth.instance.currentUser;
-                  controller.nameC.text = user?.displayName ?? "";
+
+                  if (user != null) {
+                    final doc = await FirebaseFirestore.instance
+                        .collection("users")
+                        .doc(user.uid)
+                        .get();
+
+                    if (doc.exists && doc.data() != null) {
+                      controller.nameC.text = doc.data()!['name'] ?? "";
+                    }
+                  }
 
                   Get.dialog(
                     barrierDismissible: false,
@@ -131,7 +168,6 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-
               Text(
                 "Money Management".tr,
                 style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
@@ -148,7 +184,6 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-
               GestureDetector(
                 onTap: () => Get.toNamed(routes.categories_screen),
                 child: Row(
@@ -161,7 +196,6 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 0),
               Text(
                 "Security".tr,
@@ -307,12 +341,10 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-
               Text(
                 "Account".tr,
                 style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
               ),
-
               Visibility(
                 visible: controller.isGuestUser(),
                 child: GestureDetector(
@@ -335,7 +367,6 @@ class setting_page extends StatelessWidget {
                   ),
                 ),
               ),
-
               GestureDetector(
                 onTap: () => controller.showLogoutDialog(
                   onConfirm: () => controller.logout(),
@@ -355,7 +386,6 @@ class setting_page extends StatelessWidget {
                   ],
                 ),
               ),
-
               GestureDetector(
                 onTap: () => controller.confirmDeleteAccount(),
                 child: Row(
