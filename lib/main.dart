@@ -19,8 +19,6 @@ Future<void> main() async {
       statusBarBrightness: Brightness.dark, // For iOS
     ),
   );
-
-
   
   runApp(const MyApp());
 }
