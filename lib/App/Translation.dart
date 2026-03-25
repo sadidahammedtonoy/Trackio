@@ -236,7 +236,7 @@ class AppTranslation extends Translations {
       "Data is linked to an anonymous Firebase UID.":
           "Data is linked to an anonymous Firebase UID.",
       "If you log out or delete the guest account, the data may be permanently lost.":
-          "If you log out or delete the guest account, the data may be permanently lost.Z",
+          "If you log out or delete the guest account, the data may be permanently lost.",
       "Data Sharing": "Data Sharing",
       "We do not sell or rent your personal data.":
           "We do not sell or rent your personal data.",
@@ -466,7 +466,6 @@ class AppTranslation extends Translations {
       "Edit": "Edit",
       "Mark as Pending": "Mark as Pending",
       "Mark as Completed": "Mark as Completed",
-      // 🎓 Health & Growth
       "Health": "Health",
       "Medical": "Medical",
       "Medicine": "Medicine",
@@ -476,8 +475,6 @@ class AppTranslation extends Translations {
       "Books": "Books",
       "Online Courses": "Online Courses",
       "Skills": "Skills Development",
-
-      // 🎉 Lifestyle & Fun
       "Entertainment": "Entertainment",
       "Movies": "Movies",
       "Games": "Games",
@@ -488,8 +485,6 @@ class AppTranslation extends Translations {
       "Cafe": "Cafe",
       "Dining Out": "Dining Out",
       "Gifts": "Gifts",
-
-      // 💼 Work & Income
       "Salary": "Salary",
       "Freelance": "Freelance",
       "Business": "Business",
@@ -500,8 +495,6 @@ class AppTranslation extends Translations {
       "Interest": "Interest",
       "Refund": "Refund",
       "Part-time": "Part-time",
-
-      // 🏦 Finance & Misc
       "Insurance": "Insurance",
       "Loan Repayment": "Loan Repayment",
       "Charity": "Charity",
@@ -528,7 +521,6 @@ class AppTranslation extends Translations {
       "Transaction updated successfully": "Transaction updated successfully",
       "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe.":
           "You’re using a guest account. Logging out will permanently remove access to your data. Make your account permanent to keep your data safe.",
-
       "Add a reminder to ensure timely follow-up on this transaction.":
           "Add a reminder to ensure timely follow-up on this transaction.",
       "Remainder": "Remainder",
@@ -569,7 +561,6 @@ class AppTranslation extends Translations {
       "Swipe Down to Return": "Swipe Down to Return",
       "Background saved successfully": "Background saved successfully",
       "Theme": "Theme",
-
       "Search Name or Remark...": "Search Name or Remark...",
       "Search Category or Remark...": "Search Category or Remark...",
       "Month": "Month",
@@ -615,7 +606,6 @@ class AppTranslation extends Translations {
       "Select a Color": "একটি রঙ নির্বাচন করুন",
       "Swipe Down to Return": "ফিরতে নিচে সোয়াইপ করুন",
       "Background saved successfully": "ব্যাকগ্রাউন্ড সফলভাবে সংরক্ষণ হয়েছে",
-
       "Add a reminder to ensure timely follow-up on this transaction.":
           "এই লেনদেনের সময়মতো ফলো-আপ নিশ্চিত করতে একটি রিমাইন্ডার যোগ করুন।",
       "Remainder": "রিমাইন্ডার",

@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../Data/Repository/DataRepository.dart';
 import '../Model/tranModel.dart';
 
 class transactionsController extends GetxController {
+  final DataRepository _repository = Get.find<DataRepository>();
 
   final RxString monthKey = ''.obs;
   final RxString selectedMonth = ''.obs;
-
 
   // ✅ month filter toggle: null = ALL months
   final RxnString selectedMonthKey = RxnString(null);
@@ -58,17 +58,13 @@ class transactionsController extends GetxController {
   }
 
   void selectMonth(String? key) {
-    // null => show ALL transactions
     selectedMonthKey.value = key;
-    // reset category filter when month changes
     selectedCategoryFilter.value = null;
+    _refreshItems();
   }
 
-  final RxList<TranItem> cachedAllItems = <TranItem>[].obs;
-  final RxList<TranItem> cachedMonthItems = <TranItem>[].obs;
-
-  StreamSubscription<List<TranItem>>? _allSub;
-  StreamSubscription<List<TranItem>>? _monthSub;
+  final RxList<TranItem> cachedItems = <TranItem>[].obs;
+  StreamSubscription? _hiveSub;
 
   @override
   void onInit() {
@@ -77,8 +73,6 @@ class transactionsController extends GetxController {
     scrollController.addListener(() {
       if (scrollController.offset > 300) {
         showScrollToTop.value = true;
-        
-        // Reset timer whenever user scrolls
         _scrollStopTimer?.cancel();
         _scrollStopTimer = Timer(const Duration(seconds: 1), () {
           showScrollToTop.value = false;
@@ -89,45 +83,40 @@ class transactionsController extends GetxController {
       }
     });
 
-    // Keep "all items" hot
-    _allSub = streamAllItems().listen((list) {
-      cachedAllItems.assignAll(list);
+    // Listen to Hive changes for real-time UI updates
+    _hiveSub = _repository.localDataSource.transactionsBox.watch().listen((event) {
+      _refreshItems();
     });
 
-    // Keep "month items" hot (will update when selectedMonthKey changes too)
-    ever(selectedMonthKey, (_) {
-      _monthSub?.cancel();
-      _monthSub = streamMonthlyItems().listen((list) {
-        cachedMonthItems.assignAll(list);
-      });
-    });
+    _refreshItems();
+  }
 
-    // initial month subscription
-    _monthSub = streamMonthlyItems().listen((list) {
-      cachedMonthItems.assignAll(list);
-    });
+  void _refreshItems() {
+    var items = _repository.getAllTransactions();
+
+    // Filter by Month if selected
+    if (selectedMonthKey.value != null) {
+      items = items.where((item) => item.monthKey == selectedMonthKey.value).toList();
+    }
+
+    // Sort by Date
+    items.sort((a, b) => b.date.compareTo(a.date));
+    
+    cachedItems.assignAll(items);
   }
 
   @override
   void onClose() {
-    _allSub?.cancel();
-    _monthSub?.cancel();
+    _hiveSub?.cancel();
     _scrollStopTimer?.cancel();
     scrollController.dispose();
     super.onClose();
   }
 
-  /// ✅ Use this in UI so it doesn’t flicker
-  Stream<List<TranItem>> streamTxnForUI() {
-    final isAll = selectedMonthKey.value == null;
-    return isAll ? streamAllItems() : streamMonthlyItems();
-  }
+  /// ✅ Used in UI to get filtered/searched list
+  List<TranItem> getFilteredTransactions() {
+    var items = List<TranItem>.from(cachedItems);
 
-  /// ✅ Cached fallback for UI
-  List<TranItem> cachedTxnForUI() {
-    final isAll = selectedMonthKey.value == null;
-    var items = isAll ? cachedAllItems : cachedMonthItems;
-    
     // Apply Category Filter
     if (selectedCategoryFilter.value != null) {
       final cat = selectedCategoryFilter.value!;
@@ -137,126 +126,36 @@ class transactionsController extends GetxController {
         }
         final displayCat = item.category.isEmpty ? "Uncategorized" : item.category;
         return displayCat == cat;
-      }).toList().obs;
+      }).toList();
     }
 
-    if (searchQuery.isEmpty) return items;
-    
-    return items.where((item) {
-      final categoryMatch = item.category.toLowerCase().contains(searchQuery.value.toLowerCase());
-      final remarkMatch = item.note.toLowerCase().contains(searchQuery.value.toLowerCase());
-      return categoryMatch || remarkMatch;
-    }).toList();
-  }
-
-  // ✅ Existing (month basis)
-  Stream<List<TranItem>> streamMonthlyItems() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    // IMPORTANT: decide which month you want to load
-    final key = selectedMonthKey.value ?? monthKey.value;
-
-    if (key.trim().isEmpty) {
-      // debug
-      print("❌ streamMonthlyItems monthKey empty!");
-      return const Stream.empty();
+    // Apply Search Filter
+    if (searchQuery.isNotEmpty) {
+      items = items.where((item) {
+        final categoryMatch = item.category.toLowerCase().contains(searchQuery.value.toLowerCase());
+        final remarkMatch = item.note.toLowerCase().contains(searchQuery.value.toLowerCase());
+        return categoryMatch || remarkMatch;
+      }).toList();
     }
 
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions')
-        .doc(key)
-        .collection('items')
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snap) => snap.docs
-        .map((d) => TranItem.fromDoc(d, monthKey: key))
-        .toList());
+    return items;
   }
 
-
-  // ✅ NEW: stream ALL months (reads every month doc and merges items)
-  Stream<List<TranItem>> streamAllItems() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    final monthsRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions');
-
-    return monthsRef.snapshots().asyncMap((monthsSnap) async {
-      final all = <TranItem>[];
-
-      print("✅ months count = ${monthsSnap.docs.length}");
-
-      for (final monthDoc in monthsSnap.docs) {
-        final mk = monthDoc.id; // ✅ THIS is the month key
-
-        if (mk.trim().isEmpty) continue;
-
-        final itemsSnap = await monthsRef
-            .doc(mk)
-            .collection('items')
-            .orderBy('date', descending: true)
-            .get();
-
-        all.addAll(
-          itemsSnap.docs.map((d) => TranItem.fromDoc(d, monthKey: mk)),
-        );
-      }
-
-      all.sort((a, b) => b.date.compareTo(a.date));
-      return all;
-    });
+  // Get distinct month keys for dropdown
+  List<String> getMonthKeys() {
+    final keys = _repository.getAllTransactions().map((e) => e.monthKey).toSet().toList();
+    keys.sort((a, b) => b.compareTo(a));
+    return keys;
   }
 
-  // ✅ Month dropdown options
-  Stream<List<String>> streamMonthKeys() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions')
-        .snapshots()
-        .map((snap) {
-      final keys = snap.docs.map((d) => d.id).toList();
-      keys.sort((a, b) => b.compareTo(a)); // newest first
-      return keys;
-    });
-  }
-
-  Future<bool> deleteMonthlyTransaction({
-    required String monthKey,
-    required String transactionId,
-  }) async {
+  Future<bool> deleteTransaction(TranItem item) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception("User not logged in");
-
-      final monthRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('monthly_transactions')
-          .doc(monthKey);
-
-      // ✅ delete item
-      await monthRef.collection('items').doc(transactionId).delete();
-
-      // ✅ touch parent doc so month snapshot changes (important for streamAllItems)
-      await monthRef.set({
-        "updatedAt": FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
+      await _repository.deleteTransaction(item);
+      _refreshItems();
       return true;
     } catch (e) {
       debugPrint("❌ Delete failed: $e");
       return false;
     }
   }
-
 }

@@ -1,436 +1,133 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../../../Data/Repository/DataRepository.dart';
 import '../../Transcations/Model/tranModel.dart';
 import 'package:flutter/material.dart';
 
 class dashboardController extends GetxController {
+  final DataRepository _repository = Get.find<DataRepository>();
+
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  String _monthKeyFromDate(DateTime d) =>
-      "${d.year}-${d.month.toString().padLeft(2, '0')}";
+  // Observables for UI
+  final RxMap<String, double> thisMonthSummary = {"expense": 0.0, "income": 0.0, "saving": 0.0}.obs;
+  final RxDouble todayExpense = 0.0.obs;
+  final RxDouble totalSavingAllTime = 0.0.obs;
+  final RxDouble thisMonthSavings = 0.0.obs;
+  final RxDouble overallSavingOnly = 0.0.obs;
+  final RxMap<String, double> categorySummary = <String, double>{}.obs;
+  final RxList<TranItem> todayTransactions = <TranItem>[].obs;
+  final RxList<double> weeklyAmounts = List.filled(7, 0.0).obs;
+  final RxList<String> labels = <String>[].obs;
+  final RxBool isLoading = true.obs;
 
-  Stream<Map<String, double>> streamThisMonthSummary() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    final thisMonthKey = _monthKeyFromDate(DateTime.now());
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions')
-        .doc(thisMonthKey)
-        .collection('items')
-        .snapshots()
-        .map((snap) {
-          double expense = 0, income = 0, saving = 0;
-
-          for (final d in snap.docs) {
-            final data = d.data();
-            final type = (data['type'] ?? '').toString();
-
-            final raw = data['amount'];
-            final amount = (raw is String)
-                ? double.tryParse(raw) ?? 0.0
-                : (raw as num?)?.toDouble() ?? 0.0;
-
-            if (type == "Expense") expense += amount;
-            if (type == "Income") income += amount;
-            if (type == "Saving") saving += amount;
-          }
-
-          return {"expense": expense, "income": income, "saving": saving};
-        });
-  }
-
-  Stream<double> streamTodayExpense() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    final thisMonthKey = _monthKeyFromDate(DateTime.now());
-    final now = DateTime.now();
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions')
-        .doc(thisMonthKey)
-        .collection('items')
-        .snapshots()
-        .map((snap) {
-          double total = 0;
-
-          for (final doc in snap.docs) {
-            final data = doc.data();
-
-            final type = (data['type'] ?? '').toString();
-            if (type != "Expense") continue;
-
-            final ts = data['date'];
-            final date = (ts is Timestamp) ? ts.toDate().toLocal() : null;
-            if (date == null) continue;
-
-            if (!_isSameDay(date, now)) continue;
-
-            final raw = data['amount'];
-            final amount = (raw is String)
-                ? double.tryParse(raw) ?? 0.0
-                : (raw as num?)?.toDouble() ?? 0.0;
-
-            total += amount;
-          }
-
-          return total;
-        });
-  }
-
-  Stream<List<TranItem>> streamAllItems() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    final monthsRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions');
-
-    return monthsRef.snapshots().asyncMap((monthsSnap) async {
-      final all = <TranItem>[];
-
-      for (final monthDoc in monthsSnap.docs) {
-        final itemsSnap = await monthsRef
-            .doc(monthDoc.id)
-            .collection('items')
-            .orderBy('date', descending: true)
-            .get();
-
-        all.addAll(
-          itemsSnap.docs.map((d) => TranItem.fromDoc(d, monthKey: monthDoc.id)),
-        );
-      }
-
-      // newest first
-      all.sort((a, b) => b.date.compareTo(a.date));
-      return all;
-    });
-  }
-
-  Stream<double> streamTotalSavingAllTime() {
-    return streamAllItems().map((items) {
-      double totalSaving = 0.0;
-
-      for (final t in items) {
-        if (t.type == "Saving") {
-          totalSaving += t.amount;
-        }
-      }
-
-      return totalSaving;
-    });
-  }
-
-  final RxnString selectedMonthKey = RxnString(null);
-
-  void selectMonth(String? key) {
-    selectedMonthKey.value = key;
-  }
-
-  Stream<List<TranItem>> streamSelectedMonthItems() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    final now = DateTime.now();
-    final currentMonthKey =
-        "${now.year}-${now.month.toString().padLeft(2, '0')}"; // e.g. 2026-02
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions')
-        .doc(currentMonthKey)
-        .collection('items')
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map(
-          (snap) => snap.docs
-              .map((d) => TranItem.fromDoc(d, monthKey: currentMonthKey))
-              .toList(),
-        );
-  }
-
-  // ✅ Expense-by-category (pie chart data)
-  Stream<Map<String, double>> streamCategorySummary() {
-    return streamSelectedMonthItems().map((items) {
-      final map = <String, double>{};
-
-      for (final t in items) {
-        if (t.type != "Expense") continue; // expense-only pie
-        final cat = t.category.trim().isEmpty
-            ? "Uncategorized"
-            : t.category.trim();
-        map[cat] = (map[cat] ?? 0) + t.amount;
-      }
-
-      return map;
-    });
-  }
-
-  Stream<List<TranItem>> streamTodayTransactions() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    final today = DateTime.now();
-
-    bool isSameDay(DateTime a, DateTime b) =>
-        a.year == b.year && a.month == b.month && a.day == b.day;
-
-    final monthsRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('monthly_transactions');
-
-    return monthsRef.snapshots().asyncMap((monthsSnap) async {
-      final todayItems = <TranItem>[];
-
-      for (final monthDoc in monthsSnap.docs) {
-        final itemsSnap = await monthsRef
-            .doc(monthDoc.id)
-            .collection('items')
-            .get();
-
-        for (final d in itemsSnap.docs) {
-          final item = TranItem.fromDoc(d, monthKey: monthDoc.id);
-
-          if (isSameDay(item.date, today)) {
-            todayItems.add(item);
-          }
-        }
-      }
-
-      // newest first
-      todayItems.sort((a, b) => b.date.compareTo(a.date));
-      return todayItems;
-    });
-  }
-
-  Future<bool> deleteMonthlyTransaction({
-    required String monthKey,
-    required String transactionId,
-  }) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception("User not logged in");
-
-      final monthRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('monthly_transactions')
-          .doc(monthKey);
-
-      // ✅ delete item
-      await monthRef.collection('items').doc(transactionId).delete();
-
-      // ✅ touch parent doc so month snapshot changes (important for streamAllItems)
-      await monthRef.set({
-        "updatedAt": FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      return true;
-    } catch (e) {
-      debugPrint("❌ Delete failed: $e");
-      return false;
-    }
-  }
-
-  Stream<double> streamOverallSavingOnly() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('stats')
-        .doc('summary')
-        .snapshots()
-        .map((doc) {
-          if (!doc.exists) return 0.0;
-
-          final data = doc.data() as Map<String, dynamic>;
-          final raw = data['overallSaving'];
-
-          return (raw is String)
-              ? double.tryParse(raw) ?? 0.0
-              : (raw as num?)?.toDouble() ?? 0.0;
-        });
-  }
-
-  final RxMap<String, double> cachedCategoryMap = <String, double>{}.obs;
-
-  StreamSubscription<Map<String, double>>? _catSub;
+  StreamSubscription? _hiveSub;
 
   @override
   void onInit() {
     super.onInit();
+    
+    // Initial data load
+    _refreshDashboardData();
 
-    // ✅ Start listening once and cache results
-    _catSub = streamCategorySummary().listen((map) {
-      // Only update if changed (reduces unnecessary rebuilds)
-      if (_mapEquals(cachedCategoryMap, map)) return;
-
-      cachedCategoryMap
-        ..clear()
-        ..addAll(map);
+    // Listen to Hive changes for real-time updates
+    _hiveSub = _repository.localDataSource.transactionsBox.watch().listen((_) {
+      _refreshDashboardData();
     });
-
-    _todaySub = streamTodayTransactions().listen((list) {
-      // cache the latest list (even if empty)
-      cachedTodayItems.assignAll(list);
-    });
-    fetchWeeklyExpenses();
   }
 
-  bool _mapEquals(Map<String, double> a, Map<String, double> b) {
-    if (a.length != b.length) return false;
-    for (final e in a.entries) {
-      final v = b[e.key];
-      if (v == null) return false;
-      if ((v - e.value).abs() > 0.0001) return false;
+  void _refreshDashboardData() {
+    try {
+      final allItems = _repository.getAllTransactions();
+      final now = DateTime.now();
+      
+      // 1. Calculate this month summary
+      double monthExpense = 0, monthIncome = 0, monthSaving = 0;
+      for (var item in allItems) {
+        if (item.date.year == now.year && item.date.month == now.month) {
+          if (item.type == "Expense") monthExpense += item.amount;
+          if (item.type == "Income") monthIncome += item.amount;
+          if (item.type == "Saving") monthSaving += item.amount;
+        }
+      }
+      thisMonthSummary.value = {"expense": monthExpense, "income": monthIncome, "saving": monthSaving};
+
+      // 2. Today Expense
+      double todayExp = 0;
+      final todayItems = <TranItem>[];
+      for (var item in allItems) {
+        if (_isSameDay(item.date, now)) {
+          if (item.type == "Expense") todayExp += item.amount;
+          todayItems.add(item);
+        }
+      }
+      todayExpense.value = todayExp;
+      todayTransactions.assignAll(todayItems..sort((a, b) => b.date.compareTo(a.date)));
+
+      // 3. Category Summary (Pie Chart) - Current Month Expense
+      final catMap = <String, double>{};
+      for (var item in allItems) {
+        if (item.date.year == now.year && item.date.month == now.month && item.type == "Expense") {
+          final cat = item.category.isEmpty ? "Uncategorized" : item.category;
+          catMap[cat] = (catMap[cat] ?? 0) + item.amount;
+        }
+      }
+      categorySummary.value = catMap;
+
+      // 4. Weekly Data
+      final weekMap = <String, double>{};
+      final dateFormat = DateFormat('yyyy-MM-dd');
+      for (int i = 0; i < 7; i++) {
+        final day = now.subtract(Duration(days: 6 - i));
+        weekMap[dateFormat.format(day)] = 0.0;
+      }
+      for (final item in allItems) {
+        if (item.type == 'Expense') {
+          final itemDate = dateFormat.format(item.date);
+          if (weekMap.containsKey(itemDate)) {
+            weekMap[itemDate] = weekMap[itemDate]! + item.amount;
+          }
+        }
+      }
+      weeklyAmounts.assignAll(weekMap.values.toList());
+      labels.assignAll(weekMap.keys.map((d) => DateFormat.E().format(DateTime.parse(d))).toList());
+
+      // 5. Savings
+      double totalSav = 0;
+      double currentMonthSav = 0;
+      for (var item in allItems) {
+        if (item.type == "Saving") {
+          totalSav += item.amount;
+          if (item.date.year == now.year && item.date.month == now.month) {
+            currentMonthSav += item.amount;
+          }
+        }
+      }
+      totalSavingAllTime.value = totalSav;
+      thisMonthSavings.value = currentMonthSav;
+    } catch (e) {
+      debugPrint("Error refreshing dashboard data: $e");
+    } finally {
+      isLoading.value = false;
     }
-    return true;
   }
-
-  final RxList<TranItem> cachedTodayItems = <TranItem>[].obs;
-  StreamSubscription<List<TranItem>>? _todaySub;
 
   @override
   void onClose() {
-    _catSub?.cancel();
-    _todaySub?.cancel();
+    _hiveSub?.cancel();
     super.onClose();
   }
 
   int daysLeftInCurrentMonth() {
     final now = DateTime.now();
-
-    // last day of this month
     final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    // difference in whole days
-    final diff = lastDayOfMonth.difference(
-      DateTime(now.year, now.month, now.day),
-    );
-
-    return diff.inDays + 1;
+    return lastDayOfMonth.difference(DateTime(now.year, now.month, now.day)).inDays + 1;
   }
 
-  Stream<double> streamThisMonthSavings() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 1);
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('savings')
-        .doc('items')
-        .collection('list')
-        // ⚠️ Requires `date` field stored as Timestamp in each doc
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
-        .where('date', isLessThan: Timestamp.fromDate(endOfMonth))
-        .snapshots()
-        .map((snap) {
-          double total = 0.0;
-
-          for (final d in snap.docs) {
-            final data = d.data();
-            final raw = data['amount'];
-
-            final amount = (raw is String)
-                ? double.tryParse(raw) ?? 0.0
-                : (raw as num?)?.toDouble() ?? 0.0;
-
-            total += amount;
-          }
-
-          return total; // ✅ number
-        });
-  }
-
-  var weeklyAmounts = <double>[
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-  ].obs; // sum of amounts per day
-  var labels = <String>[].obs; // day labels
-  var isLoading = true.obs;
-
-  void fetchWeeklyExpenses() {
-    streamAllItems().listen((items) {
-      final now = DateTime.now();
-      final map = <String, double>{};
-      final dateFormat = DateFormat('yyyy-MM-dd');
-
-      // Initialize last 7 days
-      for (int i = 0; i < 7; i++) {
-        final day = now.subtract(Duration(days: 6 - i));
-        map[dateFormat.format(day)] = 0.0;
-      }
-
-      for (final item in items) {
-        // Only consider Expense type
-        if (item.type != 'Expense') continue;
-
-        final itemDate = dateFormat.format(item.date);
-        if (map.containsKey(itemDate)) {
-          map[itemDate] = map[itemDate]! + item.amount;
-        }
-      }
-
-      weeklyAmounts.value = map.values.toList();
-      labels.value = map.keys
-          .map((d) => DateFormat.E().format(DateTime.parse(d)))
-          .toList();
-      isLoading.value = false;
-    });
-  }
-
-  Stream<double> streamTotalSavings() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Stream.empty();
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('savings')
-        .doc('items')
-        .collection('list')
-        .snapshots()
-        .map((snap) {
-          double total = 0.0;
-
-          for (final d in snap.docs) {
-            final data = d.data();
-            final raw = data['amount'];
-
-            final amount = (raw is String)
-                ? double.tryParse(raw) ?? 0.0
-                : (raw as num?)?.toDouble() ?? 0.0;
-
-            total += amount;
-          }
-
-          return total; // ✅ return number
-        });
+  Future<void> deleteTransaction(TranItem item) async {
+    await _repository.deleteTransaction(item);
+    _refreshDashboardData();
   }
 }

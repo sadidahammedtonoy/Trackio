@@ -29,7 +29,6 @@ class CategoryPieChart extends StatelessWidget {
     Colors.pink,
     Colors.brown,
     Colors.cyan,
-
   ];
 
   @override
@@ -37,7 +36,7 @@ class CategoryPieChart extends StatelessWidget {
     final controller = Get.find<dashboardController>();
 
     return Obx(() {
-      final data = controller.cachedCategoryMap;
+      final data = controller.categorySummary;
 
       if (data.isEmpty) {
         return Center(
@@ -61,7 +60,7 @@ class CategoryPieChart extends StatelessWidget {
 
         return PieChartSectionData(
           value: value,
-          color: _palette[i % _palette.length], // color now matches sorted order
+          color: _palette[i % _palette.length],
           radius: 70,
           title: percent >= 8 ? "${percent.toStringAsFixed(0)}%" : "",
           titleStyle: const TextStyle(
@@ -95,7 +94,7 @@ class CategoryPieChart extends StatelessWidget {
               runSpacing: 12,
               children: List.generate(sortedEntries.length, (i) {
                 final entry = sortedEntries[i];
-                final color = _palette[i % _palette.length]; // color matches pie
+                final color = _palette[i % _palette.length];
 
                 return Row(
                   mainAxisSize: MainAxisSize.min,

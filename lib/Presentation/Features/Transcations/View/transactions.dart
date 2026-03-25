@@ -189,26 +189,16 @@ class transcations_page extends StatelessWidget {
                   ),
                 // ✅ List area
                 Expanded(
-                  child: StreamBuilder<List<TranItem>>(
-                    stream: controller.streamTxnForUI(),
-                    initialData: controller.cachedTxnForUI(), // ✅ show instantly
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(child: Text("Error: ${snapshot.error}"));
-                      }
-
-                      // We use cachedTxnForUI to handle searching and category filtering
-                      final items = controller.cachedTxnForUI();
+                  child: Builder(
+                    builder: (context) {
+                      final items = controller.getFilteredTransactions();
 
                       if (items.isEmpty && controller.searchQuery.isEmpty && controller.selectedCategoryFilter.value == null) {
-                         // If everything is empty (no filters, no search, no data)
-                         // But if we have live data from stream, use it.
-                         final live = snapshot.data ?? const <TranItem>[];
-                         if (live.isEmpty) return Center(child: Text("No transactions found".tr));
+                        return Center(child: Text("No transactions yet".tr));
                       }
 
                       if (items.isEmpty) {
-                         return Center(child: Text("No matching transactions found".tr));
+                         return Center(child: Text("No results found".tr));
                       }
 
                       final isMonthSelected = controller.selectedMonthKey.value != null;
@@ -263,23 +253,14 @@ class transcations_page extends StatelessWidget {
                       Widget buildTile(TranItem t) => _TransactionTile(
                         item: t,
                         onDelete: () async {
-                          await controller.deleteMonthlyTransaction(
-                            monthKey: t.monthKey,
-                            transactionId: t.id,
-                          );
+                          await controller.deleteTransaction(t);
                         },
                       );
 
                       return Column(
                         children: [
                           if (isMonthSelected) 
-                             StreamBuilder<List<TranItem>>(
-                               stream: controller.streamTxnForUI(),
-                               builder: (context, snap) {
-                                  // Always calculate summary from ALL items in the current month/view, ignoring category filter
-                                  return _buildSummary(snap.data ?? controller.cachedMonthItems);
-                               }
-                             ),
+                             _buildSummary(controller.cachedItems),
                           Expanded(
                             child: SingleChildScrollView(
                               controller: controller.scrollController,
@@ -420,14 +401,7 @@ class _TransactionTile extends StatelessWidget {
 
     return Dismissible(
       key: ValueKey(item.id),
-
-      // ✅ Only swipe left
-      // direction: DismissDirection.endToStart,
-      // background: const SizedBox.shrink(),
-      // ✅ Allow both swipes
       direction: DismissDirection.horizontal,
-
-      // ✅ Left → Right background (Edit)
       background: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -450,28 +424,20 @@ class _TransactionTile extends StatelessWidget {
           ],
         ),
       ),
-
       confirmDismiss: (direction) async {
-        // ✅ Swipe Left → Right = Edit (DON'T dismiss)
         if (direction == DismissDirection.startToEnd) {
-          print("Edit this");
           Get.find<editTransactionsController>().assignValues(item);
           Get.to(editTransactions(model: item));
           return false;
         }
-
-        // ✅ Swipe Right → Left = Delete (confirm + dismiss)
         if (direction == DismissDirection.endToStart) {
           final confirm = await showDeleteTransactionDialog();
           if (!confirm) return false;
-
           await onDelete();
           return true;
         }
-
         return false;
       },
-
       secondaryBackground: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -492,17 +458,6 @@ class _TransactionTile extends StatelessWidget {
           ],
         ),
       ),
-
-      // confirmDismiss: (direction) async {
-      //   if (direction != DismissDirection.endToStart) return false;
-      //
-      //   final confirm = await showDeleteTransactionDialog();
-      //   if (!confirm) return false;
-      //
-      //   await onDelete();
-      //
-      //   return true;
-      // },
       child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: GestureDetector(
@@ -550,7 +505,6 @@ class _TransactionTile extends StatelessWidget {
                         ),
                       ),
                       Divider(),
-
                       item.type == "Lent" || item.type == "Borrow"
                           ? Row(
                               spacing: 5,
@@ -596,7 +550,6 @@ class _TransactionTile extends StatelessWidget {
                                 ),
                               ],
                             ),
-
                       Row(
                         spacing: 5,
                         children: [
@@ -618,7 +571,6 @@ class _TransactionTile extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       Row(
                         spacing: 5,
                         children: [
@@ -637,7 +589,6 @@ class _TransactionTile extends StatelessWidget {
                           Text(dateText, style: TextStyle(fontSize: 16.sp)),
                         ],
                       ),
-
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 5,
@@ -662,7 +613,6 @@ class _TransactionTile extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       ElevatedButton(
                         onPressed: () => Get.back(),
                         child: Text(
@@ -695,7 +645,7 @@ class _TransactionTile extends StatelessWidget {
                           color: Colors.black.withOpacity(0.08),
                           blurRadius: 15,
                           spreadRadius: 1,
-                          offset: const Offset(4, 1), // x, y
+                          offset: const Offset(4, 1),
                         ),
                       ],
                     ),
@@ -779,6 +729,7 @@ class _TransactionTile extends StatelessWidget {
 
 void _showMonthFilterSheet(BuildContext context) {
   final controller = Get.find<transactionsController>();
+  final months = controller.getMonthKeys();
 
   Get.bottomSheet(
     ClipRRect(
@@ -786,106 +737,87 @@ void _showMonthFilterSheet(BuildContext context) {
       child: Container(
         padding: const EdgeInsets.only(bottom: 30),
         decoration: const BoxDecoration(color: Colors.white),
-        child: StreamBuilder<List<String>>(
-          stream: controller.streamMonthKeys(),
-          builder: (context, snap) {
-            final months = snap.data ?? [];
-
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- Drag Handle ---
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD1D5DB),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD1D5DB),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Filter by Month".tr,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827),
+                      letterSpacing: -0.5,
                     ),
                   ),
-                ),
-
-                // --- Title Section ---
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Filter by Month".tr,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827),
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "Select a month to filter your transactions".tr,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF6B7280),
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // --- Divider ---
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Divider(height: 1, color: Color(0xFFE5E7EB)),
-                ),
-
-                const SizedBox(height: 8),
-
-                // --- "All Months" Option ---
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Obx(
-                    () => _MonthTile(
-                      icon: Icons.sick_outlined,
-                      label: "All Months".tr,
-                      isSelected: controller.selectedMonthKey.value == null,
-                      onTap: () {
-                        controller.selectMonth(null);
-                        Get.back();
-                      },
+                  SizedBox(height: 4),
+                  Text(
+                    "Select a month to filter your transactions".tr,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF6B7280),
+                      height: 1.4,
                     ),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Divider(height: 1, color: Color(0xFFE5E7EB)),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Obx(
+                () => _MonthTile(
+                  icon: Icons.sick_outlined,
+                  label: "All Months".tr,
+                  isSelected: controller.selectedMonthKey.value == null,
+                  onTap: () {
+                    controller.selectMonth(null);
+                    Get.back();
+                  },
                 ),
-
-                // --- Month List ---
-                ...months.map(
-                  (m) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Obx(
-                      () => _MonthTile(
-                        icon: Icons.calendar_month_outlined,
-                        label: numberTranslation.formatMonthYearBnFromKey(m),
-                        isSelected: controller.selectedMonthKey.value == m,
-                        onTap: () {
-                          controller.selectMonth(m);
-                          Get.back();
-                        },
-                      ),
-                    ),
+              ),
+            ),
+            ...months.map(
+              (m) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Obx(
+                  () => _MonthTile(
+                    icon: Icons.calendar_month_outlined,
+                    label: numberTranslation.formatMonthYearBnFromKey(m),
+                    isSelected: controller.selectedMonthKey.value == m,
+                    onTap: () {
+                      controller.selectMonth(m);
+                      Get.back();
+                    },
                   ),
                 ),
-
-                const SizedBox(height: 8),
-              ],
-            );
-          },
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
       ),
     ),
@@ -893,8 +825,6 @@ void _showMonthFilterSheet(BuildContext context) {
     enableDrag: true,
   );
 }
-
-// ─── Reusable Tile Widget ────────────────────────────────────────────────────
 
 class _MonthTile extends StatelessWidget {
   final IconData icon;
@@ -911,11 +841,10 @@ class _MonthTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cyan palette
-    const Color cyanAccent = Color(0xFF06B6D4); // vibrant cyan
-    const Color cyanBg = Color(0xFFECFEFF); // very light cyan bg
-    const Color neutralBg = Color(0xFFF3F4F6); // default grey bg
-    const Color neutralIcon = Color(0xFF6B7280); // default grey icon
+    const Color cyanAccent = Color(0xFF06B6D4);
+    const Color cyanBg = Color(0xFFECFEFF);
+    const Color neutralBg = Color(0xFFF3F4F6);
+    const Color neutralIcon = Color(0xFF6B7280);
 
     return Material(
       color: Colors.transparent,
@@ -940,7 +869,6 @@ class _MonthTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Icon Container
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
@@ -958,10 +886,7 @@ class _MonthTile extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(width: 14),
-
-              // Label
               Expanded(
                 child: AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
@@ -974,8 +899,6 @@ class _MonthTile extends StatelessWidget {
                   child: Text(label),
                 ),
               ),
-
-              // Checkmark or Chevron
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: isSelected

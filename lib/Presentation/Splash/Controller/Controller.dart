@@ -1,34 +1,33 @@
 import 'dart:async';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/routes.dart';
 import 'package:sadid/Core/snakbar.dart';
+import 'package:sadid/Data/Repository/DataRepository.dart';
 
 class SplashController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final DataRepository _repository = Get.find<DataRepository>();
 
   final RxBool isLoggedIn = false.obs;
   final RxBool isGuest = false.obs;
   final RxBool isNewUser = false.obs;
   final RxBool isOffline = false.obs;
 
-
   @override
   void onInit() {
     super.onInit();
-    Future.microtask(() async {});
     _init();
   }
 
   Future<void> _init() async {
     final User? user = _auth.currentUser;
 
-    // ✅ 1) Set language FIRST
-    await _setLanguage(user);
+    // ✅ 1) Set language FIRST from Local DB (Offline First)
+    await _setLanguage();
 
     // ✅ 2) Detect user state
     if (user == null) {
@@ -55,34 +54,16 @@ class SplashController extends GetxController {
     Future.delayed(const Duration(milliseconds: 700), _handleNextAction);
   }
 
-  /// 🌍 Language logic
-  Future<void> _setLanguage(User? user) async {
-    // ✅ DEFAULT = English
-    Locale locale = const Locale('en', 'US');
-
-    // Logged-in (non-guest) → try Firebase
-    if (user != null && !user.isAnonymous) {
-      try {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .collection('settings')
-            .doc('app')
-            .get();
-
-        if (doc.exists) {
-          final data = doc.data();
-          final lang = (data?['languageCode'] ?? 'en').toString();
-          final country = (data?['countryCode'] ?? 'US').toString();
-          locale = Locale(lang, country);
-        }
-      } catch (_) {
-        // silently fall back to English
-      }
+  /// 🌍 Language logic - Now uses Repository (Offline First)
+  Future<void> _setLanguage() async {
+    try {
+      final settings = await _repository.getSettings();
+      final locale = Locale(settings.languageCode, settings.countryCode);
+      Get.updateLocale(locale);
+    } catch (e) {
+      // Fallback to default
+      Get.updateLocale(const Locale('en', 'US'));
     }
-
-    // ✅ Apply locale
-    Get.updateLocale(locale);
   }
 
   void _handleNextAction() {
@@ -93,23 +74,20 @@ class SplashController extends GetxController {
     }
   }
 
-
   Future<void> checkInternetOrShowOffline() async {
-    // 1) Quick check: any network?
     final connectivity = await Connectivity().checkConnectivity();
     final hasNetwork = connectivity != ConnectivityResult.none;
 
     if (!hasNetwork) {
       isOffline.value = true;
       AppSnackbar.show("You're using Trackio offline. Please connect to the internet.");
+      return;
     }
 
-    // 2) Real check: can we reach internet?
     final hasInternet = await InternetConnectionChecker().hasConnection;
     if (!hasInternet) {
       isOffline.value = true;
       AppSnackbar.show("You're using Trackio offline. Please connect to the internet.");
     }
   }
-
 }
