@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:sadid/Core/numberTranslation.dart';
 import '../../../../Core/snakbar.dart';
 import 'package:get/get.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:ui';
 
 class SavingItem {
   final String id;
@@ -242,96 +244,93 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
               DateFormat("dd MMM yyyy").format(item.date),
             );
 
-            final card = Container(
-              margin: const EdgeInsets.only(bottom: 25),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.black12),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 12,
-                        offset: const Offset(10,10)
-                    ),
-                    BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 12,
-                        offset: const Offset(-10,-10)
-                    )
-                  ]
-              ),
+            final card = _GlassCard(
+              margin: EdgeInsets.only(bottom: 16.h),
+              padding: EdgeInsets.all(12.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        "${item.source} ",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
+                      Container(
+                        width: 44.r,
+                        height: 44.r,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.savings_rounded,
+                          color: AppColors.primary,
+                          size: 22.sp,
                         ),
                       ),
-                      Text(
-                        "Saving".tr,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
+                      SizedBox(width: 14.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.source.isEmpty ? "Saving".tr : item.source.tr,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            SizedBox(height: 2.h),
+                            Row(
+                              children: [
+                                Icon(Icons.account_balance_wallet_outlined, size: 12.sp, color: Colors.black45),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  item.wallet.tr,
+                                  style: TextStyle(
+                                    color: Colors.black54,
+                                    fontSize: 11.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16.sp,
+                              color: Colors.green,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            dateText,
+                            style: TextStyle(
+                              color: Colors.black45,
+                              fontSize: 10.sp,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Divider(),
-                  const SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "৳ ${numberTranslation.toBnDigits(item.amount.toStringAsFixed(1))}",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
+                  if (item.note != null && item.note!.isNotEmpty) ...[
+                    Padding(
+                      padding: EdgeInsets.only(top: 10.h, left: 58.w),
+                      child: Text(
+                        item.note!,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.black87,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
-                      Text(
-                        dateText,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    spacing: 5,
-                    children: [
-                      Icon(Icons.wallet, size: 15,),
-                      Text(
-                        "Wallet".tr,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        ": ${item.wallet.tr}",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (item.note != null) ...[
-                    const SizedBox(height: 8),
-                    Text(item.note!, style: const TextStyle(fontSize: 12)),
+                    ),
                   ],
                 ],
               ),
@@ -385,25 +384,70 @@ class _ErrorBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.withOpacity(0.3)),
-      ),
+    return _GlassCard(
+      padding: EdgeInsets.all(14.r),
+      borderColor: Colors.red.withOpacity(0.3),
       child: Row(
         children: [
           const Icon(Icons.error_outline, color: Colors.red),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.red),
             ),
           ),
         ],
       ),
     );
   }
+}
+
+class _GlassCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final BorderRadius? borderRadius;
+  final Color? borderColor;
+
+  const _GlassCard({
+    required this.child,
+    this.margin,
+    this.padding,
+    this.borderRadius,
+    this.borderColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
+        border: Border.all(color: borderColor ?? Colors.grey.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Padding(
+            padding: padding ?? EdgeInsets.all(16.r),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AppColors {
+  static const Color primary = Colors.cyan;
 }

@@ -15,6 +15,8 @@ import '../Presentation/Features/helpSupport/Controller/Controller.dart';
 import '../Presentation/Features/saving/Controller/Controller.dart';
 import '../Presentation/Splash/Controller/Controller.dart';
 import '../Presentation/navbar/Controller/Controller.dart';
+import '../Presentation/Features/Budget/Controller/Controller.dart';
+import '../Presentation/Features/Recurring/Controller/Controller.dart';
 
 
 class InitialBinding extends Bindings {
@@ -35,9 +37,8 @@ class InitialBinding extends Bindings {
     Get.lazyPut<signupController>(() => signupController(), fenix: true);
     Get.lazyPut<ForgotPasswordController>(() => ForgotPasswordController(), fenix: true);
     Get.lazyPut<editTransactionsController>(() => editTransactionsController(), fenix: true);
-    Get.lazyPut<editTransactionsController>(() => editTransactionsController(), fenix: true);
     Get.lazyPut<backgroundController>(() => backgroundController(), fenix: true);
-
-
+    Get.lazyPut<InsightsController>(() => InsightsController(), fenix: true);
+    Get.lazyPut<RecurringController>(() => RecurringController(), fenix: true);
   }
 }

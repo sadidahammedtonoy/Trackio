@@ -8,14 +8,17 @@ import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
 
 import '../../../../App/assets_path.dart';
+import '../../../../Core/numberTranslation.dart';
 import '../../calcolator/View/calculator.dart';
 import '../Controller/Controller.dart';
+import 'dart:ui';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddSavingSheet extends StatelessWidget {
   final savingController controller;
   const AddSavingSheet({super.key, required this.controller});
 
-  String _dateText(DateTime d) => DateFormat('dd MMM yyyy').format(d);
+  String _dateTextBn(DateTime d) => numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(d));
 
   Future<void> _pickDate(BuildContext context) async {
     if (Platform.isIOS) {
@@ -100,172 +103,336 @@ class AddSavingSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return background(
       child: Scaffold(
-        appBar: AppBar(titleSpacing: -10, title: Text("Add Saving".tr)),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Obx(
-                  () => Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.white.withOpacity(0.1),
+          elevation: 0,
+          title: Text(
+            "Add Saving".tr,
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 20.sp,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
+            onPressed: () => Get.back(),
+          ),
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Amount Input (Amount-First Design)
+              _GlassCard(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+                child: Column(
+                  children: [
+                    Text(
+                      "How much did you save?".tr,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    TextField(
+                      controller: controller.amountC,
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(
+                        fontSize: 40.sp,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primary,
+                        letterSpacing: -1,
+                      ),
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        hintText: "0",
+                        hintStyle: TextStyle(color: AppColors.primary.withOpacity(0.2)),
+                        border: InputBorder.none,
+                        prefixText: "৳ ",
+                        prefixStyle: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold, color: AppColors.primary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20.h),
+      
+              // Motivation Summary
+              Obx(() => _GlassCard(
+                    padding: EdgeInsets.all(16.r),
+                    borderColor: AppColors.primary.withOpacity(0.2),
+                    child: Row(
                       children: [
-                        Text(
-                          controller.motivationTitle.value.tr,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
+                        Container(
+                          padding: EdgeInsets.all(10.r),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            shape: BoxShape.circle,
                           ),
+                          child: Icon(Icons.auto_awesome, color: AppColors.primary, size: 20.sp),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          controller.motivationSubtitle.value.tr,
-                          style: const TextStyle(
-                            color: Colors.black54,
-                            fontSize: 13,
+                        SizedBox(width: 14.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                controller.motivationTitle.value.tr,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                controller.motivationSubtitle.value.tr,
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Amount
-                TextField(
-                  controller: controller.amountC,
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Amount".tr,
-                    hintText: "Enter amount".tr,
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Date
-                Obx(
-                  () => InkWell(
-                    onTap: () => _pickDate(context),
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: "Date".tr,
-                        filled: false,
-                        fillColor: Colors.white,
-                        suffixIcon: Icon(
-                          Icons.calendar_month,
-                          color: Colors.black87,
+                  )),
+              SizedBox(height: 20.h),
+      
+              // Date Selection
+              _sectionLabel("When did you save?".tr),
+              Obx(() => SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _GlassChip(
+                          isSelected: true,
+                          label: _dateTextBn(controller.selectedDate.value),
+                          onTap: () => _pickDate(context),
+                          icon: Icons.calendar_today_rounded,
                         ),
-                        border: OutlineInputBorder(),
-                      ),
-                      child: Text(
-                        _dateText(controller.selectedDate.value),
-                        style: const TextStyle(color: Colors.black),
-                      ),
+                      ],
                     ),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Wallet dropdown
-                Obx(
-                  () => DropdownButtonFormField<String>(
-                    initialValue: controller.selectedWallet.value,
-                    items: controller.wallets
-                        .map(
-                          (w) => DropdownMenuItem(value: w, child: Text(w.tr)),
-                        )
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) controller.selectedWallet.value = v;
-                    },
-                    dropdownColor: Colors.white,
-                    decoration: InputDecoration(
-                      filled: false,
-                      fillColor: Colors.white,
-                      labelText: "Wallet".tr,
-                      border: OutlineInputBorder(),
+                  )),
+              SizedBox(height: 20.h),
+      
+              // Wallet Selection
+              _sectionLabel("Select Wallet".tr),
+              Obx(() => Wrap(
+                    spacing: 10.w,
+                    runSpacing: 10.h,
+                    children: controller.wallets.map((w) {
+                      final isSelected = controller.selectedWallet.value == w;
+                      return _GlassChip(
+                        isSelected: isSelected,
+                        label: w.tr,
+                        onTap: () => controller.selectedWallet.value = w,
+                      );
+                    }).toList(),
+                  )),
+              SizedBox(height: 20.h),
+      
+              // Source & Note
+              _sectionLabel("Details".tr),
+              _GlassCard(
+                padding: EdgeInsets.all(16.r),
+                child: Column(
+                  children: [
+                    _GlassTextField(
+                      controller: controller.sourceC,
+                      label: "Source".tr,
+                      hint: "e.g., Salary, Gift".tr,
+                      icon: Icons.source_rounded,
                     ),
-                  ),
+                    SizedBox(height: 16.h),
+                    _GlassTextField(
+                      controller: controller.noteC,
+                      label: "Note (Optional)".tr,
+                      hint: "Notes about this saving...".tr,
+                      icon: Icons.notes_rounded,
+                      maxLines: 2,
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 12),
-
-                // Source
-                TextField(
-                  controller: controller.sourceC,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Source".tr,
-                    hintText: "From where this money came from".tr,
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Note
-                TextField(
-                  controller: controller.noteC,
-                  maxLines: 3,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Note (optional)".tr,
-                    hintText:
-                        "Anything you want to remember about this saving...".tr,
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-
-                const SizedBox(height: 14),
-
-                // Add button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    label: Text(
-                      "Add".tr,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
+              ),
+              SizedBox(height: 30.h),
+      
+              // Submit Button
+              SizedBox(
+                width: double.infinity,
+                child: Container(
+                  height: 56.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18.r),
+                    gradient: LinearGradient(
+                      colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
+                    ],
+                  ),
+                  child: ElevatedButton(
                     onPressed: controller.addSaving,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+                    ),
+                    child: Text(
+                      "Save Now".tr,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-        floatingActionButton: GestureDetector(
-          onTap: () {
-            Get.dialog(CalculatorDialog(), barrierDismissible: true);
-          },
-          child: SizedBox(
-            width: 50,
-            height: 50,
-            child: Lottie.asset(
-              assets_path.calculator,
-              fit: BoxFit.contain,
-              repeat: false,
-            ),
-          ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => Get.dialog(CalculatorDialog(), barrierDismissible: true),
+          backgroundColor: Colors.white,
+          child: Lottie.asset(assets_path.calculator, width: 30.sp),
         ),
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w, bottom: 10.h),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  final Color? borderColor;
+  final BorderRadius? borderRadius;
+
+  const _GlassCard({required this.child, this.padding, this.borderColor, this.borderRadius});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: borderRadius ?? BorderRadius.circular(24.r),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          padding: padding ?? EdgeInsets.all(16.r),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: borderRadius ?? BorderRadius.circular(24.r),
+            border: Border.all(color: borderColor ?? Colors.grey.withOpacity(0.3)),
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassChip extends StatelessWidget {
+  final bool isSelected;
+  final String label;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  const _GlassChip({required this.isSelected, required this.label, required this.onTap, this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: _GlassCard(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+        borderRadius: BorderRadius.circular(14.r),
+        borderColor: isSelected ? AppColors.primary : null,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 16.sp, color: isSelected ? AppColors.primary : Colors.black54),
+              SizedBox(width: 8.w),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? AppColors.primary : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final IconData icon;
+  final int maxLines;
+
+  const _GlassTextField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.icon,
+    this.maxLines = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.black54, fontSize: 13.sp),
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.black26, fontSize: 13.sp),
+        prefixIcon: Icon(icon, size: 18.sp, color: AppColors.primary.withOpacity(0.5)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: BorderSide(color: AppColors.primary),
+        ),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.05),
       ),
     );
   }

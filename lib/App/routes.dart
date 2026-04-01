@@ -13,6 +13,8 @@ import '../Presentation/Features/permanentAccount/View/permanentAccount.dart';
 import '../Presentation/Features/saving/View/saving.dart';
 import '../Presentation/Splash/View/splash.dart';
 import '../Presentation/navbar/View/navbar.dart';
+import '../Presentation/Features/Budget/View/budget.dart';
+import '../Presentation/Features/Recurring/View/recurring.dart';
 import 'Binding.dart';
 
 class routes {
@@ -30,6 +32,8 @@ class routes {
   static const String ForgotPasswordScreen_screen = '/ForgotPasswordScreen';
   static const String MakePermanentDialog_screen = '/MakePermanentDialog';
   static const String backgroundSelection_screen = '/backgroundSelection';
+  static const String insights_screen = '/insights';
+  static const String recurring_screen = '/recurring';
 
 
   static final pages = [
@@ -47,6 +51,8 @@ class routes {
     GetPage( name: ForgotPasswordScreen_screen, binding: InitialBinding(), page: () => ForgotPasswordScreen()),
     GetPage( name: MakePermanentDialog_screen, binding: InitialBinding(), page: () => MakePermanentDialog()),
     GetPage( name: backgroundSelection_screen, binding: InitialBinding(), page: () => backgroundSelection()),
+    GetPage( name: insights_screen, binding: InitialBinding(), page: () => InsightsPage()),
+    GetPage( name: recurring_screen, binding: InitialBinding(), page: () => const RecurringPage()),
 
 
 

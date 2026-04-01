@@ -22,6 +22,11 @@ class dashboardController extends GetxController {
   final RxList<double> weeklyAmounts = List.filled(7, 0.0).obs;
   final RxList<String> labels = <String>[].obs;
   final RxBool isLoading = true.obs;
+  final Rxn<String> touchedValue = Rxn<String>();
+
+  // Calendar Observables
+  final Rx<DateTime> selectedMonth = DateTime.now().obs;
+  final RxMap<int, double> dailyExpenses = <int, double>{}.obs;
 
   StreamSubscription? _hiveSub;
 
@@ -38,12 +43,18 @@ class dashboardController extends GetxController {
     });
   }
 
+  void changeMonth(int offset) {
+    selectedMonth.value = DateTime(selectedMonth.value.year, selectedMonth.value.month + offset, 1);
+    _refreshDashboardData();
+  }
+
   void _refreshDashboardData() {
     try {
       final allItems = _repository.getAllTransactions();
       final now = DateTime.now();
+      final selMonth = selectedMonth.value;
       
-      // 1. Calculate this month summary
+      // 1. Calculate this month summary (using actual current month for summary cards)
       double monthExpense = 0, monthIncome = 0, monthSaving = 0;
       for (var item in allItems) {
         if (item.date.year == now.year && item.date.month == now.month) {
@@ -66,7 +77,16 @@ class dashboardController extends GetxController {
       todayExpense.value = todayExp;
       todayTransactions.assignAll(todayItems..sort((a, b) => b.date.compareTo(a.date)));
 
-      // 3. Category Summary (Pie Chart) - Current Month Expense
+      // 3. Daily Expenses for Calendar (using selectedMonth)
+      final dailyMap = <int, double>{};
+      for (var item in allItems) {
+        if (item.date.year == selMonth.year && item.date.month == selMonth.month && item.type == "Expense") {
+          dailyMap[item.date.day] = (dailyMap[item.date.day] ?? 0) + item.amount;
+        }
+      }
+      dailyExpenses.value = dailyMap;
+
+      // 4. Category Summary (Pie Chart) - Current Month Expense
       final catMap = <String, double>{};
       for (var item in allItems) {
         if (item.date.year == now.year && item.date.month == now.month && item.type == "Expense") {
@@ -76,7 +96,7 @@ class dashboardController extends GetxController {
       }
       categorySummary.value = catMap;
 
-      // 4. Weekly Data
+      // 5. Weekly Data
       final weekMap = <String, double>{};
       final dateFormat = DateFormat('yyyy-MM-dd');
       for (int i = 0; i < 7; i++) {
@@ -94,7 +114,7 @@ class dashboardController extends GetxController {
       weeklyAmounts.assignAll(weekMap.values.toList());
       labels.assignAll(weekMap.keys.map((d) => DateFormat.E().format(DateTime.parse(d))).toList());
 
-      // 5. Savings
+      // 6. Savings
       double totalSav = 0;
       double currentMonthSav = 0;
       for (var item in allItems) {

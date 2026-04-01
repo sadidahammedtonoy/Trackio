@@ -2,6 +2,7 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
+import '../../Features/Budget/View/budget.dart';
 import '../../Features/Dashboard/View/dashboard.dart';
 import '../../Features/Setting/View/setting.dart';
 import '../../Features/Transcations/View/transactions.dart';
@@ -35,7 +36,7 @@ class navbar extends StatelessWidget {
               child: pages[nav.currentIndex.value],
               layoutBuilder: (currentChild, previousChildren) {
                 return Stack(
-                  children: <Widget>[...previousChildren, ?currentChild],
+                  children: <Widget>[...previousChildren, if (currentChild != null) currentChild],
                 );
               },
             ),
@@ -124,7 +125,7 @@ class navbar extends StatelessWidget {
             ),
             BottomBarItem(
               inActiveItem: const Icon(
-                Icons.balance_outlined,
+                Icons.balance_rounded,
                 color: Colors.grey,
               ),
               activeItem: const Icon(

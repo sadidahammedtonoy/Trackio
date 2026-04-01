@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/Core/loading.dart';
 import 'package:sadid/Core/snakbar.dart';
+import 'package:sadid/Data/Repository/DataRepository.dart';
 import 'package:sadid/Presentation/Features/AddTransactions/Model/addTransactionModel.dart';
+import 'package:sadid/Presentation/Features/Budget/Controller/Controller.dart';
+import 'package:sadid/Presentation/Features/Transcations/Model/tranModel.dart';
+import 'package:uuid/uuid.dart';
 
 class addTranscationsController extends GetxController {
   final wallets = ["Cash", "Mobile Banking", "Bank", "Others"];
@@ -14,6 +18,8 @@ class addTranscationsController extends GetxController {
   final selectedDate = DateTime.now().obs;
   final categories = <Map<String, dynamic>>[].obs;
   final selectedCategoryId = RxnString();
+
+  final DataRepository _repository = Get.find<DataRepository>();
 
   Future<void> fetchCategories() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -38,60 +44,38 @@ class addTranscationsController extends GetxController {
     AppLoader.show(message: "Adding transaction...".tr);
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        AppSnackbar.show("User not logged in".tr);
-        throw Exception("User not logged in");
-      }
+      final monthKey = "${model.date.year}-${model.date.month.toString().padLeft(2, '0')}";
+      final amount = double.tryParse(model.amount) ?? 0.0;
 
-      final monthKey =
-          "${model.date.year}-${model.date.month.toString().padLeft(2, '0')}";
+      final tranItem = TranItem(
+        id: const Uuid().v4(),
+        monthKey: monthKey,
+        type: model.type,
+        date: model.date,
+        amount: amount,
+        wallet: model.wallet,
+        category: model.category,
+        note: model.note.trim(),
+        marked: model.type == "Lent" || model.type == "Borrow",
+        isSynced: false,
+      );
 
-      final monthRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('monthly_transactions')
-          .doc(monthKey);
+      await _repository.saveTransaction(tranItem);
 
-      await monthRef.set({
-        "monthKey": monthKey,
-        "updatedAt": FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      final ref = monthRef.collection('items').doc();
-      if (model.type == "Lent" || model.type == "Borrow") {
-        await ref.set({
-          "type": model.type,
-          "date": Timestamp.fromDate(model.date),
-          "amount": model.amount,
-          "wallet": model.wallet,
-          "category": model.category,
-          "note": (model.note).trim(),
-          "monthKey": monthKey,
-          "createdAt": FieldValue.serverTimestamp(),
-          "marked": false,
-        });
-      } else {
-        await ref.set({
-          "type": model.type,
-          "date": Timestamp.fromDate(model.date),
-          "amount": model.amount,
-          "wallet": model.wallet,
-          "category": model.category,
-          "note": (model.note).trim(),
-          "monthKey": monthKey,
-          "createdAt": FieldValue.serverTimestamp(),
-        });
+      // Refresh Budget status if needed
+      if (Get.isRegistered<InsightsController>()) {
+        Get.find<InsightsController>().refreshData();
       }
 
       AppLoader.hide();
       Get.back();
       AppSnackbar.show("Transaction added successfully".tr);
 
-      return ref.id;
+      return tranItem.id;
     } catch (e) {
       AppLoader.hide();
       AppSnackbar.show("Fail to add Transaction".tr);
+      debugPrint("❌ Add Transaction Error: $e");
       return null;
     }
   }

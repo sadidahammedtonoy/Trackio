@@ -1,22 +1,38 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../Presentation/Features/Transcations/Model/tranModel.dart';
-import '../../Presentation/Features/Setting/Model/settingsModel.dart';
+import 'package:sadid/Presentation/Features/Transcations/Model/tranModel.dart';
+import 'package:sadid/Presentation/Features/Setting/Model/settingsModel.dart';
+import 'package:sadid/Presentation/Features/Budget/Model/budgetModel.dart';
+import 'package:sadid/Presentation/Features/Recurring/Model/recurringModel.dart';
 
 class LocalDataSource {
   static const String transactionsBoxName = 'transactions';
   static const String settingsBoxName = 'settings';
+  static const String budgetsBoxName = 'budgets';
+  static const String recurringBoxName = 'recurring';
+  static const String categoriesBoxName = 'categories';
 
   Future<void> init() async {
     await Hive.initFlutter();
-    Hive.registerAdapter(TranItemAdapter());
-    Hive.registerAdapter(AppSettingsAdapter());
     
+    // Register Adapters
+    if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(TranItemAdapter());
+    if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(AppSettingsAdapter());
+    if (!Hive.isAdapterRegistered(6)) Hive.registerAdapter(BudgetModelAdapter());
+    if (!Hive.isAdapterRegistered(3)) Hive.registerAdapter(RecurringModelAdapter());
+    
+    // Open Boxes
     await Hive.openBox<TranItem>(transactionsBoxName);
     await Hive.openBox<AppSettings>(settingsBoxName);
+    await Hive.openBox<BudgetModel>(budgetsBoxName);
+    await Hive.openBox<RecurringModel>(recurringBoxName);
+    await Hive.openBox<Map>(categoriesBoxName);
   }
 
   Box<TranItem> get transactionsBox => Hive.box<TranItem>(transactionsBoxName);
   Box<AppSettings> get settingsBox => Hive.box<AppSettings>(settingsBoxName);
+  Box<BudgetModel> get budgetsBox => Hive.box<BudgetModel>(budgetsBoxName);
+  Box<RecurringModel> get recurringBox => Hive.box<RecurringModel>(recurringBoxName);
+  Box<Map> get categoriesBox => Hive.box<Map>(categoriesBoxName);
 
   // Settings
   Future<void> saveSettings(AppSettings settings) async {
@@ -47,5 +63,30 @@ class LocalDataSource {
 
   List<TranItem> getUnsyncedTransactions() {
     return transactionsBox.values.where((item) => !item.isSynced).toList();
+  }
+
+  // Recurring
+  Future<void> saveRecurring(RecurringModel model) async {
+    await recurringBox.put(model.id, model);
+  }
+
+  List<RecurringModel> getAllRecurring() {
+    return recurringBox.values.toList();
+  }
+
+  Future<void> deleteRecurring(String id) async {
+    await recurringBox.delete(id);
+  }
+
+  // Categories
+  Future<void> saveCategories(List<Map<String, dynamic>> categories) async {
+    await categoriesBox.clear();
+    for (var i = 0; i < categories.length; i++) {
+      await categoriesBox.put(i, categories[i]);
+    }
+  }
+
+  List<Map<String, dynamic>> getCategories() {
+    return categoriesBox.values.map((e) => Map<String, dynamic>.from(e)).toList();
   }
 }

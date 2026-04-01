@@ -66,6 +66,8 @@ class transactionsController extends GetxController {
   final RxList<TranItem> cachedItems = <TranItem>[].obs;
   StreamSubscription? _hiveSub;
 
+  final RxList<TranItem> filteredItems = <TranItem>[].obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -88,6 +90,11 @@ class transactionsController extends GetxController {
       _refreshItems();
     });
 
+    // Re-filter when any filter change or items change
+    ever(cachedItems, (_) => _applyFilters());
+    ever(searchQuery, (_) => _applyFilters());
+    ever(selectedCategoryFilter, (_) => _applyFilters());
+
     _refreshItems();
   }
 
@@ -105,16 +112,7 @@ class transactionsController extends GetxController {
     cachedItems.assignAll(items);
   }
 
-  @override
-  void onClose() {
-    _hiveSub?.cancel();
-    _scrollStopTimer?.cancel();
-    scrollController.dispose();
-    super.onClose();
-  }
-
-  /// ✅ Used in UI to get filtered/searched list
-  List<TranItem> getFilteredTransactions() {
+  void _applyFilters() {
     var items = List<TranItem>.from(cachedItems);
 
     // Apply Category Filter
@@ -131,14 +129,25 @@ class transactionsController extends GetxController {
 
     // Apply Search Filter
     if (searchQuery.isNotEmpty) {
+      final query = searchQuery.value.toLowerCase();
       items = items.where((item) {
-        final categoryMatch = item.category.toLowerCase().contains(searchQuery.value.toLowerCase());
-        final remarkMatch = item.note.toLowerCase().contains(searchQuery.value.toLowerCase());
-        return categoryMatch || remarkMatch;
+        final categoryMatch = item.category.toLowerCase().contains(query);
+        final remarkMatch = item.note.toLowerCase().contains(query);
+        final walletMatch = item.wallet.toLowerCase().contains(query);
+        final amountMatch = item.amount.toString().contains(query);
+        return categoryMatch || remarkMatch || walletMatch || amountMatch;
       }).toList();
     }
 
-    return items;
+    filteredItems.assignAll(items);
+  }
+
+  @override
+  void onClose() {
+    _hiveSub?.cancel();
+    _scrollStopTimer?.cancel();
+    scrollController.dispose();
+    super.onClose();
   }
 
   // Get distinct month keys for dropdown

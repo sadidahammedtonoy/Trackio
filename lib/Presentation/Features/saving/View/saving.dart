@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:sadid/App/AppColors.dart';
+import 'package:sadid/App/AppColors.dart' hide AppColors;
 import 'package:sadid/App/assets_path.dart';
 import 'package:sadid/Core/numberTranslation.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
@@ -11,6 +11,7 @@ import '../Controller/Controller.dart';
 import '../Model/savingModel.dart';
 import 'history.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:ui';
 class saving extends StatelessWidget {
   final controller = Get.put(savingController());
   saving({super.key});
@@ -117,15 +118,29 @@ class saving extends StatelessWidget {
 
     return background(
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text("Savings".tr),
-          titleSpacing: -10,
+          backgroundColor: Colors.white.withOpacity(0.1),
+          elevation: 0,
+          title: Text(
+            "Savings".tr,
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 20.sp,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
+            onPressed: () => Get.back(),
+          ),
           actions: [
             IconButton(
               onPressed: () => controller.openAddSavingSheet(context),
               icon: Icon(
                 Icons.add_circle_outline_rounded,
-                color: Colors.black54,
+                color: Colors.black,
+                size: 24.sp,
               ),
             ),
           ],
@@ -150,7 +165,8 @@ class saving extends StatelessWidget {
           child: Column(
             children: [
               // ✅ 2) Overall Saving (stored separately)
-              _card(
+              _GlassCard(
+                padding: EdgeInsets.all(16.r),
                 child: StreamBuilder<double>(
                   stream: controller.streamOverallSaving(),
                   builder: (context, snap) {
@@ -163,10 +179,33 @@ class saving extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "৳${numberTranslation.toBnDigits(overall.toStringAsFixed(1))}",
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
+                              "Overall Saving".tr,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            Text(
+                              "Total History".tr,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "৳${numberTranslation.toBnDigits(overall.toStringAsFixed(0))}",
+                              style: TextStyle(
+                                fontSize: 24.sp,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.black,
                               ),
                             ),
       
@@ -176,29 +215,29 @@ class saving extends StatelessWidget {
                                 final totalText = snapshot.data ?? "0";
       
                                 return Text(
-                                  "৳${numberTranslation.toBnDigits(totalText)}", // or just totalText
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
+                                  "৳${numberTranslation.toBnDigits(totalText)}",
+                                  style: TextStyle(
+                                    fontSize: 24.sp,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.primary,
                                   ),
                                 );
                               },
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 16.h),
                         Row(
                           children: [
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
+                                  backgroundColor: Colors.green.withOpacity(0.8),
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
+                                  elevation: 0,
+                                  padding: EdgeInsets.symmetric(vertical: 12.h),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(14.r),
                                   ),
                                 ),
                                 onPressed: () async {
@@ -208,21 +247,19 @@ class saving extends StatelessWidget {
       
                                   await controller.addToOverallSaving(amount);
                                 },
-                                child: Text("Add".tr),
+                                child: Text("Add".tr, style: const TextStyle(fontWeight: FontWeight.bold)),
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            SizedBox(width: 12.w),
                             Expanded(
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.red,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
+                                  padding: EdgeInsets.symmetric(vertical: 12.h),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(14.r),
                                   ),
-                                  side: const BorderSide(color: Colors.red),
+                                  side: BorderSide(color: Colors.red.withOpacity(0.3)),
                                 ),
                                 onPressed: () async {
                                   final confirm = await _showResetDialog();
@@ -230,15 +267,15 @@ class saving extends StatelessWidget {
       
                                   await controller.resetOverallSaving();
                                 },
-                                child: Text("Remove".tr),
+                                child: Text("Remove".tr, style: const TextStyle(fontWeight: FontWeight.bold)),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: 8.h),
                         Text(
                           "Remove means Overall Saving will be set to 0.".tr,
-                          style: TextStyle(color: Colors.black45, fontSize: 12),
+                          style: TextStyle(color: Colors.black38, fontSize: 11.sp, fontStyle: FontStyle.italic),
                         ),
                       ],
                     );
@@ -246,11 +283,9 @@ class saving extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+              _GlassCard(
+                padding: EdgeInsets.all(4.r),
+                borderRadius: BorderRadius.circular(16.r),
                 child: Obx(() {
                   return Row(
                     children: [
@@ -294,22 +329,75 @@ Widget _tabButton({
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 12.h),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
         ),
         alignment: Alignment.center,
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.black54,
+            fontWeight: FontWeight.bold,
+            fontSize: 14.sp,
           ),
         ),
       ),
     ),
   );
+}
+
+class _GlassCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final BorderRadius? borderRadius;
+  final Color? borderColor;
+
+  const _GlassCard({
+    required this.child,
+    this.margin,
+    this.padding,
+    this.borderRadius,
+    this.borderColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
+        border: Border.all(color: borderColor ?? Colors.grey.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Padding(
+            padding: padding ?? EdgeInsets.all(16.r),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 Widget allMonthSavingsList() {
@@ -331,89 +419,48 @@ Widget allMonthSavingsList() {
         final saving = m.saving;
         final isPositive = saving >= 0;
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 25),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.black12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 12,
-                offset: const Offset(10,10)
-              ),
-              BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 12,
-                  offset: const Offset(-10,-10)
-              )
-            ]
-          ),
+        return _GlassCard(
+          margin: EdgeInsets.only(bottom: 20.h),
+          padding: EdgeInsets.all(16.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Text(numberTranslation.formatMonthYearBnFromString(formatMonth(m.monthKey),), style: TextStyle(fontSize: 25.sp, fontWeight: FontWeight.w600),)),
-              Divider(),
-              const SizedBox(height: 10),
+              Center(
+                child: Text(
+                  numberTranslation.formatMonthYearBnFromString(formatMonth(m.monthKey)),
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                child: Divider(color: Colors.black.withOpacity(0.05)),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 3,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle
-                          ),
-                          child: Icon(Icons.trending_up_outlined, color: Colors.white, size: 15,)),
-                      Text("Income".tr, style: TextStyle(),),
-                      Text(
-                        "${numberTranslation.toBnDigits(m.income.toStringAsFixed(0))} ৳",
-                        style: TextStyle(fontWeight: FontWeight.w800, color: Colors.green, fontSize: 18.sp),
-                      ),
-                    ],
+                  _SavingsStat(
+                    icon: Icons.trending_up_outlined,
+                    label: "Income".tr,
+                    amount: m.income,
+                    color: Colors.green,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 3,
-                    children: [
-                      Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              shape: BoxShape.circle
-                          ),
-                          child: Icon(Icons.trending_down, color: Colors.white, size: 15,)),
-                      Text("Expense".tr, style: TextStyle(),),
-                      Text(
-                        "${numberTranslation.toBnDigits(m.expense.toStringAsFixed(0))} ৳",
-                        style: TextStyle(fontWeight: FontWeight.w800, color: Colors.redAccent, fontSize: 18.sp),
-                      ),
-                    ],
+                  _SavingsStat(
+                    icon: Icons.trending_down_rounded,
+                    label: "Expense".tr,
+                    amount: m.expense,
+                    color: Colors.redAccent,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 3,
-                    children: [
-                      Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle
-                          ),
-                          child: Icon(Icons.access_time_rounded, color: Colors.white, size: 15,)),
-                      Text("Total Balance".tr, style: TextStyle(),),
-                      Text(
-                        "${isPositive ? '+' : ''} ${numberTranslation.toBnDigits(saving.toStringAsFixed(0))} ৳",
-                        style: TextStyle(fontWeight: FontWeight.w800, color: isPositive ? Colors.green : Colors.redAccent, fontSize: 18.sp),
-                      ),
-                    ],
-                  )
+                  _SavingsStat(
+                    icon: Icons.account_balance_rounded,
+                    label: "Balance".tr,
+                    amount: saving,
+                    color: isPositive ? Colors.blue : Colors.orange,
+                    showSign: true,
+                  ),
                 ],
               ),
             ],
@@ -450,4 +497,54 @@ Widget allMonthSavingsList() {
       return Obx(() => buildList(controller.cachedMonths));
     },
   );
+}
+
+class _SavingsStat extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final double amount;
+  final Color color;
+  final bool showSign;
+
+  const _SavingsStat({
+    required this.icon,
+    required this.label,
+    required this.amount,
+    required this.color,
+    this.showSign = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(8.r),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 16.sp),
+        ),
+        SizedBox(height: 6.h),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11.sp,
+            color: Colors.black54,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 2.h),
+        Text(
+          "${showSign && amount > 0 ? '+' : ''}${numberTranslation.toBnDigits(amount.toStringAsFixed(0))} ৳",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: color,
+            fontSize: 15.sp,
+          ),
+        ),
+      ],
+    );
+  }
 }
