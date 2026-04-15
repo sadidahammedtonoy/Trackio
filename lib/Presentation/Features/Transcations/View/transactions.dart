@@ -100,7 +100,6 @@ class transcations_page extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.1),
         elevation: 0,
         title: Obx(() {
           final selected = controller.selectedMonthKey.value;

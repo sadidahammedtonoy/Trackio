@@ -1,143 +1,165 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../../Data/Repository/DataRepository.dart';
+import 'package:rxdart/rxdart.dart' hide Rx;
 import '../../Transcations/Model/tranModel.dart';
-import 'package:flutter/material.dart';
+import '../../Budget/Model/budgetModel.dart';
 
 class dashboardController extends GetxController {
-  final DataRepository _repository = Get.find<DataRepository>();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
-  // Observables for UI
-  final RxMap<String, double> thisMonthSummary = {"expense": 0.0, "income": 0.0, "saving": 0.0}.obs;
+  // Observables
+  final RxMap<String, double> monthSummary = {"expense": 0.0, "income": 0.0}.obs;
   final RxDouble todayExpense = 0.0.obs;
   final RxDouble totalSavingAllTime = 0.0.obs;
   final RxDouble thisMonthSavings = 0.0.obs;
-  final RxDouble overallSavingOnly = 0.0.obs;
   final RxMap<String, double> categorySummary = <String, double>{}.obs;
   final RxList<TranItem> todayTransactions = <TranItem>[].obs;
   final RxList<double> weeklyAmounts = List.filled(7, 0.0).obs;
   final RxList<String> labels = <String>[].obs;
   final RxBool isLoading = true.obs;
   final Rxn<String> touchedValue = Rxn<String>();
+  final RxList<BudgetStatus> overBudget = <BudgetStatus>[].obs;
 
-  // Calendar Observables
   final Rx<DateTime> selectedMonth = DateTime.now().obs;
   final RxMap<int, double> dailyExpenses = <int, double>{}.obs;
 
-  StreamSubscription? _hiveSub;
+  String get _uid => _auth.currentUser?.uid ?? "";
+  StreamSubscription? _mainSub;
 
   @override
   void onInit() {
     super.onInit();
-    
-    // Initial data load
-    _refreshDashboardData();
-
-    // Listen to Hive changes for real-time updates
-    _hiveSub = _repository.localDataSource.transactionsBox.watch().listen((_) {
-      _refreshDashboardData();
-    });
+    _setupLabels();
+    _initDashboardStream();
   }
+
+  void _setupLabels() {
+    final now = DateTime.now();
+    final list = <String>[];
+    for (int i = 6; i >= 0; i--) {
+      final day = now.subtract(Duration(days: i));
+      list.add(DateFormat('EEE').format(day));
+    }
+    labels.assignAll(list);
+  }
+
+  void _initDashboardStream() {
+    if (_uid.isEmpty) return;
+
+    // 1. Listen to all months to aggregate global data (Weekly, All-time Savings)
+    final monthsRef = _firestore.collection('users').doc(_uid).collection('monthly_transactions');
+
+    final allTxsStream = monthsRef.snapshots().switchMap((monthsSnap) {
+      if (monthsSnap.docs.isEmpty) return Stream.value(<TranItem>[]);
+      
+      final itemStreams = monthsSnap.docs.map((m) {
+        return monthsRef.doc(m.id).collection('items').snapshots().map((s) {
+          return s.docs.map((d) => TranItem.fromDoc(d, monthKey: m.id)).toList();
+        });
+      }).toList();
+
+      return CombineLatestStream.list<List<TranItem>>(itemStreams)
+          .map((lists) => lists.expand((x) => x).toList());
+    });
+
+    // 2. Stream Budgets based on selectedMonth
+    final budgetsStream = selectedMonth.stream
+        .startWith(selectedMonth.value)
+        .switchMap((date) {
+          final key = "${date.year}-${date.month.toString().padLeft(2, '0')}";
+          return _firestore
+              .collection('users')
+              .doc(_uid)
+              .collection('budgets')
+              .where('monthKey', isEqualTo: key)
+              .snapshots()
+              .map((snap) => snap.docs.map((doc) => BudgetModel.fromDoc(doc)).toList());
+        });
+
+    // 3. Combine both streams with the selected month selection
+    _mainSub = CombineLatestStream.combine3(
+      allTxsStream,
+      budgetsStream,
+      selectedMonth.stream.startWith(selectedMonth.value),
+      (List<TranItem> allTxs, List<BudgetModel> budgets, DateTime currentMonth) {
+        _processDashboardData(allTxs, budgets, currentMonth);
+      },
+    ).listen((_) {}, onError: (e) => debugPrint("Dashboard Stream Error: $e"));
+  }
+
+  void _processDashboardData(List<TranItem> allTxs, List<BudgetModel> budgets, DateTime currentMonth) {
+    final monthKey = "${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}";
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+
+    double income = 0, expense = 0, todayExp = 0, monthSaving = 0, totalSavings = 0;
+    final Map<String, double> catSum = {};
+    final List<TranItem> todayTxsList = [];
+    final Map<int, double> dailyExp = {};
+    final weekly = List.filled(7, 0.0);
+
+    for (var tx in allTxs) {
+      // Global logic: All-time Savings
+      if (tx.type == "Saving") totalSavings += tx.amount;
+
+      // Global logic: Weekly Chart (Last 7 days)
+      final txDateOnly = DateTime(tx.date.year, tx.date.month, tx.date.day);
+      final diff = todayStart.difference(txDateOnly).inDays;
+      if (diff >= 0 && diff < 7 && tx.type == "Expense") {
+        weekly[6 - diff] += tx.amount;
+      }
+
+      // Selected Month logic
+      if (tx.monthKey == monthKey) {
+        if (tx.type == "Income") income += tx.amount;
+        if (tx.type == "Expense") {
+          expense += tx.amount;
+          catSum[tx.category] = (catSum[tx.category] ?? 0) + tx.amount;
+          dailyExp[tx.date.day] = (dailyExp[tx.date.day] ?? 0) + tx.amount;
+        }
+        if (tx.type == "Saving") monthSaving += tx.amount;
+
+        // Today's Transactions logic
+        if (_isSameDay(tx.date, now)) {
+          todayTxsList.add(tx);
+          if (tx.type == "Expense") todayExp += tx.amount;
+        }
+      }
+    }
+
+    // Update States
+    monthSummary.assignAll({"income": income, "expense": expense});
+    thisMonthSavings.value = monthSaving;
+    todayExpense.value = todayExp;
+    categorySummary.assignAll(catSum);
+    todayTransactions.assignAll(todayTxsList);
+    dailyExpenses.assignAll(dailyExp);
+    weeklyAmounts.assignAll(weekly);
+    totalSavingAllTime.value = totalSavings;
+
+    // Budget check logic
+    final List<BudgetStatus> over = [];
+    for (var b in budgets) {
+      final spent = catSum[b.category] ?? 0.0;
+      if (spent > b.limit && b.limit > 0) {
+        over.add(BudgetStatus(category: b.category, limit: b.limit, spent: spent));
+      }
+    }
+    overBudget.assignAll(over);
+
+    isLoading.value = false;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   void changeMonth(int offset) {
     selectedMonth.value = DateTime(selectedMonth.value.year, selectedMonth.value.month + offset, 1);
-    _refreshDashboardData();
-  }
-
-  void _refreshDashboardData() {
-    try {
-      final allItems = _repository.getAllTransactions();
-      final now = DateTime.now();
-      final selMonth = selectedMonth.value;
-      
-      // 1. Calculate this month summary (using actual current month for summary cards)
-      double monthExpense = 0, monthIncome = 0, monthSaving = 0;
-      for (var item in allItems) {
-        if (item.date.year == now.year && item.date.month == now.month) {
-          if (item.type == "Expense") monthExpense += item.amount;
-          if (item.type == "Income") monthIncome += item.amount;
-          if (item.type == "Saving") monthSaving += item.amount;
-        }
-      }
-      thisMonthSummary.value = {"expense": monthExpense, "income": monthIncome, "saving": monthSaving};
-
-      // 2. Today Expense
-      double todayExp = 0;
-      final todayItems = <TranItem>[];
-      for (var item in allItems) {
-        if (_isSameDay(item.date, now)) {
-          if (item.type == "Expense") todayExp += item.amount;
-          todayItems.add(item);
-        }
-      }
-      todayExpense.value = todayExp;
-      todayTransactions.assignAll(todayItems..sort((a, b) => b.date.compareTo(a.date)));
-
-      // 3. Daily Expenses for Calendar (using selectedMonth)
-      final dailyMap = <int, double>{};
-      for (var item in allItems) {
-        if (item.date.year == selMonth.year && item.date.month == selMonth.month && item.type == "Expense") {
-          dailyMap[item.date.day] = (dailyMap[item.date.day] ?? 0) + item.amount;
-        }
-      }
-      dailyExpenses.value = dailyMap;
-
-      // 4. Category Summary (Pie Chart) - Current Month Expense
-      final catMap = <String, double>{};
-      for (var item in allItems) {
-        if (item.date.year == now.year && item.date.month == now.month && item.type == "Expense") {
-          final cat = item.category.isEmpty ? "Uncategorized" : item.category;
-          catMap[cat] = (catMap[cat] ?? 0) + item.amount;
-        }
-      }
-      categorySummary.value = catMap;
-
-      // 5. Weekly Data
-      final weekMap = <String, double>{};
-      final dateFormat = DateFormat('yyyy-MM-dd');
-      for (int i = 0; i < 7; i++) {
-        final day = now.subtract(Duration(days: 6 - i));
-        weekMap[dateFormat.format(day)] = 0.0;
-      }
-      for (final item in allItems) {
-        if (item.type == 'Expense') {
-          final itemDate = dateFormat.format(item.date);
-          if (weekMap.containsKey(itemDate)) {
-            weekMap[itemDate] = weekMap[itemDate]! + item.amount;
-          }
-        }
-      }
-      weeklyAmounts.assignAll(weekMap.values.toList());
-      labels.assignAll(weekMap.keys.map((d) => DateFormat.E().format(DateTime.parse(d))).toList());
-
-      // 6. Savings
-      double totalSav = 0;
-      double currentMonthSav = 0;
-      for (var item in allItems) {
-        if (item.type == "Saving") {
-          totalSav += item.amount;
-          if (item.date.year == now.year && item.date.month == now.month) {
-            currentMonthSav += item.amount;
-          }
-        }
-      }
-      totalSavingAllTime.value = totalSav;
-      thisMonthSavings.value = currentMonthSav;
-    } catch (e) {
-      debugPrint("Error refreshing dashboard data: $e");
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  @override
-  void onClose() {
-    _hiveSub?.cancel();
-    super.onClose();
   }
 
   int daysLeftInCurrentMonth() {
@@ -147,7 +169,20 @@ class dashboardController extends GetxController {
   }
 
   Future<void> deleteTransaction(TranItem item) async {
-    await _repository.deleteTransaction(item);
-    _refreshDashboardData();
+    if (_uid.isEmpty) return;
+    await _firestore
+        .collection('users')
+        .doc(_uid)
+        .collection('monthly_transactions')
+        .doc(item.monthKey)
+        .collection('items')
+        .doc(item.id)
+        .delete();
+  }
+
+  @override
+  void onClose() {
+    _mainSub?.cancel();
+    super.onClose();
   }
 }

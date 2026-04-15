@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:sadid/App/AppColors.dart' hide AppColors;
+import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/App/assets_path.dart';
 import 'package:sadid/Core/numberTranslation.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
@@ -16,102 +16,6 @@ class saving extends StatelessWidget {
   final controller = Get.put(savingController());
   saving({super.key});
 
-  Future<double?> _showAddDialog() async {
-    final c = TextEditingController();
-
-    final result = await Get.dialog<double>(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Add to Overall Saving".tr),
-        content: TextField(
-          controller: c,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: "Enter amount".tr,
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: null),
-            child: Text("Cancel".tr, style: TextStyle(color: Colors.black)),
-          ),
-          TextButton(
-            onPressed: () {
-              final amount = double.tryParse(c.text.trim());
-              Get.back(result: amount);
-            },
-            child: Text("Add".tr, style: TextStyle(color: Colors.green)),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-
-    return result;
-  }
-
-  Future<bool> _showResetDialog() async {
-    final result = await Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Remove Overall Saving".tr),
-        content: Text("This will set Overall Saving to 0. Continue?".tr),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text("Cancel".tr, style: TextStyle(color: Colors.black)),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: Text("Remove".tr, style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-
-    return result ?? false;
-  }
-
-  Widget _card({ required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Overall Saving".tr,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-              ),
-              Text(
-                "Total History".tr,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          child,
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final widgets = [allMonthSavingsList(), AllSavingsListWidget()];
@@ -120,169 +24,31 @@ class saving extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: Colors.white.withOpacity(0.1),
           elevation: 0,
+          titleSpacing: -10,
           title: Text(
             "Savings".tr,
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20.sp,
-            ),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
             onPressed: () => Get.back(),
           ),
-          actions: [
-            IconButton(
-              onPressed: () => controller.openAddSavingSheet(context),
-              icon: Icon(
-                Icons.add_circle_outline_rounded,
-                color: Colors.black,
-                size: 24.sp,
-              ),
-            ),
-          ],
         ),
-        floatingActionButton: GestureDetector(
-          onTap: () {
-            Get.dialog(CalculatorDialog(), barrierDismissible: true);
-          },
-          child: SizedBox(
-            width: 50,
-            height: 50,
-            child: Lottie.asset(
-              assets_path.calculator,
-              fit: BoxFit.contain,
-              repeat: false,
-            ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => controller.openAddSavingSheet(context),
+          backgroundColor: Colors.white.withOpacity(0.2),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.r),
+            side: BorderSide(color: Colors.white.withOpacity(0.3)),
           ),
+          child: Icon(Icons.ads_click_rounded, color: Colors.black, size: 30.sp),
         ),
-      
+
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              // ✅ 2) Overall Saving (stored separately)
-              _GlassCard(
-                padding: EdgeInsets.all(16.r),
-                child: StreamBuilder<double>(
-                  stream: controller.streamOverallSaving(),
-                  builder: (context, snap) {
-                    final overall = snap.data ?? 0.0;
-      
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Overall Saving".tr,
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black54,
-                              ),
-                            ),
-                            Text(
-                              "Total History".tr,
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "৳${numberTranslation.toBnDigits(overall.toStringAsFixed(0))}",
-                              style: TextStyle(
-                                fontSize: 24.sp,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.black,
-                              ),
-                            ),
-      
-                            StreamBuilder<String>(
-                              stream: controller.streamTotalSavingsText(),
-                              builder: (context, snapshot) {
-                                final totalText = snapshot.data ?? "0";
-      
-                                return Text(
-                                  "৳${numberTranslation.toBnDigits(totalText)}",
-                                  style: TextStyle(
-                                    fontSize: 24.sp,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.primary,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 16.h),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green.withOpacity(0.8),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14.r),
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  final amount = await _showAddDialog();
-                                  if (amount == null) return;
-                                  if (amount <= 0) return;
-      
-                                  await controller.addToOverallSaving(amount);
-                                },
-                                child: Text("Add".tr, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            SizedBox(width: 12.w),
-                            Expanded(
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                  padding: EdgeInsets.symmetric(vertical: 12.h),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14.r),
-                                  ),
-                                  side: BorderSide(color: Colors.red.withOpacity(0.3)),
-                                ),
-                                onPressed: () async {
-                                  final confirm = await _showResetDialog();
-                                  if (!confirm) return;
-      
-                                  await controller.resetOverallSaving();
-                                },
-                                child: Text("Remove".tr, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          "Remove means Overall Saving will be set to 0.".tr,
-                          style: TextStyle(color: Colors.black38, fontSize: 11.sp, fontStyle: FontStyle.italic),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
               _GlassCard(
                 padding: EdgeInsets.all(4.r),
                 borderRadius: BorderRadius.circular(16.r),
@@ -306,7 +72,7 @@ class saving extends StatelessWidget {
                 }),
               ),
               const SizedBox(height: 10),
-      
+
               Obx(() => widgets[controller.tabIndex.value]),
             ],
           ),

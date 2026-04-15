@@ -1,12 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'dart:async';
-import 'package:hive_flutter/hive_flutter.dart';
-import '../../../../Data/Repository/DataRepository.dart';
+import 'package:rxdart/rxdart.dart' hide Rx;
 import '../Model/tranModel.dart';
 
 class transactionsController extends GetxController {
-  final DataRepository _repository = Get.find<DataRepository>();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final RxString monthKey = ''.obs;
   final RxString selectedMonth = ''.obs;
@@ -21,6 +23,110 @@ class transactionsController extends GetxController {
   // Category filter logic
   final RxnString selectedCategoryFilter = RxnString(null);
 
+  final RxList<TranItem> cachedItems = <TranItem>[].obs;
+  final RxList<TranItem> filteredItems = <TranItem>[].obs;
+  final RxList<String> availableMonthKeys = <String>[].obs;
+
+  StreamSubscription? _mainSub;
+  StreamSubscription? _monthKeysSub;
+
+  // Scroll to top logic
+  final ScrollController scrollController = ScrollController();
+  final RxBool showScrollToTop = false.obs;
+  Timer? _scrollStopTimer;
+
+  String get _uid => _auth.currentUser?.uid ?? "";
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    scrollController.addListener(() {
+      if (scrollController.offset > 300) {
+        showScrollToTop.value = true;
+        _scrollStopTimer?.cancel();
+        _scrollStopTimer = Timer(const Duration(seconds: 1), () {
+          showScrollToTop.value = false;
+        });
+      } else {
+        showScrollToTop.value = false;
+        _scrollStopTimer?.cancel();
+      }
+    });
+
+    // Re-filter when any filter change or items change
+    ever(cachedItems, (_) => applyFilters());
+    ever(searchQuery, (_) => applyFilters());
+    ever(selectedCategoryFilter, (_) => applyFilters());
+
+    _subscribeToMonthKeys();
+    
+    // Initial setup for the stream
+    _initTransactionsStream();
+  }
+
+  void _subscribeToMonthKeys() {
+    if (_uid.isEmpty) return;
+
+    _monthKeysSub = _firestore
+        .collection('users')
+        .doc(_uid)
+        .collection('monthly_transactions')
+        .snapshots()
+        .listen((snapshot) {
+      final keys = snapshot.docs.map((doc) => doc.id).toList();
+      keys.sort((a, b) => b.compareTo(a)); // Newest months first
+      availableMonthKeys.assignAll(keys);
+    });
+  }
+
+  void _initTransactionsStream() {
+    _mainSub?.cancel();
+    if (_uid.isEmpty) return;
+
+    // Use switchMap to restart the stream whenever selectedMonthKey changes
+    _mainSub = selectedMonthKey.stream
+        .startWith(selectedMonthKey.value)
+        .switchMap((key) => _getTransactionsStream(key))
+        .listen((items) {
+      cachedItems.assignAll(items);
+    }, onError: (e) => debugPrint("❌ Stream Error: $e"));
+  }
+
+  Stream<List<TranItem>> _getTransactionsStream(String? key) {
+    final monthsRef = _firestore.collection('users').doc(_uid).collection('monthly_transactions');
+
+    if (key != null) {
+      // 🟢 Specific Month Stream
+      return monthsRef
+          .doc(key)
+          .collection('items')
+          .snapshots()
+          .map((snapshot) {
+        final list = snapshot.docs.map((d) => TranItem.fromDoc(d, monthKey: key)).toList();
+        list.sort((a, b) => b.date.compareTo(a.date));
+        return list;
+      });
+    } else {
+      // 🔵 All Months Stream
+      return monthsRef.snapshots().switchMap((monthsSnap) {
+        if (monthsSnap.docs.isEmpty) return Stream.value(<TranItem>[]);
+
+        final itemStreams = monthsSnap.docs.map((m) {
+          return monthsRef.doc(m.id).collection('items').snapshots().map((s) {
+            return s.docs.map((d) => TranItem.fromDoc(d, monthKey: m.id)).toList();
+          }).startWith(<TranItem>[]); // Start with empty to avoid waiting
+        }).toList();
+
+        return CombineLatestStream.list<List<TranItem>>(itemStreams).map((lists) {
+          final all = lists.expand((x) => x).toList();
+          all.sort((a, b) => b.date.compareTo(a.date));
+          return all;
+        });
+      });
+    }
+  }
+
   void toggleCategoryFilter(String category) {
     if (selectedCategoryFilter.value == category) {
       selectedCategoryFilter.value = null;
@@ -28,11 +134,6 @@ class transactionsController extends GetxController {
       selectedCategoryFilter.value = category;
     }
   }
-
-  // Scroll to top logic
-  final ScrollController scrollController = ScrollController();
-  final RxBool showScrollToTop = false.obs;
-  Timer? _scrollStopTimer;
 
   void toggleSearch() {
     isSearchVisible.value = !isSearchVisible.value;
@@ -60,59 +161,9 @@ class transactionsController extends GetxController {
   void selectMonth(String? key) {
     selectedMonthKey.value = key;
     selectedCategoryFilter.value = null;
-    _refreshItems();
   }
 
-  final RxList<TranItem> cachedItems = <TranItem>[].obs;
-  StreamSubscription? _hiveSub;
-
-  final RxList<TranItem> filteredItems = <TranItem>[].obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-
-    scrollController.addListener(() {
-      if (scrollController.offset > 300) {
-        showScrollToTop.value = true;
-        _scrollStopTimer?.cancel();
-        _scrollStopTimer = Timer(const Duration(seconds: 1), () {
-          showScrollToTop.value = false;
-        });
-      } else {
-        showScrollToTop.value = false;
-        _scrollStopTimer?.cancel();
-      }
-    });
-
-    // Listen to Hive changes for real-time UI updates
-    _hiveSub = _repository.localDataSource.transactionsBox.watch().listen((event) {
-      _refreshItems();
-    });
-
-    // Re-filter when any filter change or items change
-    ever(cachedItems, (_) => _applyFilters());
-    ever(searchQuery, (_) => _applyFilters());
-    ever(selectedCategoryFilter, (_) => _applyFilters());
-
-    _refreshItems();
-  }
-
-  void _refreshItems() {
-    var items = _repository.getAllTransactions();
-
-    // Filter by Month if selected
-    if (selectedMonthKey.value != null) {
-      items = items.where((item) => item.monthKey == selectedMonthKey.value).toList();
-    }
-
-    // Sort by Date
-    items.sort((a, b) => b.date.compareTo(a.date));
-    
-    cachedItems.assignAll(items);
-  }
-
-  void _applyFilters() {
+  void applyFilters() {
     var items = List<TranItem>.from(cachedItems);
 
     // Apply Category Filter
@@ -144,23 +195,28 @@ class transactionsController extends GetxController {
 
   @override
   void onClose() {
-    _hiveSub?.cancel();
+    _mainSub?.cancel();
+    _monthKeysSub?.cancel();
     _scrollStopTimer?.cancel();
     scrollController.dispose();
     super.onClose();
   }
 
-  // Get distinct month keys for dropdown
   List<String> getMonthKeys() {
-    final keys = _repository.getAllTransactions().map((e) => e.monthKey).toSet().toList();
-    keys.sort((a, b) => b.compareTo(a));
-    return keys;
+    return availableMonthKeys;
   }
 
   Future<bool> deleteTransaction(TranItem item) async {
     try {
-      await _repository.deleteTransaction(item);
-      _refreshItems();
+      if (_uid.isEmpty) return false;
+      await _firestore
+          .collection('users')
+          .doc(_uid)
+          .collection('monthly_transactions')
+          .doc(item.monthKey)
+          .collection('items')
+          .doc(item.id)
+          .delete();
       return true;
     } catch (e) {
       debugPrint("❌ Delete failed: $e");

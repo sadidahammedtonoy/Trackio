@@ -1,24 +1,20 @@
 import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/Core/numberTranslation.dart';
 import '../../../../App/AppColors.dart';
 import '../../../../App/routes.dart';
 import '../../Transcations/Model/tranModel.dart';
-import '../../editTransactions/Controller/Controller.dart';
-import '../../editTransactions/View/editTransactions.dart';
 import '../Controller/Controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../Widgets/monthlyExpenseCharts.dart';
 import 'package:intl/intl.dart';
-import '../../Budget/Controller/Controller.dart';
+import '../../Budget/Model/budgetModel.dart';
 
 class dashboardPage extends StatelessWidget {
   dashboardPage({super.key});
-  final dashboardController controller = Get.find<dashboardController>();
-  final InsightsController insightsController = Get.put(InsightsController());
+  final dashboardController controller = Get.put(dashboardController());
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +30,6 @@ class dashboardPage extends StatelessWidget {
           ),
         ),
         centerTitle: false,
-        backgroundColor: Colors.white.withOpacity(0.1),
         elevation: 0,
       ),
       body: Obx(() {
@@ -42,124 +37,115 @@ class dashboardPage extends StatelessWidget {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
 
-        final data = controller.thisMonthSummary;
+        final data = controller.monthSummary;
         final income = data["income"] ?? 0.0;
         final expense = data["expense"] ?? 0.0;
-        final savings = controller.thisMonthSavings.value;
-        final remaining = income - expense - savings;
+        final remaining = income - expense;
 
-        return RefreshIndicator(
-          onRefresh: () async {
-            // Trigger sync when pulled down
-            // Get.find<SyncService>().syncNow(); 
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(bottom: 100.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                  child: Row(
-                    children: [
-                      _SummaryCard(
-                        icon: Icons.account_balance_wallet_outlined,
-                        color: Colors.blueAccent,
-                        label: "Remaining".tr,
-                        amount: remaining,
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.only(bottom: 100.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                child: Row(
+                  children: [
+                    _SummaryCard(
+                      icon: Icons.account_balance_wallet_outlined,
+                      color: Colors.blueAccent,
+                      label: "Remaining".tr,
+                      amount: remaining,
+                    ),
+                    SizedBox(width: 12.w),
+                    _SummaryCard(
+                      icon: Icons.receipt_long_outlined,
+                      color: Colors.orange,
+                      label: "Today Expense".tr,
+                      amount: controller.todayExpense.value,
+                    ),
+                    SizedBox(width: 12.w),
+                    _SummaryCard(
+                      icon: Icons.trending_down_rounded,
+                      color: Colors.red,
+                      label: "Expense".tr,
+                      amount: expense,
+                    ),
+                    SizedBox(width: 12.w),
+                    _SummaryCard(
+                      icon: Icons.today_rounded,
+                      color: Colors.blueGrey,
+                      label: "Daily Limit".tr,
+                      amount: (remaining > 0 ? remaining : 0) / controller.daysLeftInCurrentMonth(),
+                    ),
+                    SizedBox(width: 12.w),
+                    _SummaryCard(
+                      icon: Icons.trending_up_outlined,
+                      color: Colors.green,
+                      label: "Income".tr,
+                      amount: income,
+                    ),
+                    SizedBox(width: 12.w),
+                    GestureDetector(
+                      onTap: () => Get.toNamed(routes.saving_screen),
+                      child: _SummaryCard(
+                        icon: Icons.savings_outlined,
+                        color: Colors.cyan,
+                        label: "Saving".tr,
+                        amount: controller.totalSavingAllTime.value,
                       ),
-                      SizedBox(width: 12.w),
-                      _SummaryCard(
-                        icon: Icons.receipt_long_outlined,
-                        color: Colors.orange,
-                        label: "Today Expense".tr,
-                        amount: controller.todayExpense.value,
-                      ),
-                      SizedBox(width: 12.w),
-                      _SummaryCard(
-                        icon: Icons.trending_down_rounded,
-                        color: Colors.red,
-                        label: "Expense".tr,
-                        amount: expense,
-                      ),
-                      SizedBox(width: 12.w),
-                      _SummaryCard(
-                        icon: Icons.today_rounded,
-                        color: Colors.blueGrey,
-                        label: "Daily Limit".tr,
-                        amount: remaining / controller.daysLeftInCurrentMonth(),
-                      ),
-                      SizedBox(width: 12.w),
-                      _SummaryCard(
-                        icon: Icons.trending_up_outlined,
-                        color: Colors.green,
-                        label: "Income".tr,
-                        amount: income,
-                      ),
-                      SizedBox(width: 12.w),
-                      GestureDetector(
-                        onTap: () => Get.toNamed(routes.saving_screen),
-                        child: _SummaryCard(
-                          icon: Icons.savings_outlined,
-                          color: Colors.cyan,
-                          label: "Saving".tr,
-                          amount: controller.totalSavingAllTime.value + controller.overallSavingOnly.value,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
 
-                Obx(() {
-                  final overBudget = insightsController.overBudgetCategories;
-                  if (overBudget.isEmpty) return const SizedBox.shrink();
-                  
-                  return _BudgetWarningBanner(overBudget: overBudget);
-                }),
+              Obx(() {
+                if (controller.overBudget.isEmpty) return const SizedBox.shrink();
+                return _BudgetWarningBanner(overBudget: controller.overBudget);
+              }),
 
-                _sectionHeader("Weekly Overview".tr),
-                _GlassCard(
-                  margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  padding: EdgeInsets.only(top: 20.h, bottom: 10.h, right: 16.w, left: 16.w),
-                  child: _WeeklyChart(controller: controller),
-                ),
-                SizedBox(height: 15.h),
-                _sectionHeader("Expense Calendar".tr),
-                _GlassCalendar(controller: controller),
-                _sectionHeader("Category Breakdown".tr),
-                _GlassCard(
-                  margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  padding: EdgeInsets.all(12.r),
-                  child: const CategoryPieChart(),
-                ),
-                SizedBox(height: 15.h),
-                _sectionHeader("Today Transactions".tr),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  child: Column(
-                    children: [
-                      if (controller.todayTransactions.isEmpty)
-                        _GlassCard(
-                          padding: EdgeInsets.all(20.r),
-                          child: Center(child: Text("No transactions today".tr)),
-                        )
-                      else
-                        ...controller.todayTransactions.map(
-                          (t) => Padding(
-                            padding: EdgeInsets.only(bottom: 10.h),
-                            child: _TransactionTile(
-                              item: t,
-                              onDelete: () => controller.deleteTransaction(t),
-                            ),
+              _sectionHeader("Weekly Overview".tr),
+              _GlassCard(
+                margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                padding: EdgeInsets.only(top: 20.h, bottom: 10.h, right: 16.w, left: 16.w),
+                child: _WeeklyChart(controller: controller),
+              ),
+              SizedBox(height: 15.h),
+              _sectionHeader("Expense Calendar".tr),
+              _GlassCalendar(controller: controller),
+              _sectionHeader("Category Breakdown".tr),
+              _GlassCard(
+                margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                padding: EdgeInsets.all(12.r),
+                child: const CategoryPieChart(),
+              ),
+              SizedBox(height: 15.h),
+              _sectionHeader("Today Transactions".tr),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                child: Column(
+                  children: [
+                    if (controller.todayTransactions.isEmpty)
+                      _GlassCard(
+                        padding: EdgeInsets.all(20.r),
+                        child: Center(child: Text("No transactions today".tr)),
+                      )
+                    else
+                      ...controller.todayTransactions.map(
+                        (t) => Padding(
+                          padding: EdgeInsets.only(bottom: 10.h),
+                          child: _TransactionTile(
+                            item: t,
+                            onDelete: () => controller.deleteTransaction(t),
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       }),
@@ -283,12 +269,27 @@ class _WeeklyChart extends StatelessWidget {
   final dashboardController controller;
   const _WeeklyChart({required this.controller});
 
+  Color _getRodColor(double amount, double maxVal) {
+    if (amount == 0) return Colors.green.withOpacity(0.5);
+    if (maxVal == 0) return Colors.green;
+    
+    final ratio = amount / maxVal;
+    
+    // Smooth transition from Green to Red via Orange
+    if (ratio < 0.5) {
+      return Color.lerp(Colors.green, Colors.orange, ratio * 2)!;
+    } else {
+      return Color.lerp(Colors.orange, Colors.red, (ratio - 0.5) * 2)!;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final amounts = controller.weeklyAmounts;
     if (amounts.isEmpty) return const SizedBox.shrink();
     
-    final maxAmount = amounts.reduce((a, b) => a > b ? a : b) * 1.3 + 100;
+    final maxVal = amounts.reduce((a, b) => a > b ? a : b);
+    final maxY = maxVal == 0 ? 100.0 : maxVal * 1.3;
     
     return Stack(
       alignment: Alignment.center,
@@ -298,7 +299,7 @@ class _WeeklyChart extends StatelessWidget {
           child: BarChart(
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
-              maxY: maxAmount,
+              maxY: maxY,
               barTouchData: BarTouchData(
                 enabled: true,
                 touchCallback: (event, response) {
@@ -313,7 +314,7 @@ class _WeeklyChart extends StatelessWidget {
                   }
                 },
                 touchTooltipData: BarTouchTooltipData(
-                  getTooltipItem: (group, groupIndex, rod, rodIndex) => null, // Correct: Disable default tooltip
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) => null,
                 ),
               ),
               titlesData: FlTitlesData(
@@ -347,12 +348,12 @@ class _WeeklyChart extends StatelessWidget {
                   barRods: [
                     BarChartRodData(
                       toY: amount,
-                      color: amount == 0 ? Colors.redAccent.withOpacity(0.5) : AppColors.primary,
+                      color: _getRodColor(amount, maxVal),
                       width: 14.w,
                       borderRadius: BorderRadius.circular(6.r),
                       backDrawRodData: BackgroundBarChartRodData(
                         show: true,
-                        toY: maxAmount,
+                        toY: maxY,
                         color: Colors.grey.withOpacity(0.1),
                       ),
                     ),
@@ -413,15 +414,24 @@ class _TransactionTile extends StatelessWidget {
 
     return Dismissible(
       key: ValueKey(item.id),
-      direction: DismissDirection.horizontal,
-      background: _buildActionBg(Icons.edit, "Edit".tr, Colors.blue, Alignment.centerLeft),
-      secondaryBackground: _buildActionBg(Icons.delete, "Delete".tr, Colors.red, Alignment.centerRight),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        alignment: Alignment.centerRight,
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Delete".tr, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            SizedBox(width: 8.w),
+            const Icon(Icons.delete, color: Colors.red),
+          ],
+        ),
+      ),
       confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          Get.find<editTransactionsController>().assignValues(item);
-          Get.to(editTransactions(model: item));
-          return false;
-        }
         if (direction == DismissDirection.endToStart) {
           final confirm = await _showDeleteDialog(context);
           if (!confirm) return false;
@@ -491,9 +501,7 @@ class _TransactionTile extends StatelessWidget {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date)) + 
-                    ", " + 
-                    numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date)),
+                    "${numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date))}, ${numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date))}",
                     style: TextStyle(
                       color: Colors.black45,
                       fontSize: 10.sp,
@@ -509,49 +517,19 @@ class _TransactionTile extends StatelessWidget {
     );
   }
 
-  Widget _buildActionBg(IconData icon, String text, Color color, Alignment alignment) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      alignment: alignment,
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: alignment == Alignment.centerLeft
-            ? [Icon(icon, color: color), SizedBox(width: 8.w), Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold))]
-            : [Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold)), SizedBox(width: 8.w), Icon(icon, color: color)],
-      ),
-    );
-  }
-
   Future<bool> _showDeleteDialog(BuildContext context) async {
-    if (GetPlatform.isIOS) {
-      return await Get.dialog<bool>(
-        CupertinoAlertDialog(
-          title: Text("Delete Transaction".tr),
-          content: Text("Are you sure you want to delete this transaction?".tr),
-          actions: [
-            CupertinoDialogAction(onPressed: () => Get.back(result: false), child: Text("Cancel".tr)),
-            CupertinoDialogAction(isDestructiveAction: true, onPressed: () => Get.back(result: true), child: Text("Delete".tr)),
-          ],
-        ),
-      ) ?? false;
-    } else {
-      return await Get.dialog<bool>(
-        AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text("Delete Transaction".tr),
-          content: Text("Are you sure you want to delete this transaction?".tr),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-          actions: [
-            TextButton(onPressed: () => Get.back(result: false), child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54))),
-            TextButton(onPressed: () => Get.back(result: true), child: Text("Delete".tr, style: const TextStyle(color: Colors.red))),
-          ],
-        ),
-      ) ?? false;
-    }
+    return await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        title: Text("Delete Transaction".tr),
+        content: Text("Are you sure you want to delete this transaction?".tr),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        actions: [
+          TextButton(onPressed: () => Get.back(result: false), child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54))),
+          TextButton(onPressed: () => Get.back(result: true), child: Text("Delete".tr, style: const TextStyle(color: Colors.red))),
+        ],
+      ),
+    ) ?? false;
   }
 
   void _showDetailsDialog(BuildContext context) {
@@ -649,13 +627,11 @@ class _GlassCalendar extends StatelessWidget {
         final selMonth = controller.selectedMonth.value;
         final dailyExp = controller.dailyExpenses;
         
-        // Calendar logic
         final firstDayOfMonth = DateTime(selMonth.year, selMonth.month, 1);
         final lastDayOfMonth = DateTime(selMonth.year, selMonth.month + 1, 0);
         final daysInMonth = lastDayOfMonth.day;
-        final firstWeekday = firstDayOfMonth.weekday % 7; // 0 for Sun, 1 for Mon...
+        final firstWeekday = firstDayOfMonth.weekday % 7;
 
-        // Find max and lowest 3 for coloring
         final expenses = dailyExp.values.where((e) => e > 0).toList()..sort();
         final maxExp = expenses.isNotEmpty ? expenses.last : 0.0;
         final lowest3 = expenses.take(3).toList();
@@ -726,10 +702,8 @@ class _GlassCalendar extends StatelessWidget {
                     borderColor = Colors.red;
                   } else if (lowest3.contains(amount)) {
                     final rank = lowest3.indexOf(amount);
-                    // Fade lowest to highest green
                     borderColor = Color.lerp(Colors.green.shade100, Colors.green.shade600, (rank + 1) / 3)!;
                   } else {
-                    // Gradual color for others (Amber/Orange)
                     borderColor = Color.lerp(Colors.orange.shade200, Colors.orange.shade800, amount / maxExp)!;
                   }
                 }

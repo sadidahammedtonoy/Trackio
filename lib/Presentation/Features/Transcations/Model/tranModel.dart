@@ -39,14 +39,16 @@ class TranItem extends HiveObject {
     this.isSynced = true,
   });
 
-  factory TranItem.fromDoc(DocumentSnapshot doc, {required String monthKey}) {
+  factory TranItem.fromDoc(DocumentSnapshot doc, {String? monthKey}) {
     final data = doc.data() as Map<String, dynamic>;
+    final date = ((data['date'] as Timestamp?)?.toDate() ?? DateTime.now()).toLocal();
+    final derivedMonthKey = "${date.year}-${date.month.toString().padLeft(2, '0')}";
 
     return TranItem(
       id: doc.id,
-      monthKey: monthKey,
+      monthKey: monthKey ?? (data['monthKey'] ?? derivedMonthKey),
       type: (data['type'] ?? '').toString(),
-      date: ((data['date'] as Timestamp?)?.toDate() ?? DateTime.now()).toLocal(),
+      date: date,
       amount: (data['amount'] is String)
           ? double.tryParse(data['amount']) ?? 0.0
           : (data['amount'] as num?)?.toDouble() ?? 0.0,
@@ -67,6 +69,7 @@ class TranItem extends HiveObject {
       'category': category,
       'note': note,
       'marked': marked,
+      'monthKey': monthKey,
     };
   }
 

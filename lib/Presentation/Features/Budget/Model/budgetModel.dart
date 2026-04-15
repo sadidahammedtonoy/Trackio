@@ -1,25 +1,47 @@
-import 'package:hive/hive.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-part 'budgetModel.g.dart';
-
-@HiveType(typeId: 6)
-class BudgetModel extends HiveObject {
-  @HiveField(0)
+class BudgetModel {
   final String id;
-
-  @HiveField(1)
   final String category;
-
-  @HiveField(2)
-  double amount; // The limit
-
-  @HiveField(3)
-  final String monthKey; // e.g. "2024-04"
+  final double limit;
+  final String monthKey; // format: YYYY-MM
 
   BudgetModel({
     required this.id,
     required this.category,
-    required this.amount,
+    required this.limit,
     required this.monthKey,
   });
+
+  factory BudgetModel.fromDoc(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return BudgetModel(
+      id: doc.id,
+      category: data['category'] ?? '',
+      limit: (data['limit'] as num?)?.toDouble() ?? 0.0,
+      monthKey: data['monthKey'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'category': category,
+      'limit': limit,
+      'monthKey': monthKey,
+    };
+  }
+}
+
+class BudgetStatus {
+  final String category;
+  final double limit;
+  final double spent;
+
+  BudgetStatus({
+    required this.category,
+    required this.limit,
+    required this.spent,
+  });
+
+  double get percentage => limit > 0 ? spent / limit : 0.0;
 }

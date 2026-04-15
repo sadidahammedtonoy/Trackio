@@ -10,6 +10,7 @@ import '../Controller/Controller.dart';
 import '../Model/recurringModel.dart';
 import '../../caregories/Controller/Controller.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
+import 'package:intl/intl.dart';
 
 class RecurringPage extends StatelessWidget {
   const RecurringPage({super.key});
@@ -23,7 +24,6 @@ class RecurringPage extends StatelessWidget {
       child: Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.1),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
@@ -31,15 +31,19 @@ class RecurringPage extends StatelessWidget {
         ),
         title: Text(
           "Automation".tr,
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.sp),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 28.sp),
-            onPressed: () => _showAddRecurringSheet(context, recurringController, catController),
-          ),
-        ],
+        titleSpacing: -10,
       ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showAddRecurringSheet(context, recurringController, catController),
+          backgroundColor: Colors.white.withOpacity(0.2),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.r),
+            side: BorderSide(color: Colors.white.withOpacity(0.3)),
+          ),
+          child: Icon(Icons.ads_click_rounded, color: Colors.black, size: 30.sp),
+        ),
       body: Obx(() {
         final items = recurringController.getAllRecurring();
         if (items.isEmpty) {
@@ -55,7 +59,7 @@ class RecurringPage extends StatelessWidget {
           );
         }
         return ListView.builder(
-          padding: EdgeInsets.all(16.r),
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
           itemCount: items.length,
           itemBuilder: (context, index) => _buildRecurringTile(context, items[index], recurringController),
         );
@@ -69,6 +73,8 @@ class RecurringPage extends StatelessWidget {
     final noteC = TextEditingController();
     final selectedCat = "".obs;
     final selectedFreq = "Monthly".obs;
+    final selectedType = "Expense".obs;
+    final selectedDate = DateTime.now().add(const Duration(days: 1)).obs;
 
     Get.bottomSheet(
       ClipRRect(
@@ -83,24 +89,78 @@ class RecurringPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Add Recurring Transaction".tr, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                  Text("Add Automation".tr, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
                   SizedBox(height: 20.h),
+                  
+                  // Transaction Type
+                  Text("Type".tr, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.black54)),
+                  SizedBox(height: 12.h),
+                  Obx(() => Wrap(
+                    spacing: 10.w,
+                    children: ["Expense", "Income", "Lent", "Borrow"].map((t) => _buildGlassChip(
+                      isSelected: selectedType.value == t,
+                      label: t.tr,
+                      onTap: () => selectedType.value = t,
+                    )).toList(),
+                  )),
+                  SizedBox(height: 20.h),
+
                   _buildGlassTextField(controller: amountC, label: "Amount".tr, hint: "0.00", icon: Icons.money, keyboardType: TextInputType.number),
                   SizedBox(height: 16.h),
                   _buildGlassTextField(controller: noteC, label: "Note".tr, hint: "E.g. Netflix, Rent", icon: Icons.notes),
+                  
                   SizedBox(height: 20.h),
-                  Text("Frequency".tr, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                  Text("Frequency".tr, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.black54)),
                   SizedBox(height: 12.h),
                   Obx(() => Wrap(
                     spacing: 12.w,
-                    children: ["Daily", "Weekly", "Monthly"].map((f) => _buildGlassChip(
+                    children: ["Daily", "Weekly", "Monthly", "Scheduled"].map((f) => _buildGlassChip(
                       isSelected: selectedFreq.value == f,
                       label: f.tr,
                       onTap: () => selectedFreq.value = f,
                     )).toList(),
                   )),
+                  
+                  Obx(() {
+                    if (selectedFreq.value == "Scheduled") {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 20.h),
+                          Text("Execution Date".tr, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.black54)),
+                          SizedBox(height: 12.h),
+                          InkWell(
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: selectedDate.value,
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime.now().add(const Duration(days: 365)),
+                              );
+                              if (picked != null) selectedDate.value = picked;
+                            },
+                            child: _buildGlassCard(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.calendar_today_rounded, color: AppColors.primary),
+                                  SizedBox(width: 12.w),
+                                  Text(
+                                    DateFormat('dd MMM yyyy').format(selectedDate.value),
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+
                   SizedBox(height: 20.h),
-                  Text("Category".tr, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                  Text("Category".tr, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.black54)),
                   SizedBox(height: 12.h),
                   Obx(() => Wrap(
                     spacing: 10.w,
@@ -124,17 +184,18 @@ class RecurringPage extends StatelessWidget {
                           id: const Uuid().v4(),
                           amount: double.tryParse(amountC.text) ?? 0,
                           category: selectedCat.value,
-                          type: "Expense",
+                          type: selectedType.value,
                           wallet: "Cash",
                           note: noteC.text,
                           frequency: selectedFreq.value,
                           lastExecutedMonthKey: "",
+                          nextExecutionDate: selectedFreq.value == "Scheduled" ? selectedDate.value : null,
                         );
                         recurringController.addRecurring(recurring);
                         Get.back();
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, padding: EdgeInsets.all(16.r), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r))),
-                      child: Text("Add Automation".tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: Text("Save Automation".tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -148,6 +209,11 @@ class RecurringPage extends StatelessWidget {
   }
 
   Widget _buildRecurringTile(BuildContext context, RecurringModel item, RecurringController recurringController) {
+    Color typeColor = Colors.red;
+    if (item.type == "Income") typeColor = Colors.green;
+    if (item.type == "Lent") typeColor = Colors.orange;
+    if (item.type == "Borrow") typeColor = Colors.purple;
+
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       child: _buildGlassCard(
@@ -156,8 +222,12 @@ class RecurringPage extends StatelessWidget {
           children: [
             Container(
               padding: EdgeInsets.all(10.r),
-              decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), shape: BoxShape.circle),
-              child: Icon(Icons.repeat_rounded, color: AppColors.primary, size: 24.sp),
+              decoration: BoxDecoration(color: typeColor.withOpacity(0.1), shape: BoxShape.circle),
+              child: Icon(
+                item.frequency == "Scheduled" ? Icons.event_available_rounded : Icons.repeat_rounded, 
+                color: typeColor, 
+                size: 24.sp
+              ),
             ),
             SizedBox(width: 14.w),
             Expanded(
@@ -165,14 +235,26 @@ class RecurringPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(item.note.isEmpty ? item.category.tr : item.note, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
-                  Text("${item.frequency.tr} • ৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}", style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
+                  Text(
+                    "${item.frequency.tr} • ${item.type.tr} • ৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}", 
+                    style: TextStyle(fontSize: 12.sp, color: Colors.black54)
+                  ),
+                  if (item.frequency == "Scheduled" && item.nextExecutionDate != null)
+                    Text(
+                      "${"Scheduled for:".tr} ${DateFormat('dd MMM').format(item.nextExecutionDate!)}",
+                      style: TextStyle(fontSize: 11.sp, color: AppColors.primary, fontWeight: FontWeight.w600),
+                    ),
                 ],
               ),
             ),
-            Switch(
-              value: item.isActive,
-              onChanged: (_) => recurringController.toggleRecurring(item),
-              activeColor: AppColors.primary,
+            Transform.scale(
+              scale: 0.75,
+              child: Switch(
+                value: item.isActive,
+                onChanged: (_) => recurringController.toggleRecurring(item),
+                activeColor: AppColors.primary,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
@@ -194,44 +276,24 @@ class RecurringPage extends StatelessWidget {
   }
 
   Future<bool> _showDeleteConfirmation(BuildContext context, String title, String content) async {
-    if (GetPlatform.isIOS) {
-      return await Get.dialog<bool>(
-        CupertinoAlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Get.back(result: false),
-              child: Text("Cancel".tr),
-            ),
-            CupertinoDialogAction(
-              isDestructiveAction: true,
-              onPressed: () => Get.back(result: true),
-              child: Text("Delete".tr),
-            ),
-          ],
-        ),
-      ) ?? false;
-    } else {
-      return await Get.dialog<bool>(
-        AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text(title),
-          content: Text(content),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(result: false),
-              child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
-            ),
-            TextButton(
-              onPressed: () => Get.back(result: true),
-              child: Text("Delete".tr, style: const TextStyle(color: Colors.red)),
-            ),
-          ],
-        ),
-      ) ?? false;
-    }
+    return await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        title: Text(title),
+        content: Text(content),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text("Delete".tr, style: const TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 
   Widget _buildGlassCard({required Widget child, EdgeInsetsGeometry? padding}) {
@@ -274,6 +336,7 @@ class RecurringPage extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        margin: EdgeInsets.only(bottom: 8.h),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white.withOpacity(0.2),

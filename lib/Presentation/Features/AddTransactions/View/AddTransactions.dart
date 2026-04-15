@@ -20,6 +20,38 @@ class addTranscations extends StatelessWidget {
   final TextEditingController noteController = TextEditingController();
   final TextEditingController personNameController = TextEditingController();
 
+  Color _getTypeColor(String type) {
+    switch (type) {
+      case "Expense":
+        return Colors.red;
+      case "Income":
+        return Colors.green;
+      case "Lent":
+        return Colors.orange;
+      case "Borrow":
+        return Colors.purple;
+      default:
+        return Colors.blueGrey;
+    }
+  }
+
+  IconData _getTypeIcon(String type) {
+    switch (type) {
+      case "Expense":
+        return Icons.trending_down;
+      case "Income":
+        return Icons.trending_up;
+      case "Lent":
+        return Icons.call_made;
+      case "Borrow":
+        return Icons.call_received;
+      default:
+        return Icons.category;
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return background(
@@ -28,10 +60,10 @@ class addTranscations extends StatelessWidget {
         appBar: AppBar(
           title: Text(
             "Add Transaction".tr,
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.sp),
+            // style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.sp),
           ),
           centerTitle: false,
-          backgroundColor: Colors.white.withOpacity(0.1),
+          titleSpacing: -10,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
@@ -89,31 +121,60 @@ class addTranscations extends StatelessWidget {
                 // Type Selector (Horizontal Chips)
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
+                  child: Obx(() => Row(
                     children: controller.types.map((type) {
                       final isSelected = controller.selectedType.value == type;
+                      final color = _getTypeColor(type);
+
                       return Padding(
                         padding: EdgeInsets.only(right: 10.w),
                         child: ChoiceChip(
-                          label: Text(type.tr),
                           selected: isSelected,
                           onSelected: (val) {
                             if (val) controller.selectedType.value = type;
                           },
-                          selectedColor: AppColors.primary.withOpacity(0.2),
-                          backgroundColor: Colors.white.withOpacity(0.5),
-                          labelStyle: TextStyle(
-                            color: isSelected ? AppColors.primary : Colors.black54,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+
+                          // ✅ LABEL WITH ICON + TEXT
+                          label: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _getTypeIcon(type),
+                                size: 16.sp,
+                                color: isSelected ? color : Colors.black54,
+                              ),
+                              SizedBox(width: 6.w),
+                              Text(
+                                type.tr,
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontWeight:
+                                  isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected ? color : Colors.black54,
+                                ),
+                              ),
+                            ],
                           ),
+
+                          // ✅ COLORS
+                          selectedColor: color.withOpacity(0.15),
+                          backgroundColor: Colors.white.withOpacity(0.6),
+
+                          // ✅ BORDER
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.r),
-                            side: BorderSide(color: isSelected ? AppColors.primary : Colors.transparent),
+                            side: BorderSide(
+                              color: isSelected ? color : Colors.grey.withOpacity(0.3),
+                              width: isSelected ? 1.5 : 1,
+                            ),
                           ),
+
+                          // ✅ REMOVE DEFAULT CHECK ICON
+                          showCheckmark: false,
                         ),
                       );
                     }).toList(),
-                  ),
+                  )),
                 ),
                 SizedBox(height: 20.h),
 
@@ -370,6 +431,20 @@ class _DateButton extends StatelessWidget {
 }
 
 class _WalletSelector extends StatelessWidget {
+  IconData _getWalletIcon(String wallet) {
+    switch (wallet) {
+      case "Cash":
+        return Icons.money;
+      case "Mobile Banking":
+        return Icons.phone_iphone;
+      case "Bank":
+        return Icons.account_balance;
+      case "Others":
+        return Icons.category;
+      default:
+        return Icons.account_balance_wallet;
+    }
+  }
   final addTranscationsController controller;
   const _WalletSelector({required this.controller});
 
@@ -377,36 +452,66 @@ class _WalletSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Obx(() => Row(
-        children: controller.wallets.map((wallet) {
-          final isSelected = controller.selectedWallet.value == wallet;
-          return Padding(
-            padding: EdgeInsets.only(right: 10.w),
-            child: InkWell(
-              onTap: () => controller.selectedWallet.value = wallet,
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary.withOpacity(0.15) : Colors.white.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: isSelected ? AppColors.primary : Colors.transparent),
-                ),
-                child: Text(
-                  wallet.tr,
-                  style: TextStyle(
-                    color: isSelected ? AppColors.primary : Colors.black54,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      child: Obx(
+            () => Row(
+          children: controller.wallets.map((wallet) {
+            final isSelected = controller.selectedWallet.value == wallet;
+            final icon = _getWalletIcon(wallet);
+
+            return Padding(
+              padding: EdgeInsets.only(right: 10.w),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12.r),
+                onTap: () => controller.selectedWallet.value = wallet,
+                child: Container(
+                  padding:
+                  EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary.withOpacity(0.15)
+                        : Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary
+                          : Colors.grey.withOpacity(0.3),
+                      width: isSelected ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        icon,
+                        size: 18.sp,
+                        color: isSelected
+                            ? AppColors.primary
+                            : Colors.black54,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        wallet.tr,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected
+                              ? AppColors.primary
+                              : Colors.black54,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
-      )),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }
-
 class _CategoryPicker extends StatelessWidget {
   final addTranscationsController controller;
   const _CategoryPicker({required this.controller});

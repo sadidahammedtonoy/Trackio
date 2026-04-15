@@ -5,10 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sadid/Core/numberTranslation.dart';
+import '../../../../App/AppColors.dart';
 import '../../../../Core/snakbar.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:ui';
+
+import '../Controller/Controller.dart';
 
 class SavingItem {
   final String id;
@@ -233,145 +236,182 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
           );
         }
 
-        return ListView.separated(
-          shrinkWrap: widget.shrinkWrap,
-          physics: widget.physics,
-          itemCount: list.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
-          itemBuilder: (context, i) {
-            final item = list[i];
-            final dateText = numberTranslation.formatDateBnFromString(
-              DateFormat("dd MMM yyyy").format(item.date),
-            );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _GlassCard(child: StreamBuilder<String>(
+              stream: Get.find<savingController>().streamTotalSavingsText(),
+              builder: (context, snapshot) {
+                final totalText = snapshot.data ?? "0";
 
-            final card = _GlassCard(
-              margin: EdgeInsets.only(bottom: 16.h),
-              padding: EdgeInsets.all(12.r),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 44.r,
-                        height: 44.r,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.savings_rounded,
-                          color: AppColors.primary,
-                          size: 22.sp,
-                        ),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    SizedBox(width: double.infinity,),
+                    Text(
+                      "Total History Savings".tr,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
                       ),
-                      SizedBox(width: 14.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.source.isEmpty ? "Saving".tr : item.source.tr,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.sp,
-                                color: Colors.black87,
-                              ),
+                    ),
+                    Text(
+                      "৳${numberTranslation.toBnDigits(totalText)}",
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            )),
+            SizedBox(height: 10.h),
+
+            ListView.separated(
+              shrinkWrap: widget.shrinkWrap,
+              physics: widget.physics,
+              itemCount: list.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 0),
+              itemBuilder: (context, i) {
+                final item = list[i];
+                final dateText = numberTranslation.formatDateBnFromString(
+                  DateFormat("dd MMM yyyy").format(item.date),
+                );
+
+                final card = _GlassCard(
+                  margin: EdgeInsets.only(bottom: 16.h),
+                  padding: EdgeInsets.all(12.r),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 44.r,
+                            height: 44.r,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              shape: BoxShape.circle,
                             ),
-                            SizedBox(height: 2.h),
-                            Row(
+                            child: Icon(
+                              Icons.savings_rounded,
+                              color: AppColors.primary,
+                              size: 22.sp,
+                            ),
+                          ),
+                          SizedBox(width: 14.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.account_balance_wallet_outlined, size: 12.sp, color: Colors.black45),
-                                SizedBox(width: 4.w),
                                 Text(
-                                  item.wallet.tr,
+                                  item.source.isEmpty ? "Saving".tr : item.source.tr,
                                   style: TextStyle(
-                                    color: Colors.black54,
-                                    fontSize: 11.sp,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16.sp,
+                                    color: Colors.black87,
                                   ),
+                                ),
+                                SizedBox(height: 2.h),
+                                Row(
+                                  children: [
+                                    Icon(Icons.account_balance_wallet_outlined, size: 12.sp, color: Colors.black45),
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      item.wallet.tr,
+                                      style: TextStyle(
+                                        color: Colors.black54,
+                                        fontSize: 11.sp,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 16.sp,
-                              color: Colors.green,
-                            ),
                           ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            dateText,
-                            style: TextStyle(
-                              color: Colors.black45,
-                              fontSize: 10.sp,
-                              fontStyle: FontStyle.italic,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16.sp,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                dateText,
+                                style: TextStyle(
+                                  color: Colors.black45,
+                                  fontSize: 10.sp,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
+                      if (item.note != null && item.note!.isNotEmpty) ...[
+                        Padding(
+                          padding: EdgeInsets.only(top: 10.h, left: 58.w),
+                          child: Text(
+                            item.note!,
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.black87,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                  if (item.note != null && item.note!.isNotEmpty) ...[
-                    Padding(
-                      padding: EdgeInsets.only(top: 10.h, left: 58.w),
-                      child: Text(
-                        item.note!,
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: Colors.black87,
-                          fontStyle: FontStyle.italic,
+                );
+
+                if (!widget.enableSwipeActions) return card;
+
+                return Dismissible(
+                  key: ValueKey(item.id),
+
+                  // ✅ Only Right->Left (Delete)
+                  direction: DismissDirection.endToStart,
+
+                  // ✅ Delete background only
+                  background: const SizedBox.shrink(),
+                  secondaryBackground: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Delete".tr,
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
+                        SizedBox(width: 8),
+                        Icon(Icons.delete_outline, color: Colors.red),
+                      ],
                     ),
-                  ],
-                ],
-              ),
-            );
+                  ),
 
-            if (!widget.enableSwipeActions) return card;
+                  confirmDismiss: (direction) async {
+                    return _handleDelete(context: context, uid: uid, item: item);
+                  },
 
-            return Dismissible(
-              key: ValueKey(item.id),
-
-              // ✅ Only Right->Left (Delete)
-              direction: DismissDirection.endToStart,
-
-              // ✅ Delete background only
-              background: const SizedBox.shrink(),
-              secondaryBackground: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      "Delete".tr,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(Icons.delete_outline, color: Colors.red),
-                  ],
-                ),
-              ),
-
-              confirmDismiss: (direction) async {
-                return _handleDelete(context: context, uid: uid, item: item);
+                  child: card,
+                );
               },
-
-              child: card,
-            );
-          },
+            ),
+          ],
         );
       },
     );
@@ -446,8 +486,4 @@ class _GlassCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class AppColors {
-  static const Color primary = Colors.cyan;
 }
