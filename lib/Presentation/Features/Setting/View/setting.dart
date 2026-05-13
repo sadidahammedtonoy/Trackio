@@ -1,14 +1,17 @@
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart'; // Added for CupertinoAlertDialog
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart'; // Ensure HugeIcons is imported
 import 'package:sadid/App/routes.dart';
 import 'package:sadid/App/AppColors.dart';
 import '../../../../Core/snakbar.dart';
 import '../../permanentAccount/View/permanentAccount.dart';
 import '../Controller/Controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/foundation.dart'; // Required for defaultTargetPlatform
 
 class setting_page extends StatelessWidget {
   setting_page({super.key});
@@ -24,14 +27,14 @@ class setting_page extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
               child: Column(
                 children: [
-                   _buildProfileSection(),
+                   _buildProfileSection(context), // Pass context here
                   SizedBox(height: 20.h),
                   _buildGeneralSection(),
                   SizedBox(height: 20.h),
                   _buildSecuritySection(),
                   SizedBox(height: 20.h),
                   _buildAccountSection(),
-                  SizedBox(height: 30.h),
+                  SizedBox(height: 115.h), // Adjusted padding
                 ],
               ),
             ),
@@ -42,7 +45,7 @@ class setting_page extends StatelessWidget {
   }
 
 
-  Widget _buildProfileSection() {
+  Widget _buildProfileSection(BuildContext context) {
     return _GlassCard(
       child: GetBuilder<settingController>(
         builder: (controller) {
@@ -91,8 +94,8 @@ class setting_page extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => _showEditNameDialog(),
-                    icon: Icon(Icons.edit_note_rounded,
+                    onPressed: () => _showEditNameDialog(context), // Pass context
+                    icon: HugeIcon(icon: HugeIcons.strokeRoundedEditUser02, // Corrected icon name
                         color: AppColors.primary, size: 28.sp),
                   ),
                 ],
@@ -148,37 +151,25 @@ class setting_page extends StatelessWidget {
         children: [
           _buildSectionHeader("General".tr),
           _SettingItem(
-            icon: Icons.palette_outlined,
+            icon: Icon(Icons.palette_outlined), // Wrapped IconData in Icon widget
             title: "Theme".tr,
             onTap: () => Get.toNamed(routes.backgroundSelection_screen),
             iconColor: Colors.blueAccent,
           ),
           _SettingItem(
-            icon: Icons.savings_outlined,
+            icon: Icon(Icons.savings_outlined), // Wrapped IconData in Icon widget
             title: "Savings".tr,
             onTap: () => Get.toNamed(routes.saving_screen),
             iconColor: AppColors.yellow,
           ),
           _SettingItem(
-            icon: Icons.insights_rounded,
-            title: "Insights".tr,
-            onTap: () => Get.toNamed(routes.insights_screen),
-            iconColor: Colors.blue,
-          ),
-           _SettingItem(
-            icon: Icons.repeat_rounded,
-            title: "Automation".tr,
-            onTap: () => Get.toNamed(routes.recurring_screen),
-            iconColor: AppColors.primary,
-          ),
-          _SettingItem(
-            icon: Icons.category_outlined,
+            icon: Icon(Icons.category_outlined), // Wrapped IconData in Icon widget
             title: "Categories".tr,
             onTap: () => Get.toNamed(routes.categories_screen),
             iconColor: AppColors.purple,
           ),
           _SettingItem(
-            icon: Icons.language_outlined,
+            icon: Icon(Icons.language_outlined), // Wrapped IconData in Icon widget
             title: "Language".tr,
             onTap: () => _showLanguageSelector(),
             iconColor: AppColors.sky,
@@ -196,25 +187,25 @@ class setting_page extends StatelessWidget {
         children: [
           _buildSectionHeader("Security & Support".tr),
           _SettingItem(
-            icon: Icons.privacy_tip_outlined,
+            icon: Icon(Icons.privacy_tip_outlined), // Wrapped IconData in Icon widget
             title: "Privacy Policy".tr,
             onTap: () => Get.toNamed(routes.PrivacyPolicyPage_screen),
             iconColor: AppColors.green,
           ),
           _SettingItem(
-            icon: Icons.description_outlined,
+            icon: Icon(Icons.description_outlined), // Wrapped IconData in Icon widget
             title: "Terms & Conditions".tr,
             onTap: () => Get.toNamed(routes.TermsConditionsPage_screen),
             iconColor: Colors.amber,
           ),
           _SettingItem(
-            icon: Icons.support_agent_outlined,
+            icon: Icon(Icons.support_agent_outlined), // Wrapped IconData in Icon widget
             title: "Help & Support".tr,
             onTap: () => Get.toNamed(routes.HelpSupportPage_screen),
             iconColor: Colors.orangeAccent,
           ),
           _SettingItem(
-            icon: Icons.lock_reset_outlined,
+            icon: Icon(Icons.lock_reset_outlined), // Wrapped IconData in Icon widget
             title: "Change Password".tr,
             onTap: () => Get.toNamed(routes.changePassword_screen),
             iconColor: AppColors.red,
@@ -229,11 +220,11 @@ class setting_page extends StatelessWidget {
   Widget _buildAccountSection() {
     return _GlassCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start, // Corrected FromStart to start
         children: [
           _buildSectionHeader("Account".tr),
           _SettingItem(
-            icon: Icons.verified_outlined,
+            icon: Icon(Icons.verified_outlined), // Wrapped IconData in Icon widget
             title: "Make permanent account".tr,
             onTap: () => Get.dialog(MakePermanentDialog()),
             iconColor: Colors.green,
@@ -241,7 +232,7 @@ class setting_page extends StatelessWidget {
             visible: controller.isGuestUser(),
           ),
           _SettingItem(
-            icon: Icons.logout_rounded,
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02), // Updated logout icon
             title: "Log Out".tr,
             onTap: () => controller.showLogoutDialog(
                 onConfirm: () => controller.logout()),
@@ -249,7 +240,7 @@ class setting_page extends StatelessWidget {
             textColor: Colors.redAccent,
           ),
           _SettingItem(
-            icon: Icons.delete_forever_outlined,
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedAccountSetting03), // Updated delete icon
             title: "Delete Account".tr,
             onTap: () => controller.confirmDeleteAccount(),
             iconColor: Colors.red,
@@ -276,7 +267,7 @@ class setting_page extends StatelessWidget {
     );
   }
 
-  void _showEditNameDialog() async {
+  void _showEditNameDialog(BuildContext context) async {
     if (controller.isGuestUser()) {
       AppSnackbar.show(
           "Name change is available for permanent accounts only.".tr);
@@ -294,45 +285,71 @@ class setting_page extends StatelessWidget {
       }
     }
 
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        title:
-            Text("Update Name".tr, style: const TextStyle(color: Colors.black)),
-        content: TextField(
-          controller: controller.nameC,
-          style: const TextStyle(color: Colors.black),
-          decoration: InputDecoration(
-            hintText: "Enter your name".tr,
-            hintStyle: const TextStyle(color: Colors.black38),
-            enabledBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.black12)),
-            focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColors.primary)),
+    // Platform-specific dialog
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      Get.dialog(
+        CupertinoAlertDialog(
+          title: Text("Update Name".tr),
+          content: CupertinoTextField(
+            controller: controller.nameC,
+            placeholder: "Enter your name".tr,
+            autofocus: true,
+            onSubmitted: (value) => controller.changeName(),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child:
-                Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
-          ),
-          ElevatedButton(
-            onPressed: controller.changeName,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r)),
+          actions: <CupertinoDialogAction>[
+            CupertinoDialogAction(
+              child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
+              onPressed: () => Get.back(),
             ),
-            child:
-                Text("Update".tr, style: const TextStyle(color: Colors.white)),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text("Update".tr, style: TextStyle(color: AppColors.primary)),
+              onPressed: controller.changeName,
+            ),
+          ],
+        ),
+      );
+    } else { // Android and other platforms
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
           ),
-        ],
-      ),
-    );
+          title:
+              Text("Update Name".tr, style: const TextStyle(color: Colors.black)),
+          content: TextField(
+            controller: controller.nameC,
+            style: const TextStyle(color: Colors.black),
+            decoration: InputDecoration(
+              hintText: "Enter your name".tr,
+              hintStyle: const TextStyle(color: Colors.black38),
+              enabledBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black12)),
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.primary)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child:
+                  Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
+            ),
+            ElevatedButton(
+              onPressed: controller.changeName,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r)),
+              ),
+              child:
+                  Text("Update".tr, style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void _showLanguageSelector() {
@@ -383,7 +400,7 @@ class setting_page extends StatelessWidget {
             ),
             const Divider(height: 1),
             _SettingItem(
-              icon: Icons.language,
+              icon: Icon(Icons.language), // Wrapped IconData in Icon widget
               title: "বাংলা",
               onTap: () {
                 controller.changeLanguageInstant(const Locale('bn', 'BD'));
@@ -393,7 +410,7 @@ class setting_page extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
             ),
             _SettingItem(
-              icon: Icons.language,
+              icon: Icon(Icons.language), // Wrapped IconData in Icon widget
               title: "English",
               onTap: () {
                 controller.changeLanguageInstant(const Locale('en', 'US'));
@@ -448,7 +465,7 @@ class _GlassCard extends StatelessWidget {
 }
 
 class _SettingItem extends StatelessWidget {
-  final IconData icon;
+  final Widget icon; // Changed from IconData to Widget
   final String title;
   final VoidCallback onTap;
   final Color iconColor;
@@ -486,7 +503,7 @@ class _SettingItem extends StatelessWidget {
                     color: iconColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10.r),
                   ),
-                  child: Icon(icon, color: iconColor, size: 22.sp),
+                  child: icon, // Directly use the icon widget
                 ),
                 SizedBox(width: 15.w),
                 Expanded(

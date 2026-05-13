@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
 import '../Controller/Controller.dart';
+import 'package:hugeicons/hugeicons.dart'; // Import HugeIcons
 
 class categories extends StatelessWidget {
   categories({super.key});
@@ -119,11 +120,11 @@ class categories extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 18,
                 backgroundColor: Color(0xFFF2F4F7),
-                child: Icon(Icons.label_outline,
-                    color: Colors.black87, size: 18),
+                child: HugeIcon(icon: HugeIcons.strokeRoundedFavourite, // Updated icon
+                    color: Colors.black87, size: 18), 
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -454,4 +455,3 @@ class categories extends StatelessWidget {
         : "Created: —";
   }
 }
-

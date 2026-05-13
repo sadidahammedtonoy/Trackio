@@ -7,14 +7,13 @@ import '../Presentation/Documentation/terms.dart';
 import '../Presentation/Features/AddTransactions/View/AddTransactions.dart';
 import '../Presentation/Features/Background/View/Background.dart';
 import '../Presentation/Features/Change Password/View/changePassword.dart';
+import '../Presentation/Features/Dashboard/View/visual_representation.dart';
 import '../Presentation/Features/caregories/View/categories.dart';
 import '../Presentation/Features/helpSupport/View/helpSupport.dart';
 import '../Presentation/Features/permanentAccount/View/permanentAccount.dart';
 import '../Presentation/Features/saving/View/saving.dart';
 import '../Presentation/Splash/View/splash.dart';
 import '../Presentation/navbar/View/navbar.dart';
-import '../Presentation/Features/Budget/View/budget.dart';
-import '../Presentation/Features/Recurring/View/recurring.dart';
 import 'Binding.dart';
 
 class routes {
@@ -32,12 +31,11 @@ class routes {
   static const String ForgotPasswordScreen_screen = '/ForgotPasswordScreen';
   static const String MakePermanentDialog_screen = '/MakePermanentDialog';
   static const String backgroundSelection_screen = '/backgroundSelection';
-  static const String insights_screen = '/insights';
-  static const String recurring_screen = '/recurring';
+  static const String visual_representation_screen = '/visual_representation';
 
 
   static final pages = [
-    GetPage( name: navbar_screen, binding: InitialBinding(), page: () => navbar()),
+    GetPage( name: navbar_screen, binding: InitialBinding(), page: () => Navbar()),
     GetPage( name: addTranscations_screen, binding: InitialBinding(), page: () => addTranscations()),
     GetPage( name: splash_screen, binding: InitialBinding(), page: () => Splash()),
     GetPage( name: login_screen, binding: InitialBinding(), page: () => login()),
@@ -51,12 +49,6 @@ class routes {
     GetPage( name: ForgotPasswordScreen_screen, binding: InitialBinding(), page: () => ForgotPasswordScreen()),
     GetPage( name: MakePermanentDialog_screen, binding: InitialBinding(), page: () => MakePermanentDialog()),
     GetPage( name: backgroundSelection_screen, binding: InitialBinding(), page: () => backgroundSelection()),
-    GetPage( name: insights_screen, binding: InitialBinding(), page: () => InsightsPage()),
-    GetPage( name: recurring_screen, binding: InitialBinding(), page: () => const RecurringPage()),
-
-
-
+    GetPage( name: visual_representation_screen, binding: InitialBinding(), page: () => VisualRepresentationPage()),
   ];
 }
-
-

@@ -6,9 +6,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart' hide Rx;
 import '../../Transcations/Model/tranModel.dart';
-import '../../Budget/Model/budgetModel.dart';
 
-class dashboardController extends GetxController {
+class DashboardController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -23,7 +22,6 @@ class dashboardController extends GetxController {
   final RxList<String> labels = <String>[].obs;
   final RxBool isLoading = true.obs;
   final Rxn<String> touchedValue = Rxn<String>();
-  final RxList<BudgetStatus> overBudget = <BudgetStatus>[].obs;
 
   final Rx<DateTime> selectedMonth = DateTime.now().obs;
   final RxMap<int, double> dailyExpenses = <int, double>{}.obs;
@@ -67,32 +65,39 @@ class dashboardController extends GetxController {
           .map((lists) => lists.expand((x) => x).toList());
     });
 
-    // 2. Stream Budgets based on selectedMonth
-    final budgetsStream = selectedMonth.stream
-        .startWith(selectedMonth.value)
-        .switchMap((date) {
-          final key = "${date.year}-${date.month.toString().padLeft(2, '0')}";
-          return _firestore
-              .collection('users')
-              .doc(_uid)
-              .collection('budgets')
-              .where('monthKey', isEqualTo: key)
-              .snapshots()
-              .map((snap) => snap.docs.map((doc) => BudgetModel.fromDoc(doc)).toList());
-        });
+    // 2. Manual Savings Stream (History Savings)
+    final manualSavingsStream = _firestore
+        .collection('users')
+        .doc(_uid)
+        .collection('savings')
+        .doc('items')
+        .collection('list')
+        .snapshots()
+        .map((snap) {
+      double total = 0.0;
+      for (final d in snap.docs) {
+        final data = d.data();
+        final raw = data['amount'];
+        final amount = (raw is String)
+            ? double.tryParse(raw) ?? 0.0
+            : (raw as num?)?.toDouble() ?? 0.0;
+        total += amount;
+      }
+      return total;
+    }).startWith(0.0);
 
-    // 3. Combine both streams with the selected month selection
+    // 3. Combine all streams
     _mainSub = CombineLatestStream.combine3(
       allTxsStream,
-      budgetsStream,
       selectedMonth.stream.startWith(selectedMonth.value),
-      (List<TranItem> allTxs, List<BudgetModel> budgets, DateTime currentMonth) {
-        _processDashboardData(allTxs, budgets, currentMonth);
+      manualSavingsStream,
+      (List<TranItem> allTxs, DateTime currentMonth, double manualSavings) {
+        _processDashboardData(allTxs, currentMonth, manualSavings);
       },
     ).listen((_) {}, onError: (e) => debugPrint("Dashboard Stream Error: $e"));
   }
 
-  void _processDashboardData(List<TranItem> allTxs, List<BudgetModel> budgets, DateTime currentMonth) {
+  void _processDashboardData(List<TranItem> allTxs, DateTime currentMonth, double manualSavings) {
     final monthKey = "${currentMonth.year}-${currentMonth.month.toString().padLeft(2, '0')}";
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
@@ -140,17 +145,9 @@ class dashboardController extends GetxController {
     todayTransactions.assignAll(todayTxsList);
     dailyExpenses.assignAll(dailyExp);
     weeklyAmounts.assignAll(weekly);
-    totalSavingAllTime.value = totalSavings;
-
-    // Budget check logic
-    final List<BudgetStatus> over = [];
-    for (var b in budgets) {
-      final spent = catSum[b.category] ?? 0.0;
-      if (spent > b.limit && b.limit > 0) {
-        over.add(BudgetStatus(category: b.category, limit: b.limit, spent: spent));
-      }
-    }
-    overBudget.assignAll(over);
+    
+    // Total Savings = Monthly transactions savings + Manual history savings
+    totalSavingAllTime.value = totalSavings + manualSavings;
 
     isLoading.value = false;
   }

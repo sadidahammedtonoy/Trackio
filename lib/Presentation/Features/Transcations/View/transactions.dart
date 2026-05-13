@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/App/routes.dart';
 import '../../../../Core/numberTranslation.dart';
@@ -88,8 +89,7 @@ class transcations_page extends StatelessWidget {
               onTap: () => controller.toggleCategoryFilter(entry.key),
             );
           });
-        },
-      ),
+        },      ),
     );
   }
 
@@ -103,10 +103,10 @@ class transcations_page extends StatelessWidget {
         elevation: 0,
         title: Obx(() {
           final selected = controller.selectedMonthKey.value;
-          final title = selected == null 
-              ? "All Transactions".tr 
+          final title = selected == null
+              ? "All Transactions".tr
               : numberTranslation.formatMonthYearBnFromKey(selected);
-          
+
           return Text(
             title,
             style: TextStyle(
@@ -118,21 +118,20 @@ class transcations_page extends StatelessWidget {
         }),
         actions: [
           IconButton(
-            icon: Icon(Icons.picture_as_pdf_rounded, color: AppColors.primary, size: 24.sp),
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedPdf01, color: AppColors.primary, size: 24.sp),
             onPressed: () {
               final monthKey = controller.selectedMonthKey.value ?? "All";
               exportController.generatePDFReport(controller.filteredItems, monthKey);
             },
           ),
           Obx(() => IconButton(
-            icon: Icon(
-              controller.isSearchVisible.value ? Icons.close : Icons.search,
-              color: Colors.black,
-            ),
-            onPressed: () => controller.toggleSearch(),
-          )),
+                icon: controller.isSearchVisible.value
+                    ? const Icon(Icons.close, color: Colors.black)
+                    : HugeIcon(icon: HugeIcons.strokeRoundedSearch02, color: Colors.black, size: 24.sp),
+                onPressed: () => controller.toggleSearch(),
+              )),
           IconButton(
-            icon: const Icon(Icons.filter_list_rounded, color: Colors.black),
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedSortByDown01, color: Colors.black, size: 24.sp),
             onPressed: () => _showMonthFilterSheet(context),
           ),
         ],
@@ -164,22 +163,20 @@ class transcations_page extends StatelessWidget {
                       }
 
                       if (items.isEmpty) {
-                         return Center(child: Text("No results found".tr));
+                        return Center(child: Text("No results found".tr));
                       }
 
                       final isMonthSelected = controller.selectedMonthKey.value != null;
                       final grouped = _groupByDate(items);
-                      final days = grouped.keys.toList()
-                        ..sort((a, b) => b.compareTo(a));
+                      final days = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
                       return Column(
                         children: [
-                          if (isMonthSelected) 
-                             _buildSummary(controller.cachedItems),
+                          if (isMonthSelected) _buildSummary(controller.filteredItems), // Corrected here
                           Expanded(
                             child: ListView.separated(
                               controller: controller.scrollController,
-                              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 100.h),
+                              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 100.h), // Adjusted padding
                               itemCount: days.length,
                               separatorBuilder: (_, __) => SizedBox(height: 20.h),
                               itemBuilder: (context, dayIndex) {
@@ -216,12 +213,12 @@ class transcations_page extends StatelessWidget {
                                       ),
                                     ),
                                     ...list.map((t) => Padding(
-                                      padding: EdgeInsets.only(bottom: 10.h),
-                                      child: _TransactionTile(
-                                        item: t,
-                                        onDelete: () => controller.deleteTransaction(t),
-                                      ),
-                                    )),
+                                          padding: EdgeInsets.only(bottom: 10.h),
+                                          child: _TransactionTile(
+                                            item: t,
+                                            onDelete: () => controller.deleteTransaction(t),
+                                          ),
+                                        )),
                                   ],
                                 );
                               },
@@ -267,14 +264,6 @@ class transcations_page extends StatelessWidget {
           ],
         );
       }),
-      floatingActionButton: FloatingActionButton(
-        elevation: 4,
-        highlightElevation: 8,
-        shape: const CircleBorder(),
-        onPressed: () => Get.toNamed(routes.addTranscations_screen),
-        backgroundColor: Colors.white,
-        child: Icon(Icons.add_rounded, color: AppColors.primary, size: 30.sp),
-      ),
     );
   }
 
@@ -285,7 +274,6 @@ class transcations_page extends StatelessWidget {
     return numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(day));
   }
 }
-
 
 class _TransactionTile extends StatelessWidget {
   const _TransactionTile({required this.item, required this.onDelete});
@@ -385,9 +373,9 @@ class _TransactionTile extends StatelessWidget {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date)) + 
-                    ", " + 
-                    numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date)),
+                    numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date)) +
+                        ", " +
+                        numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date)),
                     style: TextStyle(
                       color: Colors.black45,
                       fontSize: 10.sp,
@@ -447,10 +435,10 @@ class _TransactionTile extends StatelessWidget {
       BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Dialog(
-          backgroundColor: Colors.white.withOpacity(0.85),
+          backgroundColor: Colors.white.withAlpha(217),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24.r),
-            side: BorderSide(color: typeColor.withOpacity(0.15)),
+            side: BorderSide(color: typeColor.withAlpha(38)),
           ),
           child: Padding(
             padding: EdgeInsets.all(20.r),
@@ -569,24 +557,33 @@ void _showMonthFilterSheet(BuildContext context) {
               SizedBox(height: 16.h),
               const Divider(height: 1),
               SizedBox(height: 8.h),
-              _MonthTile(
-                icon: Icons.calendar_today_rounded,
-                label: "All Months".tr,
-                isSelected: controller.selectedMonthKey.value == null,
-                onTap: () {
-                  controller.selectMonth(null);
-                  Get.back();
-                },
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _MonthTile(
+                        icon: HugeIcon(icon: HugeIcons.strokeRoundedSortByDown01, size: 18.sp, color: Colors.black45),
+                        label: "All Months".tr,
+                        isSelected: controller.selectedMonthKey.value == null,
+                        onTap: () {
+                          controller.selectMonth(null);
+                          Get.back();
+                        },
+                      ),
+                      ...months.map((key) => _MonthTile(
+                            icon: HugeIcon(icon: HugeIcons.strokeRoundedSortByDown01, size: 18.sp, color: Colors.black45),
+                            label: numberTranslation.formatMonthYearBnFromKey(key),
+                            isSelected: controller.selectedMonthKey.value == key,
+                            onTap: () {
+                              controller.selectMonth(key);
+                              Get.back();
+                            },
+                          )),
+                    ],
+                  ),
+                ),
               ),
-              ...months.map((key) => _MonthTile(
-                icon: Icons.calendar_month_rounded,
-                label: numberTranslation.formatMonthYearBnFromKey(key),
-                isSelected: controller.selectedMonthKey.value == key,
-                onTap: () {
-                  controller.selectMonth(key);
-                  Get.back();
-                },
-              )),
             ],
           ),
         ),
@@ -596,7 +593,7 @@ void _showMonthFilterSheet(BuildContext context) {
 }
 
 class _MonthTile extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -626,20 +623,7 @@ class _MonthTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 36.r,
-                height: 36.r,
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Icon(
-                  icon,
-                  size: 18.sp,
-                  color: isSelected ? AppColors.primary : Colors.black45,
-                ),
-              ),
-              SizedBox(width: 14.w),
+
               Expanded(
                 child: Text(
                   label,
@@ -651,8 +635,8 @@ class _MonthTile extends StatelessWidget {
                 ),
               ),
               if (isSelected)
-                Icon(
-                  Icons.check_circle_rounded,
+                HugeIcon(
+                  icon: HugeIcons.strokeRoundedCheckmarkBadge03,
                   size: 20.sp,
                   color: AppColors.primary,
                 )
@@ -669,4 +653,3 @@ class _MonthTile extends StatelessWidget {
     );
   }
 }
-

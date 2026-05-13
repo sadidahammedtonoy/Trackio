@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/App/routes.dart';
 import '../../../../Core/numberTranslation.dart';
@@ -41,10 +42,9 @@ class deptsPage extends StatelessWidget {
         // ),
         actions: [
           Obx(() => IconButton(
-                icon: Icon(
-                  controller.isSearchVisible.value ? Icons.close : Icons.search,
-                  color: Colors.black,
-                ),
+                icon: controller.isSearchVisible.value
+                    ? const Icon(Icons.close, color: Colors.black)
+                    : HugeIcon(icon: HugeIcons.strokeRoundedSearch02, color: Colors.black, size: 24.sp),
                 onPressed: () {
                   controller.toggleSearch();
                 },
@@ -265,7 +265,7 @@ class deptsPage extends StatelessWidget {
                     }
 
                     return ListView.separated(
-                      padding: EdgeInsets.only(bottom: 30.h),
+                      padding: EdgeInsets.only(bottom: 115.h), // Adjusted padding
                       itemCount: items.length + 1,
                       separatorBuilder: (context, index) => SizedBox(height: 12.h),
                       itemBuilder: (context, index) {

@@ -23,11 +23,11 @@ class transactionsController extends GetxController {
   // Category filter logic
   final RxnString selectedCategoryFilter = RxnString(null);
 
-  final RxList<TranItem> cachedItems = <TranItem>[].obs;
+  final RxList<TranItem> cachedItems = <TranItem>[].obs; // Reintroduced to hold raw data
   final RxList<TranItem> filteredItems = <TranItem>[].obs;
   final RxList<String> availableMonthKeys = <String>[].obs;
 
-  StreamSubscription? _mainSub;
+  StreamSubscription? _mainTransactionStreamSub; // Subscription for raw transactions
   StreamSubscription? _monthKeysSub;
 
   // Scroll to top logic
@@ -55,13 +55,19 @@ class transactionsController extends GetxController {
     });
 
     // Re-filter when any filter change or items change
-    ever(cachedItems, (_) => applyFilters());
+    ever(cachedItems, (_) => applyFilters()); // Apply filters when raw data changes
+    ever(selectedMonthKey, (_) => _initTransactionsStream()); // Re-fetch data when month filter changes
     ever(searchQuery, (_) => applyFilters());
     ever(selectedCategoryFilter, (_) => applyFilters());
 
     _subscribeToMonthKeys();
     
     // Initial setup for the stream
+    _initTransactionsStream();
+  }
+
+  // Public method to refresh transactions (re-fetches data)
+  void refreshTransactions() {
     _initTransactionsStream();
   }
 
@@ -81,41 +87,33 @@ class transactionsController extends GetxController {
   }
 
   void _initTransactionsStream() {
-    _mainSub?.cancel();
+    _mainTransactionStreamSub?.cancel(); // Cancel previous subscription
     if (_uid.isEmpty) return;
 
-    // Use switchMap to restart the stream whenever selectedMonthKey changes
-    _mainSub = selectedMonthKey.stream
-        .startWith(selectedMonthKey.value)
-        .switchMap((key) => _getTransactionsStream(key))
-        .listen((items) {
-      cachedItems.assignAll(items);
-    }, onError: (e) => debugPrint("❌ Stream Error: $e"));
-  }
-
-  Stream<List<TranItem>> _getTransactionsStream(String? key) {
     final monthsRef = _firestore.collection('users').doc(_uid).collection('monthly_transactions');
 
-    if (key != null) {
+    Stream<List<TranItem>> transactionsStream;
+
+    if (selectedMonthKey.value != null) {
       // 🟢 Specific Month Stream
-      return monthsRef
-          .doc(key)
+      transactionsStream = monthsRef
+          .doc(selectedMonthKey.value)
           .collection('items')
           .snapshots()
           .map((snapshot) {
-        final list = snapshot.docs.map((d) => TranItem.fromDoc(d, monthKey: key)).toList();
+        final list = snapshot.docs.map((d) => TranItem.fromDoc(d, monthKey: selectedMonthKey.value)).toList();
         list.sort((a, b) => b.date.compareTo(a.date));
         return list;
       });
     } else {
       // 🔵 All Months Stream
-      return monthsRef.snapshots().switchMap((monthsSnap) {
+      transactionsStream = monthsRef.snapshots().switchMap((monthsSnap) {
         if (monthsSnap.docs.isEmpty) return Stream.value(<TranItem>[]);
 
         final itemStreams = monthsSnap.docs.map((m) {
           return monthsRef.doc(m.id).collection('items').snapshots().map((s) {
             return s.docs.map((d) => TranItem.fromDoc(d, monthKey: m.id)).toList();
-          }).startWith(<TranItem>[]); // Start with empty to avoid waiting
+          }).startWith(<TranItem>[]); // Emit empty list initially to avoid waiting
         }).toList();
 
         return CombineLatestStream.list<List<TranItem>>(itemStreams).map((lists) {
@@ -125,6 +123,10 @@ class transactionsController extends GetxController {
         });
       });
     }
+
+    _mainTransactionStreamSub = transactionsStream.listen((items) {
+      cachedItems.assignAll(items); // Update cachedItems, which will trigger applyFilters via 'ever'
+    }, onError: (e) => debugPrint("❌ Main Transaction Stream Error: $e"));
   }
 
   void toggleCategoryFilter(String category) {
@@ -164,7 +166,7 @@ class transactionsController extends GetxController {
   }
 
   void applyFilters() {
-    var items = List<TranItem>.from(cachedItems);
+    var items = List<TranItem>.from(cachedItems); // Always start from the raw cached data
 
     // Apply Category Filter
     if (selectedCategoryFilter.value != null) {
@@ -191,11 +193,12 @@ class transactionsController extends GetxController {
     }
 
     filteredItems.assignAll(items);
+    update(); // Explicitly trigger UI update to ensure Obx rebuilds
   }
 
   @override
   void onClose() {
-    _mainSub?.cancel();
+    _mainTransactionStreamSub?.cancel(); 
     _monthKeysSub?.cancel();
     _scrollStopTimer?.cancel();
     scrollController.dispose();

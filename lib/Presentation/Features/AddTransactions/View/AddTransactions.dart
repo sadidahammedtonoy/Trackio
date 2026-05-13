@@ -12,6 +12,8 @@ import '../../../../App/assets_path.dart';
 import '../../calcolator/View/calculator.dart';
 import '../Controller/Controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hugeicons/hugeicons.dart'; // Import HugeIcons
+import 'package:sadid/Core/snakbar.dart'; // Added AppSnackbar import
 
 class addTranscations extends StatelessWidget {
   addTranscations({super.key});
@@ -212,16 +214,25 @@ class addTranscations extends StatelessWidget {
                     ),
                   )
                 else
-                  _GlassCard(
+                  Obx(() => _GlassCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _fieldLabel("Transaction Category".tr),
+                        Row(
+                          children: [
+                            _fieldLabel("Transaction Category".tr),
+                            if (controller.selectedCategoryId.value == null || controller.selectedCategoryId.value!.isEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(left: 8.w),
+                                child: HugeIcon(icon: HugeIcons.strokeRoundedBadgeInfo, color: Colors.orange, size: 20.sp),
+                              ),
+                          ],
+                        ),
                         SizedBox(height: 10.h),
                         _CategoryPicker(controller: controller),
                       ],
                     ),
-                  ),
+                  )),
                 SizedBox(height: 20.h),
 
                 // Remark Section
@@ -295,24 +306,38 @@ class addTranscations extends StatelessWidget {
   }
 
   void _handleSubmission() {
+    // Also ensure amount is not empty for any transaction type
+    if (amountController.text.trim().isEmpty || (double.tryParse(amountController.text.trim()) ?? 0.0) <= 0) {
+      AppSnackbar.show("Please enter a valid amount.".tr);
+      return;
+    }
+
     if (controller.selectedType.value == "Lent" || controller.selectedType.value == "Borrow") {
+      if (personNameController.text.trim().isEmpty) {
+        AppSnackbar.show("Please enter a person name.".tr);
+        return; // Prevent submission
+      }
       addTranModel model = addTranModel(
         type: controller.selectedType.value,
         date: controller.selectedDate.value,
         amount: amountController.text,
         wallet: controller.selectedWallet.value,
-        category: personNameController.text,
-        note: noteController.text,
+        category: personNameController.text.trim(),
+        note: noteController.text.trim(),
       );
       controller.addMonthlyTransaction(model: model);
     } else {
+      if (controller.selectedCategoryId.value == null || controller.selectedCategoryId.value!.isEmpty) {
+        AppSnackbar.show("Please select a category.".tr);
+        return; // Prevent submission
+      }
       addTranModel model = addTranModel(
         type: controller.selectedType.value,
         date: controller.selectedDate.value,
         amount: amountController.text,
         wallet: controller.selectedWallet.value,
-        category: controller.selectedCategoryId.value ?? "",
-        note: noteController.text,
+        category: controller.selectedCategoryId.value!,
+        note: noteController.text.trim(),
       );
       controller.addMonthlyTransaction(model: model);
     }

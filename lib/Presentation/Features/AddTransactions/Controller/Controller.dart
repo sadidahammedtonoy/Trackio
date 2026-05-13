@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:sadid/Core/loading.dart';
 import 'package:sadid/Core/snakbar.dart';
 import 'package:sadid/Presentation/Features/AddTransactions/Model/addTransactionModel.dart';
+import '../../Transcations/Controller/Controller.dart'; // Import the transactionsController
 
 class addTranscationsController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -58,6 +59,9 @@ class addTranscationsController extends GetxController {
       };
 
       await docRef.set(tranData);
+
+      // Refresh transactionsController after successful addition
+      Get.find<transactionsController>().refresh();
 
       AppLoader.hide();
       Get.back();

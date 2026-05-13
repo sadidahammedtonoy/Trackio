@@ -33,7 +33,7 @@ class CategoryPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<dashboardController>();
+    final controller = Get.find<DashboardController>();
 
     return Obx(() {
       final data = controller.categorySummary;

@@ -1,22 +1,21 @@
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
-import '../../Features/Budget/View/budget.dart';
 import '../../Features/Dashboard/View/dashboard.dart';
 import '../../Features/Setting/View/setting.dart';
 import '../../Features/Transcations/View/transactions.dart';
 import '../../Features/debts/View/debts.dart';
 import '../Controller/Controller.dart';
 
-class navbar extends StatelessWidget {
-  navbar({super.key});
+class Navbar extends StatelessWidget {
+  Navbar({super.key});
 
-  final navbar_controller nav = Get.find<navbar_controller>();
+  final navbar_controller nav = Get.put(navbar_controller());
 
-  // Replace with your real pages
   final pages = [
-    dashboardPage(),
+    DashboardPage(),
     transcations_page(),
     deptsPage(),
     setting_page(),
@@ -26,128 +25,164 @@ class navbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return background(
       child: Scaffold(
+        extendBody: true,
         body: SafeArea(
+          bottom: false,
           child: Obx(
             () => AnimatedSwitcher(
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 400),
               transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-              child: pages[nav.currentIndex.value],
-              layoutBuilder: (currentChild, previousChildren) {
-                return Stack(
-                  children: <Widget>[...previousChildren, if (currentChild != null) currentChild],
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.02, 0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    )),
+                    child: child,
+                  ),
                 );
               },
+              child: Container(
+                key: ValueKey<int>(nav.currentIndex.value),
+                child: pages[nav.currentIndex.value],
+              ),
             ),
           ),
         ),
+        bottomNavigationBar: Obx(
+          () => _CustomBottomNavBar(
+            selectedIndex: nav.currentIndex.value,
+            onTap: (index) {
+              nav.currentIndex.value = index;
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-        // bottomNavigationBar: Container(
-        //   padding: EdgeInsets.only(
-        //     top: 1,
-        //   ),
-        //   decoration: BoxDecoration(
-        //     borderRadius: BorderRadius.circular(30),
-        //     color: Colors.cyan,
-        //     border: Border.all(
-        //       color: Colors.cyan,
-        //       width: 1,
-        //     ),
-        //     boxShadow: [
-        //       BoxShadow(
-        //         color: Colors.cyan.withOpacity(0.2),
-        //         blurRadius: 8,
-        //         offset: const Offset(5, 4),
-        //       ),
-        //     ],
-        //   ),
-        //   child: ClipRRect(
-        //     borderRadius: BorderRadius.only(
-        //       topLeft: Radius.circular(30),
-        //       topRight: Radius.circular(30),
-        //     ),
-        //     child: BottomNavigationBar(
-        //       currentIndex: nav.currentIndex.value,
-        //       onTap: nav.changeTab,
-        //       type: BottomNavigationBarType.fixed,
-        //       showUnselectedLabels: true,
-        //       backgroundColor: Colors.white,
-        //       selectedItemColor: Colors.cyan,
-        //
-        //       items: [
-        //         BottomNavigationBarItem(
-        //           icon: Icon(Icons.dashboard_outlined),
-        //           activeIcon: Icon(Icons.dashboard),
-        //           label: "Dashboard".tr,
-        //         ),
-        //         BottomNavigationBarItem(
-        //           icon: Icon(Icons.receipt_long_outlined),
-        //           activeIcon: Icon(Icons.receipt_long),
-        //           label: "Transactions".tr,
-        //         ),
-        //         BottomNavigationBarItem(
-        //           icon: Icon(Icons.balance_outlined),
-        //           activeIcon: Icon(Icons.balance_rounded),
-        //           label: "Debts".tr,
-        //         ),
-        //         BottomNavigationBarItem(
-        //           icon: Icon(Icons.settings_outlined),
-        //           activeIcon: Icon(Icons.settings),
-        //           label: "Settings".tr,
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
-        bottomNavigationBar: AnimatedNotchBottomBar(
-          notchBottomBarController: nav.notchController,
-          color: Color(0xFFFFFFFD),
-          // color: Color(0xFFEEEEEE),
-          showLabel: true,
-          notchColor: Colors.cyan,
-          bottomBarItems: [
-            BottomBarItem(
-              inActiveItem: const Icon(
-                Icons.dashboard_outlined,
-                color: Colors.grey,
-              ),
-              activeItem: const Icon(Icons.dashboard, color: Colors.white),
-              itemLabel: "Dashboard".tr,
-            ),
-            BottomBarItem(
-              inActiveItem: const Icon(
-                Icons.receipt_long_outlined,
-                color: Colors.grey,
-              ),
-              activeItem: const Icon(Icons.receipt_long, color: Colors.white),
-              itemLabel: "Transactions".tr,
-            ),
-            BottomBarItem(
-              inActiveItem: const Icon(
-                Icons.balance_rounded,
-                color: Colors.grey,
-              ),
-              activeItem: const Icon(
-                Icons.balance_rounded,
-                color: Colors.white,
-              ),
-              itemLabel: "Debts".tr,
-            ),
-            BottomBarItem(
-              inActiveItem: const Icon(
-                Icons.settings_outlined,
-                color: Colors.grey,
-              ),
-              activeItem: const Icon(Icons.settings, color: Colors.white),
-              itemLabel: "Settings".tr,
-            ),
+class _CustomBottomNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  const _CustomBottomNavBar({
+    required this.selectedIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 115.h,
+      padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 35.h),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(50.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(15),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            )
           ],
-          onTap: (index) {
-            nav.currentIndex.value = index;
-          },
-          kIconSize: 24.0,
-          kBottomRadius: 30.0,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(6.r), // White border thickness
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F9FB), // Inner light grey section
+              borderRadius: BorderRadius.circular(44.r),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavBarItem(
+                  icon: HugeIcons.strokeRoundedDashboardCircle,
+                  label: 'Home'.tr,
+                  isSelected: selectedIndex == 0,
+                  onTap: () => onTap(0),
+                ),
+                _NavBarItem(
+                  icon: HugeIcons.strokeRoundedTransaction,
+                  label: 'History'.tr,
+                  isSelected: selectedIndex == 1,
+                  onTap: () => onTap(1),
+                ),
+                _NavBarItem(
+                  icon: HugeIcons.strokeRoundedCreditCardPos,
+                  label: 'Debts'.tr,
+                  isSelected: selectedIndex == 2,
+                  onTap: () => onTap(2),
+                ),
+                _NavBarItem(
+                  icon: HugeIcons.strokeRoundedMoreHorizontalCircle01,
+                  label: 'More'.tr,
+                  isSelected: selectedIndex == 3,
+                  onTap: () => onTap(3),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavBarItem extends StatelessWidget {
+  final dynamic icon; // Use dynamic for HugeIcons
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _NavBarItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.translucent,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          margin: EdgeInsets.all(5.r), // Gap from the grey border
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF1A1A1C) : Colors.transparent,
+            borderRadius: BorderRadius.circular(38.r),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HugeIcon(
+                icon: icon,
+                size: 20.sp,
+                color: isSelected ? Colors.white : Colors.black54,
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black54,
+                  fontSize: 10.sp,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
