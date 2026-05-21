@@ -163,6 +163,12 @@ class setting_page extends StatelessWidget {
             iconColor: AppColors.yellow,
           ),
           _SettingItem(
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedLeaf01),
+            title: "Budgets".tr,
+            onTap: () => Get.toNamed(routes.budgets_screen),
+            iconColor: AppColors.yellow,
+          ),
+          _SettingItem(
             icon: Icon(Icons.category_outlined), // Wrapped IconData in Icon widget
             title: "Categories".tr,
             onTap: () => Get.toNamed(routes.categories_screen),

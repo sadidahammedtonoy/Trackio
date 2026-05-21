@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:sadid/App/AppColors.dart';
@@ -21,7 +22,7 @@ class deptsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, // Consistent with frosted glass theme
+      backgroundColor: Colors.transparent, 
       appBar: AppBar(
         title: Text(
           "Debts".tr,
@@ -32,14 +33,7 @@ class deptsPage extends StatelessWidget {
           ),
         ),
         centerTitle: false,
-        // backgroundColor: Colors.white.withOpacity(0.1),
         elevation: 0,
-        // flexibleSpace: ClipRRect(
-        //   child: BackdropFilter(
-        //     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        //     child: Container(color: Colors.transparent),
-        //   ),
-        // ),
         actions: [
           Obx(() => IconButton(
                 icon: controller.isSearchVisible.value
@@ -265,7 +259,7 @@ class deptsPage extends StatelessWidget {
                     }
 
                     return ListView.separated(
-                      padding: EdgeInsets.only(bottom: 115.h), // Adjusted padding
+                      padding: EdgeInsets.only(bottom: 115.h), 
                       itemCount: items.length + 1,
                       separatorBuilder: (context, index) => SizedBox(height: 12.h),
                       itemBuilder: (context, index) {
@@ -348,54 +342,6 @@ class _GlassCard extends StatelessWidget {
   }
 }
 
-Future<bool> showDeleteTransactionDialog() async {
-  if (GetPlatform.isIOS) {
-    final result = await Get.dialog<bool>(
-      CupertinoAlertDialog(
-        title: Text("Delete Transaction".tr),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text("Are you sure you want to delete this transaction?".tr),
-        ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Get.back(result: false),
-            child: Text("Cancel".tr),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Get.back(result: true),
-            child: Text("Delete".tr),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-    return result ?? false;
-  } else {
-    final result = await Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Delete Transaction".tr),
-        content: Text("Are you sure you want to delete this transaction?".tr),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text("Cancel".tr),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: Text("Delete".tr, style: const TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-    return result ?? false;
-  }
-}
-
 class _TransactionTile extends StatelessWidget {
   const _TransactionTile({required this.item, required this.onDelete});
 
@@ -412,36 +358,13 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateText = numberTranslation.formatDateBnFromString(
-      DateFormat('dd MMM yyyy').format(item.date),
-    );
     final typeColor = _typeColor(item.type);
 
     return Dismissible(
       key: ValueKey(item.id),
       direction: DismissDirection.horizontal,
-      background: Container(
-        margin: EdgeInsets.only(bottom: 10.h),
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        alignment: Alignment.centerLeft,
-        decoration: BoxDecoration(
-          color: Colors.blue.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(14.r),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.edit, color: Colors.blue),
-            SizedBox(width: 8.w),
-            Text(
-              "Edit".tr,
-              style: const TextStyle(
-                color: Colors.blue,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
+      background: _buildActionBg(HugeIcons.strokeRoundedEdit02, "Edit".tr, Colors.blue, Alignment.centerLeft),
+      secondaryBackground: _buildActionBg(HugeIcons.strokeRoundedDelete04, "Delete".tr, Colors.red, Alignment.centerRight),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
           Get.find<editTransactionsController>().assignValues(item);
@@ -449,33 +372,13 @@ class _TransactionTile extends StatelessWidget {
           return false;
         }
         if (direction == DismissDirection.endToStart) {
-          final confirm = await showDeleteTransactionDialog();
+          final confirm = await _showDeleteDialog(context);
           if (!confirm) return false;
           await onDelete();
           return true;
         }
         return false;
       },
-      secondaryBackground: Container(
-        margin: EdgeInsets.only(bottom: 10.h),
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        alignment: Alignment.centerRight,
-        decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(14.r),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              "Delete".tr,
-              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
-            ),
-            SizedBox(width: 8.w),
-            const Icon(Icons.delete, color: Colors.red),
-          ],
-        ),
-      ),
       child: GestureDetector(
         onLongPress: () => _showDetailsDialog(context),
         child: _GlassCard(
@@ -563,6 +466,68 @@ class _TransactionTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildActionBg(dynamic icon, String text, Color color, Alignment alignment) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      alignment: alignment,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: alignment == Alignment.centerLeft
+            ? [HugeIcon(icon: icon, color: color, size: 22.sp), SizedBox(width: 8.w), Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold))]
+            : [Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold)), SizedBox(width: 8.w), HugeIcon(icon: icon, color: color, size: 22.sp)],
+      ),
+    );
+  }
+
+  Future<bool> _showDeleteDialog(BuildContext context) async {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return await showCupertinoDialog<bool>(
+        context: context,
+        builder: (BuildContext ctx) {
+          return CupertinoAlertDialog(
+            title: Text("Delete Transaction".tr),
+            content: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text("Are you sure you want to delete this transaction?".tr),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text("Cancel".tr),
+              ),
+              CupertinoDialogAction(
+                isDestructiveAction: true,
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text("Delete".tr),
+              ),
+            ],
+          );
+        },
+      ) ?? false;
+    } else {
+      final result = await Get.dialog<bool>(
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: AlertDialog(
+            backgroundColor: Colors.white,
+            title: Text("Delete Transaction".tr),
+            content: Text("Are you sure you want to delete this transaction?".tr),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            actions: [
+              TextButton(onPressed: () => Get.back(result: false), child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54))),
+              TextButton(onPressed: () => Get.back(result: true), child: Text("Delete".tr, style: const TextStyle(color: Colors.red))),
+            ],
+          ),
+        ),
+      ) ?? false;
+      return result;
+    }
   }
 
   void _showDetailsDialog(BuildContext context) {

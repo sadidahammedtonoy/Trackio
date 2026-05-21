@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:sadid/App/assets_path.dart';
 import 'package:sadid/App/routes.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
@@ -52,9 +53,7 @@ class login extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Column(
                         children: [
-                          // Lottie.asset("assets/json/3D Money Icon.json", height: 100),
                           Image.asset("assets/logo.jpeg", width: 150),
-                          // Text("Trackio", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),),
                           Text(
                             "Keep a clear record of where your money goes.".tr,
                             style: TextStyle(
@@ -185,21 +184,6 @@ class login extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // const SizedBox(height: 10,),
-                    // OutlinedButton(
-                    //   onPressed: () => controller.loginAsGuest(),
-                    //   style: OutlinedButton.styleFrom(
-                    //     minimumSize: const Size(double.infinity, 48), // full width
-                    //     side: const BorderSide(color: Colors.black),
-                    //     shape: RoundedRectangleBorder(
-                    //       borderRadius: BorderRadius.circular(10),
-                    //     ),
-                    //   ),
-                    //   child: const Text(
-                    //     "Continue as Guest",
-                    //     style: TextStyle(color: Colors.black),
-                    //   ),
-                    // ),
                     const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () => controller.loginAsGuest(),
@@ -247,6 +231,32 @@ class login extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // Apple Sign-In Button (Visible only on iOS)
+                    if (Get.theme.platform == TargetPlatform.iOS)
+                      GestureDetector(
+                        onTap: () => controller.signInWithApple(),
+                        child: Card(
+                          elevation: 3,
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const HugeIcon(icon: HugeIcons.strokeRoundedApple),
+                                const SizedBox(width: 10),
+                                Text(
+                                  "Continue with Apple".tr,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

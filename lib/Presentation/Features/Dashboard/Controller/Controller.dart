@@ -25,6 +25,7 @@ class DashboardController extends GetxController {
 
   final Rx<DateTime> selectedMonth = DateTime.now().obs;
   final RxMap<int, double> dailyExpenses = <int, double>{}.obs;
+  final RxDouble totalBudget = 0.0.obs; // Added for total budget
 
   String get _uid => _auth.currentUser?.uid ?? "";
   StreamSubscription? _mainSub;
@@ -49,8 +50,20 @@ class DashboardController extends GetxController {
   void _initDashboardStream() {
     if (_uid.isEmpty) return;
 
-    // 1. Listen to all months to aggregate global data (Weekly, All-time Savings)
     final monthsRef = _firestore.collection('users').doc(_uid).collection('monthly_transactions');
+
+    // Stream for budget changes for the selected month
+    final budgetStream = selectedMonth.stream.switchMap((month) {
+      final monthKey = "${month.year}-${month.month.toString().padLeft(2, '0')}";
+      return monthsRef.doc(monthKey).collection('budgets').snapshots();
+    }).map((snapshot) {
+      double budget = 0.0;
+      for (var doc in snapshot.docs) {
+        budget += (doc.data()['amount'] as num?)?.toDouble() ?? 0.0;
+      }
+      return budget;
+    }).startWith(0.0);
+
 
     final allTxsStream = monthsRef.snapshots().switchMap((monthsSnap) {
       if (monthsSnap.docs.isEmpty) return Stream.value(<TranItem>[]);
@@ -65,7 +78,6 @@ class DashboardController extends GetxController {
           .map((lists) => lists.expand((x) => x).toList());
     });
 
-    // 2. Manual Savings Stream (History Savings)
     final manualSavingsStream = _firestore
         .collection('users')
         .doc(_uid)
@@ -86,12 +98,14 @@ class DashboardController extends GetxController {
       return total;
     }).startWith(0.0);
 
-    // 3. Combine all streams
-    _mainSub = CombineLatestStream.combine3(
+    // Combine all streams
+    _mainSub = CombineLatestStream.combine4(
       allTxsStream,
       selectedMonth.stream.startWith(selectedMonth.value),
       manualSavingsStream,
-      (List<TranItem> allTxs, DateTime currentMonth, double manualSavings) {
+      budgetStream, // Added budget stream
+      (List<TranItem> allTxs, DateTime currentMonth, double manualSavings, double budget) {
+        totalBudget.value = budget; // Update the total budget
         _processDashboardData(allTxs, currentMonth, manualSavings);
       },
     ).listen((_) {}, onError: (e) => debugPrint("Dashboard Stream Error: $e"));
@@ -109,17 +123,14 @@ class DashboardController extends GetxController {
     final weekly = List.filled(7, 0.0);
 
     for (var tx in allTxs) {
-      // Global logic: All-time Savings
       if (tx.type == "Saving") totalSavings += tx.amount;
 
-      // Global logic: Weekly Chart (Last 7 days)
       final txDateOnly = DateTime(tx.date.year, tx.date.month, tx.date.day);
       final diff = todayStart.difference(txDateOnly).inDays;
       if (diff >= 0 && diff < 7 && tx.type == "Expense") {
         weekly[6 - diff] += tx.amount;
       }
 
-      // Selected Month logic
       if (tx.monthKey == monthKey) {
         if (tx.type == "Income") income += tx.amount;
         if (tx.type == "Expense") {
@@ -129,7 +140,6 @@ class DashboardController extends GetxController {
         }
         if (tx.type == "Saving") monthSaving += tx.amount;
 
-        // Today's Transactions logic
         if (_isSameDay(tx.date, now)) {
           todayTxsList.add(tx);
           if (tx.type == "Expense") todayExp += tx.amount;
@@ -137,7 +147,6 @@ class DashboardController extends GetxController {
       }
     }
 
-    // Update States
     monthSummary.assignAll({"income": income, "expense": expense});
     thisMonthSavings.value = monthSaving;
     todayExpense.value = todayExp;
@@ -146,7 +155,6 @@ class DashboardController extends GetxController {
     dailyExpenses.assignAll(dailyExp);
     weeklyAmounts.assignAll(weekly);
     
-    // Total Savings = Monthly transactions savings + Manual history savings
     totalSavingAllTime.value = totalSavings + manualSavings;
 
     isLoading.value = false;

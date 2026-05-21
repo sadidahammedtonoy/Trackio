@@ -31,7 +31,6 @@ class editTransactions extends StatelessWidget {
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.sp),
           ),
           centerTitle: false,
-          backgroundColor: Colors.white.withOpacity(0.1),
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),

@@ -4,6 +4,8 @@ class AppTranslation extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
     'en_US': {
+      "Delete Budget": "Delete Budget",
+      "Are you sure you want to delete this budget?": "Are you sure you want to delete this budget?",
       "Keep a clear record of where your money goes.":
           "Keep a clear record of where your money goes.",
       "Email Address": "Email Address",
@@ -586,6 +588,8 @@ class AppTranslation extends Translations {
           "Name change is available for permanent accounts only.",
     },
     'bn_BD': {
+      "Delete Budget": "বাজেট মুছুন",
+      "Are you sure you want to delete this budget?": "আপনি কি নিশ্চিত যে এই বাজেটটি মুছতে চান?",
       "Month": "মাস",
       "Search Name or Remark...": "নাম বা মন্তব্য অনুসন্ধান করুন...",
       "Search Category or Remark...": "ক্যাটাগরি বা মন্তব্য অনুসন্ধান করুন...",
