@@ -39,6 +39,16 @@ class loginController extends GetxController {
   Future<void> signInWithGoogle() async {
     AppLoader.show();
     try {
+      // If the app is crashing on Google Sign-In, it's often due to a
+      // configuration issue. Please ensure the following:
+      // 1. You have a `google-services.json` file in your `android/app` directory.
+      // 2. The SHA-1 fingerprint of your app is registered in your Firebase project settings.
+      //    For release builds, you'll need to add the release SHA-1 as well.
+      // 3. If you are authenticating with Firebase, you may need to provide the
+      //    web client ID to the GoogleSignIn constructor to get an idToken.
+      //    final GoogleSignIn _googleSignIn = GoogleSignIn(serverClientId: 'YOUR_WEB_CLIENT_ID');
+      //    You can find this ID in your google-services.json file (client_type: 3).
+
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
         // The user canceled the sign-in

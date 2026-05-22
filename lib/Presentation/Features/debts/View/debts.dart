@@ -22,7 +22,7 @@ class deptsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, 
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
           "Debts".tr,
@@ -258,16 +258,30 @@ class deptsPage extends StatelessWidget {
                       );
                     }
 
+                    List<dynamic> groupedItems = [];
+                    String? lastMonth;
+
+                    for (var item in items) {
+                      String currentMonth = DateFormat('MMMM yyyy').format(item.date);
+                      if (currentMonth != lastMonth) {
+                        groupedItems.add(currentMonth);
+                        lastMonth = currentMonth;
+                      }
+                      groupedItems.add(item);
+                    }
+
                     return ListView.separated(
                       padding: EdgeInsets.only(bottom: 115.h), 
-                      itemCount: items.length + 1,
+                      itemCount: groupedItems.length,
                       separatorBuilder: (context, index) => SizedBox(height: 12.h),
                       itemBuilder: (context, index) {
-                        if (index == 0) {
+                        final item = groupedItems[index];
+
+                        if (item is String) {
                           return Padding(
-                            padding: EdgeInsets.only(bottom: 8.h, left: 4.w),
+                            padding: EdgeInsets.only(bottom: 8.h, left: 4.w, top: index == 0 ? 0 : 20.h),
                             child: Text(
-                              "Transactions".tr,
+                              item,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
@@ -275,17 +289,18 @@ class deptsPage extends StatelessWidget {
                               ),
                             ),
                           );
+                        } else if (item is TranItem) {
+                          return _TransactionTile(
+                            item: item,
+                            onDelete: () async {
+                              await controller.deleteMonthlyTransaction(
+                                monthKey: item.monthKey,
+                                transactionId: item.id,
+                              );
+                            },
+                          );
                         }
-                        final t = items[index - 1];
-                        return _TransactionTile(
-                          item: t,
-                          onDelete: () async {
-                            await controller.deleteMonthlyTransaction(
-                              monthKey: t.monthKey,
-                              transactionId: t.id,
-                            );
-                          },
-                        );
+                        return const SizedBox.shrink();
                       },
                     );
                   });

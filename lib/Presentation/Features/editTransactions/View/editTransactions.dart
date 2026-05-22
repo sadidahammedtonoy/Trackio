@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sadid/App/AppColors.dart';
 import 'package:sadid/Presentation/Features/Transcations/Model/tranModel.dart';
@@ -32,6 +33,7 @@ class editTransactions extends StatelessWidget {
           ),
           centerTitle: false,
           elevation: 0,
+          titleSpacing: -10,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
             onPressed: () => Get.back(),
@@ -290,7 +292,7 @@ class _GlassCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(24.r),
-            border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+            border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1.5),
           ),
           child: child,
         ),
@@ -326,7 +328,7 @@ class _DateButton extends StatelessWidget {
               DateFormat('dd-MM-yyyy').format(controller.selectedDate.value),
               style: TextStyle(fontSize: 16.sp, color: Colors.black87, fontWeight: FontWeight.w500),
             ),
-            Icon(Icons.calendar_month_rounded, color: AppColors.primary, size: 20.sp),
+            HugeIcon(icon: HugeIcons.strokeRoundedDateTime, color: AppColors.primary, size: 24.sp),
           ],
         ),
       ),

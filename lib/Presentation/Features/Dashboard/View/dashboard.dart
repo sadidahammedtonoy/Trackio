@@ -3,6 +3,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:lottie/lottie.dart';
+import 'package:sadid/App/assets_path.dart';
 import 'package:sadid/Core/numberTranslation.dart';
 import '../../../../App/AppColors.dart';
 import '../../../../App/routes.dart';
@@ -12,8 +14,8 @@ import '../../editTransactions/View/editTransactions.dart';
 import '../Controller/Controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/cupertino.dart'; 
-import 'package:flutter/foundation.dart'; 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({super.key});
@@ -45,7 +47,7 @@ class DashboardPage extends StatelessWidget {
         elevation: 0,
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 8.w),
+            padding: EdgeInsets.only(right: 30.w),
             child: IconButton(
               onPressed: () => Get.toNamed(routes.visual_representation_screen),
               icon: HugeIcon(
@@ -79,16 +81,33 @@ class DashboardPage extends StatelessWidget {
 
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.only(bottom: 115.h), 
+          padding: EdgeInsets.only(bottom: 115.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                child: _NewHeader(
-                  controller: controller,
-                  expense: expense,
-                  highestSpendCategory: highestSpendCategory,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    _NewHeader(
+                      controller: controller,
+                      expense: expense,
+                      highestSpendCategory: highestSpendCategory,
+                    ),
+
+                    Positioned(
+                      top: -60.h,
+                      right: -25.w,
+                      child: SizedBox(
+                        width: 150.w,
+                        child: Lottie.asset(
+                          assets_path.cat,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 15.h),
@@ -166,14 +185,14 @@ class _NewHeader extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 4.h),
-              Obx(() => Text(
+               Text(
                 "৳${numberTranslation.toBnDigits(expense.toStringAsFixed(0))}",
                 style: TextStyle(
                   fontSize: 32.sp,
                   fontWeight: FontWeight.bold,
-                  color: expense > controller.totalBudget.value ? Colors.red : Colors.black,
+                  color: Colors.black,
                 ),
-              )),
+              ),
               SizedBox(height: 16.h),
               SizedBox(
                 height: 150.h,
@@ -343,7 +362,7 @@ class _WeeklyChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
-                    controller.labels[index][0], 
+                    controller.labels[index][0],
                     style: TextStyle(
                         fontSize: 12.sp,
                         color: isToday ? Colors.red.shade300 : Colors.black54,
@@ -539,7 +558,7 @@ class _TransactionTile extends StatelessWidget {
           );
         },
       ) ?? false;
-    } else { 
+    } else {
       final result = await Get.dialog<bool>(
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
