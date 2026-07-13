@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
@@ -136,76 +137,86 @@ class BudgetsScreen extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
-      child: GlassCard(
-        child: Row(
+      child: Slidable(
+        key: ValueKey(budget.id),
+        startActionPane: ActionPane(
+          motion: const StretchMotion(),
           children: [
-            CircularPercentIndicator(
-              radius: 40.r,
-              lineWidth: 8.0,
-              percent: percentage > 1.0 ? 1.0 : percentage,
-              center: Text(
-                '${(percentage * 100).toStringAsFixed(0)}%',
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-              ),
-              progressColor: color,
-              backgroundColor: AppColors.primary.withOpacity(0.1), // Brighter background
-              circularStrokeCap: CircularStrokeCap.round,
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(budget.groupName,
-                      style: TextStyle(
-                          fontSize: 18.sp, fontWeight: FontWeight.bold)),
-                  if (budget.isGrouped)
-                    Padding(
-                      padding: EdgeInsets.only(top: 4.h),
-                      child: Text(
-                        budget.categories.join(', '),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 12.sp, color: Colors.black54),
-                      ),
-                    ),
-                  SizedBox(height: 8.h),
-                  Text('Budget: ৳${budget.budget.toStringAsFixed(0)}',
-                      style: TextStyle(fontSize: 14.sp, color: Colors.grey[600])),
-                  SizedBox(height: 4.h),
-                  Text('Spent: ৳${budget.spent.toStringAsFixed(0)}',
-                      style: TextStyle(fontSize: 14.sp, color: color)),
-                ],
-              ),
-            ),
-            SizedBox(width: 8.w),
-            PopupMenuButton<String>(
-              icon: const HugeIcon(icon: HugeIcons.strokeRoundedMoreVerticalCircle01),
-              onSelected: (value) {
-                if (value == 'edit') {
-                  Get.toNamed(routes.add_budget_screen, arguments: {'budgetId': budget.id, 'category': budget.groupName, 'amount': budget.budget});
-                } else if (value == 'delete') {
-                  _showDeleteConfirmationDialog(context, controller, budget);
-                }
+            SlidableAction(
+              onPressed: (_) {
+                Get.toNamed(routes.add_budget_screen, arguments: {'budgetId': budget.id, 'category': budget.groupName, 'amount': budget.budget});
               },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'edit',
-                  child: ListTile(
-                    leading: const HugeIcon(icon: HugeIcons.strokeRoundedAiEditing, color: Colors.blue),
-                    title: Text('Edit'.tr, style: TextStyle(color: Colors.blue),),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'delete',
-                  child: ListTile(
-                    leading: const HugeIcon(icon: HugeIcons.strokeRoundedDelete01, color: Colors.red),
-                    title: Text('Delete'.tr, style: TextStyle(color: Colors.red),),
-                  ),
-                ),
-              ],
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              icon: Icons.edit,
+              label: 'Edit'.tr,
+              borderRadius: BorderRadius.circular(20.r),
             ),
           ],
+        ),
+        endActionPane: ActionPane(
+          motion: const BehindMotion(),
+          dismissible: DismissiblePane(onDismissed: () {
+             _showDeleteConfirmationDialog(context, controller, budget);
+          }),
+          children: [
+            SlidableAction(
+              onPressed: (_) {
+                _showDeleteConfirmationDialog(context, controller, budget);
+              },
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: Icons.delete,
+              label: 'Delete'.tr,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+          ],
+        ),
+        child: GlassCard(
+          child: Row(
+            children: [
+              CircularPercentIndicator(
+                radius: 40.r,
+                lineWidth: 8.0,
+                percent: percentage > 1.0 ? 1.0 : percentage,
+                center: Text(
+                  '${(percentage * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+                progressColor: color,
+                backgroundColor: AppColors.primary.withOpacity(0.1), // Brighter background
+                circularStrokeCap: CircularStrokeCap.round,
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(budget.groupName,
+                        style: TextStyle(
+                            fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                    if (budget.isGrouped)
+                      Padding(
+                        padding: EdgeInsets.only(top: 4.h),
+                        child: Text(
+                          budget.categories.join(', '),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+                        ),
+                      ),
+                    SizedBox(height: 8.h),
+                    Text('Budget: ৳${budget.budget.toStringAsFixed(0)}',
+                        style: TextStyle(fontSize: 14.sp, color: Colors.grey[600])),
+                    SizedBox(height: 4.h),
+                    Text('Spent: ৳${budget.spent.toStringAsFixed(0)}',
+                        style: TextStyle(fontSize: 14.sp, color: color)),
+                  ],
+                ),
+              ),
+              SizedBox(width: 8.w),
+            ],
+          ),
         ),
       ),
     );

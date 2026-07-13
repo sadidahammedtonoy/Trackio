@@ -35,6 +35,7 @@ class VisualRepresentationPage extends StatelessWidget {
           ),
           centerTitle: false,
           elevation: 0,
+          titleSpacing: -10,
         ),
         body: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -91,11 +92,8 @@ class VisualRepresentationPage extends StatelessWidget {
               _sectionHeader("Expense Calendar".tr),
               _GlassCalendar(controller: controller),
               _sectionHeader("Category Breakdown".tr),
-              _GlassCard(
-                margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                padding: EdgeInsets.all(12.r),
-                child: const CategoryPieChart(),
-              ),
+              const SizedBox(height: 10),
+              const CategoryPieChart(),
             ],
           ),
         ),

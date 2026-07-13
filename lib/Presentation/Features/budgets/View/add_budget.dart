@@ -20,6 +20,13 @@ class AddBudgetScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: Obx(() => Text(controller.budgetId.value.isEmpty ? 'Add Budget'.tr : 'Edit Budget'.tr)),
+          centerTitle: false,
+          titleSpacing: -10,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
+            onPressed: () => Get.back(),
+          ),
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
@@ -28,103 +35,111 @@ class AddBudgetScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 20.h),
-                _GlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                _InfoCard(
+                  isFullWidth: true,
+                  icon: HugeIcons.strokeRoundedWallet01,
+                  label: "Amount".tr,
+                  content: Row(
                     children: [
-                      _fieldLabel("Amount".tr),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '৳',
-                            style: TextStyle(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black.withOpacity(0.8),
-                            ),
+                      Text(
+                        '৳',
+                        style: TextStyle(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black.withOpacity(0.8),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: TextFormField(
+                          controller: controller.amountController,
+                          style: TextStyle(
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: TextFormField(
-                              controller: controller.amountController,
-                              style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
-                              decoration: InputDecoration(
-                                hintText: '0'.tr,
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero, // Adjust alignment
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter an amount'.tr;
-                                }
-                                return null;
-                              },
-                            ),
+                          decoration: InputDecoration(
+                            hintText: '0'.tr,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+                            isCollapsed: true,
+                            contentPadding: EdgeInsets.zero,
                           ),
-                        ],
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter an amount'.tr;
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 20.h),
-                 _GlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _fieldLabel("Category (one or more)".tr),
-                      SizedBox(height: 10.h),
-                      _CategoryPicker(controller: controller),
-                    ],
-                  ),
+                SizedBox(height: 16.h),
+                _InfoCard(
+                  isFullWidth: true,
+                  icon: Icons.category_outlined,
+                  label: "Category (one or more)".tr,
+                  content: _CategoryPicker(controller: controller),
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: 16.h),
                 Obx(() {
                   if (controller.selectedCategories.length > 1) {
                     return Padding(
-                      padding: EdgeInsets.only(bottom: 20.h),
-                      child: _GlassCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _fieldLabel("Group Name".tr),
-                            TextFormField(
-                              controller: controller.groupNameController,
-                              decoration: InputDecoration(
-                                hintText: 'e.g., Monthly Utilities'.tr,
-                                border: InputBorder.none,
-                              ),
-                              validator: (value) {
-                                if (controller.selectedCategories.length > 1 && (value == null || value.isEmpty)) {
-                                  return 'Please enter a group name'.tr;
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
+                      padding: EdgeInsets.only(bottom: 16.h),
+                      child: _InfoCard(
+                        isFullWidth: true,
+                        icon: HugeIcons.strokeRoundedUserGroup,
+                        label: "Group Name".tr,
+                        content: TextFormField(
+                          controller: controller.groupNameController,
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'e.g., Monthly Utilities'.tr,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+                            isCollapsed: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          validator: (value) {
+                            if (controller.selectedCategories.length > 1 &&
+                                (value == null || value.isEmpty)) {
+                              return 'Please enter a group name'.tr;
+                            }
+                            return null;
+                          },
                         ),
                       ),
                     );
                   }
                   return const SizedBox.shrink();
                 }),
-                _GlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _fieldLabel("Month".tr),
-                      Obx(
-                        () => ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(DateFormat('MMMM yyyy').format(controller.selectedMonth.value)),
-                          trailing: const HugeIcon(icon: HugeIcons.strokeRoundedCalendar03),
-                          onTap: () => controller.selectMonth(context),
-                        ),
-                      ),
-                    ],
+                _InfoCard(
+                  isFullWidth: true,
+                  icon: HugeIcons.strokeRoundedCalendar03,
+                  label: "Month".tr,
+                  content: Obx(
+                    () => Text(
+                      DateFormat('MMMM yyyy').format(controller.selectedMonth.value),
+                      style: TextStyle(color: Colors.black87, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                    ),
                   ),
+                  onTap: () => controller.selectMonth(context),
+                  trailing: Icon(Icons.arrow_forward_ios_rounded, size: 14.sp, color: Colors.black45),
                 ),
                 SizedBox(height: 30.h),
                 SizedBox(
@@ -135,13 +150,15 @@ class AddBudgetScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+                      elevation: 0,
                     ),
                     child: Obx(() => Text(
-                      controller.budgetId.value.isEmpty ? 'Save Budget'.tr : 'Update Budget'.tr,
-                      style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
-                    )),
+                          controller.budgetId.value.isEmpty ? 'Save Budget'.tr : 'Update Budget'.tr,
+                          style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        )),
                   ),
                 ),
+                SizedBox(height: 20.h),
               ],
             ),
           ),
@@ -149,35 +166,25 @@ class AddBudgetScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _fieldLabel(String label) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
-      child: Text(
-        label,
-        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.black54),
-      ),
-    );
-  }
 }
 
 class _GlassCard extends StatelessWidget {
   final Widget child;
-  const _GlassCard({required this.child});
+  final EdgeInsetsGeometry? padding;
+  const _GlassCard({required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24.r),
+      borderRadius: BorderRadius.circular(20.r),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(20.r),
+          padding: padding ?? EdgeInsets.all(16.r),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(24.r),
-            border: Border.all(color: Colors.black.withOpacity(0.07), width: 1.5),
+            color: Colors.white.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: Colors.grey.withOpacity(0.2)),
           ),
           child: child,
         ),
@@ -185,6 +192,73 @@ class _GlassCard extends StatelessWidget {
     );
   }
 }
+
+class _InfoCard extends StatelessWidget {
+  final dynamic icon;
+  final String label;
+  final Widget content;
+  final VoidCallback? onTap;
+  final bool isFullWidth;
+  final Widget? trailing;
+
+  const _InfoCard({
+    required this.icon,
+    required this.label,
+    required this.content,
+    this.onTap,
+    this.isFullWidth = false,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget cardContent;
+    if (isFullWidth) {
+      cardContent = Row(
+        children: [
+          (icon is IconData)
+              ? Icon(icon, size: 22.sp, color: Colors.black54)
+              : HugeIcon(icon: icon, size: 22.sp, color: Colors.black54),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: TextStyle(color: Colors.black45, fontSize: 12.sp, fontWeight: FontWeight.w600)),
+                SizedBox(height: 4.h),
+                content,
+              ],
+            ),
+          ),
+          if (trailing != null) trailing!,
+        ],
+      );
+    } else {
+      cardContent = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          (icon is IconData)
+              ? Icon(icon, size: 22.sp, color: Colors.black54)
+              : HugeIcon(icon: icon, size: 22.sp, color: Colors.black54),
+          const Spacer(),
+          Text(label, style: TextStyle(color: Colors.black45, fontSize: 12.sp, fontWeight: FontWeight.w600)),
+          SizedBox(height: 4.h),
+          content,
+        ],
+      );
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: _GlassCard(
+        padding: EdgeInsets.all(16.r),
+        child: cardContent,
+      ),
+    );
+  }
+}
+
 
 class _CategoryPicker extends StatelessWidget {
   final AddBudgetController controller;

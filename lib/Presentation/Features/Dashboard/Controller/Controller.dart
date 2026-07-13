@@ -6,10 +6,19 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart' hide Rx;
 import '../../Transcations/Model/tranModel.dart';
+import '../../budgets/Controller/controller.dart';
+import '../../budgets/Model/budget_model.dart';
 
 class DashboardController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final BudgetsController budgetsController = Get.put(BudgetsController());
+
+  // Observables for budget data
+  RxList<BudgetModel> get budgets => budgetsController.budgets;
+  RxDouble get totalBudget => budgetsController.totalBudget;
+  RxDouble get totalSpent => budgetsController.totalSpent;
 
   // Observables
   final RxMap<String, double> monthSummary = {"expense": 0.0, "income": 0.0}.obs;
@@ -25,7 +34,6 @@ class DashboardController extends GetxController {
 
   final Rx<DateTime> selectedMonth = DateTime.now().obs;
   final RxMap<int, double> dailyExpenses = <int, double>{}.obs;
-  final RxDouble totalBudget = 0.0.obs; // Added for total budget
 
   String get _uid => _auth.currentUser?.uid ?? "";
   StreamSubscription? _mainSub;
@@ -35,6 +43,11 @@ class DashboardController extends GetxController {
     super.onInit();
     _setupLabels();
     _initDashboardStream();
+    
+    // Sync selectedMonth between controllers
+    ever(selectedMonth, (DateTime month) {
+      budgetsController.selectedMonth.value = month;
+    });
   }
 
   void _setupLabels() {
@@ -51,19 +64,6 @@ class DashboardController extends GetxController {
     if (_uid.isEmpty) return;
 
     final monthsRef = _firestore.collection('users').doc(_uid).collection('monthly_transactions');
-
-    // Stream for budget changes for the selected month
-    final budgetStream = selectedMonth.stream.switchMap((month) {
-      final monthKey = "${month.year}-${month.month.toString().padLeft(2, '0')}";
-      return monthsRef.doc(monthKey).collection('budgets').snapshots();
-    }).map((snapshot) {
-      double budget = 0.0;
-      for (var doc in snapshot.docs) {
-        budget += (doc.data()['amount'] as num?)?.toDouble() ?? 0.0;
-      }
-      return budget;
-    }).startWith(0.0);
-
 
     final allTxsStream = monthsRef.snapshots().switchMap((monthsSnap) {
       if (monthsSnap.docs.isEmpty) return Stream.value(<TranItem>[]);
@@ -98,14 +98,11 @@ class DashboardController extends GetxController {
       return total;
     }).startWith(0.0);
 
-    // Combine all streams
-    _mainSub = CombineLatestStream.combine4(
+    _mainSub = CombineLatestStream.combine3(
       allTxsStream,
       selectedMonth.stream.startWith(selectedMonth.value),
       manualSavingsStream,
-      budgetStream, // Added budget stream
-      (List<TranItem> allTxs, DateTime currentMonth, double manualSavings, double budget) {
-        totalBudget.value = budget; // Update the total budget
+      (List<TranItem> allTxs, DateTime currentMonth, double manualSavings) {
         _processDashboardData(allTxs, currentMonth, manualSavings);
       },
     ).listen((_) {}, onError: (e) => debugPrint("Dashboard Stream Error: $e"));

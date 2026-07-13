@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,12 +9,35 @@ import 'package:sadid/Core/loading.dart';
 import '../../../../Core/snakbar.dart';
 import '../../Transcations/Model/tranModel.dart';
 
+// Model for person-wise debt summary
+class PersonDebt {
+  final String name;
+  final double netAmount;
+
+  PersonDebt({required this.name, required this.netAmount});
+}
+
+// Model for monthly grouping of person-wise debts
+class MonthPersonDebt {
+  final String month;
+  final List<PersonDebt> debts;
+
+  MonthPersonDebt({required this.month, required this.debts});
+}
+
 class debtsController extends GetxController {
   final RxBool showBorrowInfo = false.obs;
 
   // Search logic
   final RxBool isSearchVisible = false.obs;
   final RxString searchQuery = ''.obs;
+
+  // Tab control
+  final RxInt tabIndex = 0.obs;
+
+  void changeTab(int index) {
+    tabIndex.value = index;
+  }
 
   void toggleSearch() {
     isSearchVisible.value = !isSearchVisible.value;
@@ -87,11 +111,57 @@ class debtsController extends GetxController {
         all.sort((a, b) => b.date.compareTo(a.date)); // newest first
         return all;
       });
-
-
     });
   }
 
+  Stream<List<MonthPersonDebt>> streamDebtsByPersonByMonth() {
+    return streamLentBorrowTransactions().map((transactions) {
+      if (transactions.isEmpty) {
+        return [];
+      }
+
+      final Map<String, Map<String, double>> monthlyPersonDebts = {};
+
+      for (final transaction in transactions) {
+         if (transaction.marked) continue;
+        final month = DateFormat('MMMM yyyy').format(transaction.date);
+        final person = transaction.category.isEmpty ? "Unknown" : transaction.category;
+        final amount = transaction.type == 'Lent' ? transaction.amount : -transaction.amount;
+
+        monthlyPersonDebts.putIfAbsent(month, () => {});
+        monthlyPersonDebts[month]!.update(person, (value) => value + amount, ifAbsent: () => amount);
+      }
+
+      final List<MonthPersonDebt> result = [];
+      
+      final sortedMonths = monthlyPersonDebts.keys.toList();
+      sortedMonths.sort((a, b) {
+        try {
+          final dateA = DateFormat('MMMM yyyy').parse(a);
+          final dateB = DateFormat('MMMM yyyy').parse(b);
+          return dateB.compareTo(dateA); 
+        } catch(e) {
+          return 0;
+        }
+      });
+
+      for (final month in sortedMonths) {
+        final personDebtsMap = monthlyPersonDebts[month]!;
+        final personDebtsList = personDebtsMap.entries.map((entry) {
+          if (entry.value == 0) return null;
+          return PersonDebt(name: entry.key, netAmount: entry.value);
+        }).whereType<PersonDebt>().toList();
+        
+        if(personDebtsList.isEmpty) continue;
+
+        personDebtsList.sort((a, b) => a.name.compareTo(b.name));
+
+        result.add(MonthPersonDebt(month: month, debts: personDebtsList));
+      }
+
+      return result;
+    });
+  }
 
   Future<bool> deleteMonthlyTransaction({
     required String monthKey,
@@ -152,7 +222,6 @@ class debtsController extends GetxController {
         .startWith(_cachedLentBorrow);
   }
 
-
   Future<bool> toggleTransactionMarked({
     required String monthKey,
     required String transactionId,
@@ -204,5 +273,4 @@ class debtsController extends GetxController {
       return false;
     }
   }
-
 }

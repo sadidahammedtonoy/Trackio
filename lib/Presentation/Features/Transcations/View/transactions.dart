@@ -13,13 +13,11 @@ import '../../../../App/assets_path.dart';
 import '../../../Share/GlassWidgets.dart';
 import '../Controller/Controller.dart';
 import '../Model/tranModel.dart';
-import '../Controller/ExportController.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class transcations_page extends StatelessWidget {
   final controller = Get.put(transactionsController());
-  final exportController = Get.put(ExportController());
 
   transcations_page({super.key});
 
@@ -116,13 +114,6 @@ class transcations_page extends StatelessWidget {
           );
         }),
         actions: [
-          IconButton(
-            icon: HugeIcon(icon: HugeIcons.strokeRoundedPdf01, color: AppColors.primary, size: 24.sp),
-            onPressed: () {
-              final monthKey = controller.selectedMonthKey.value ?? "All";
-              exportController.generatePDFReport(controller.filteredItems, monthKey);
-            },
-          ),
           Obx(() => IconButton(
                 icon: controller.isSearchVisible.value
                     ? const Icon(Icons.close, color: Colors.black)

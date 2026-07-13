@@ -21,6 +21,12 @@ class deptsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Define widgets for tabs to prevent rebuilding them on tab change
+    final List<Widget> tabViews = [
+      _buildTransactionsList(),
+      _buildPersonList(),
+    ];
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -49,281 +55,451 @@ class deptsPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Column(
           children: [
-            Obx(() => controller.isSearchVisible.value
-                ? Padding(
-                    padding: EdgeInsets.only(bottom: 15.h, top: 5.h),
-                    child: TextFormField(
-                      autofocus: true,
-                      textInputAction: TextInputAction.search,
-                      style: const TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                        hintText: "Search Name or Remark...".tr,
-                        hintStyle: const TextStyle(color: Colors.black38),
-                        prefixIcon: const Icon(Icons.search, size: 20, color: Colors.black45),
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 12.h, horizontal: 16.w),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: BorderSide(color: AppColors.primary),
-                        ),
-                      ),
-                      onChanged: (val) => controller.setSearchQuery(val),
-                    ),
-                  )
-                : const SizedBox.shrink()),
-            StreamBuilder<Map<String, double>>(
-              stream: controller.streamTotalLentBorrow(),
-              builder: (context, snapshot) {
-                final data =
-                    snapshot.data ?? {"lent": 0.0, "borrow": 0.0, "net": 0.0};
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            _GlassCard(
+              padding: EdgeInsets.all(4.r),
+              borderRadius: BorderRadius.circular(16.r),
+              child: Obx(() {
+                return Row(
                   children: [
-                    SizedBox(height: 10.h),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              final addTran =
-                                  Get.find<addTranscationsController>();
-                              addTran.selectedType.value = "Lent";
-                              Get.toNamed(routes.addTranscations_screen);
-                            },
-                            child: _GlassCard(
-                              borderColor: Colors.orange.withOpacity(0.5),
-                              padding: EdgeInsets.all(16.r),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Lent".tr,
-                                        style: TextStyle(
-                                          fontSize: 18.sp,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.orange,
-                                        ),
-                                      ),
-                                      Tooltip(
-                                        message:
-                                            "Lent means giving money to another person with the expectation that it will be returned in the future."
-                                                .tr,
-                                        triggerMode: TooltipTriggerMode.tap,
-                                        child: Icon(
-                                          Icons.info_outline,
-                                          size: 14.sp,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8.h),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      "৳${numberTranslation.toBnDigits(data["lent"]!.toStringAsFixed(1))}",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.orange,
-                                        fontSize: 22.sp,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 4.h),
-                                  Text(
-                                    "You Will Receive.".tr,
-                                    style: TextStyle(
-                                      color: Colors.black54,
-                                      fontSize: 11.sp,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              final addTran =
-                                  Get.find<addTranscationsController>();
-                              addTran.selectedType.value = "Borrow";
-                              Get.toNamed(routes.addTranscations_screen);
-                            },
-                            child: _GlassCard(
-                              borderColor: Colors.purple.withOpacity(0.5),
-                              padding: EdgeInsets.all(16.r),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Borrow".tr,
-                                        style: TextStyle(
-                                          fontSize: 18.sp,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.purple,
-                                        ),
-                                      ),
-                                      Tooltip(
-                                        message:
-                                            "Borrow means money you received and must repay later."
-                                                .tr,
-                                        triggerMode: TooltipTriggerMode.tap,
-                                        child: Icon(
-                                          Icons.info_outline,
-                                          size: 14.sp,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8.h),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      "৳${numberTranslation.toBnDigits(data["borrow"]!.toStringAsFixed(1))}",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.purple,
-                                        fontSize: 22.sp,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 4.h),
-                                  Text(
-                                    "You Need to Pay.".tr,
-                                    style: TextStyle(
-                                      color: Colors.black54,
-                                      fontSize: 11.sp,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    _tabButton(
+                      label: "Transactions".tr,
+                      index: 0,
+                      selectedIndex: controller.tabIndex.value,
+                      onTap: () => controller.changeTab(0),
+                    ),
+                    _tabButton(
+                      label: "Person".tr,
+                      index: 1,
+                      selectedIndex: controller.tabIndex.value,
+                      onTap: () => controller.changeTab(1),
                     ),
                   ],
                 );
-              },
+              }),
             ),
-            SizedBox(height: 20.h),
+            _buildSearchBar(),
             Expanded(
-              child: StreamBuilder<List<TranItem>>(
-                stream: controller.streamLentBorrowTransactions(),
-                initialData: controller.cachedLentBorrow,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text("Error: ${snapshot.error}"));
-                  }
-
-                  final live = snapshot.data ?? const <TranItem>[];
-                  final cached = controller.cachedLentBorrow;
-                  final rawItems = live.isNotEmpty ? live : cached;
-
-                  return Obx(() {
-                    final query = controller.searchQuery.value.toLowerCase();
-                    final items = query.isEmpty
-                        ? rawItems
-                        : rawItems.where((item) {
-                            return item.category.toLowerCase().contains(query) ||
-                                   item.note.toLowerCase().contains(query);
-                          }).toList();
-
-                    if (items.isEmpty) {
-                      return Center(
-                        child: Text(query.isEmpty
-                            ? "No lent or borrow transactions".tr
-                            : "No matching results found".tr),
-                      );
-                    }
-
-                    List<dynamic> groupedItems = [];
-                    String? lastMonth;
-
-                    for (var item in items) {
-                      String currentMonth = DateFormat('MMMM yyyy').format(item.date);
-                      if (currentMonth != lastMonth) {
-                        groupedItems.add(currentMonth);
-                        lastMonth = currentMonth;
-                      }
-                      groupedItems.add(item);
-                    }
-
-                    return ListView.separated(
-                      padding: EdgeInsets.only(bottom: 115.h), 
-                      itemCount: groupedItems.length,
-                      separatorBuilder: (context, index) => SizedBox(height: 12.h),
-                      itemBuilder: (context, index) {
-                        final item = groupedItems[index];
-
-                        if (item is String) {
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 8.h, left: 4.w, top: index == 0 ? 0 : 20.h),
-                            child: Text(
-                              item,
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          );
-                        } else if (item is TranItem) {
-                          return _TransactionTile(
-                            item: item,
-                            onDelete: () async {
-                              await controller.deleteMonthlyTransaction(
-                                monthKey: item.monthKey,
-                                transactionId: item.id,
-                              );
-                            },
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    );
-                  });
-                },
-              ),
+              child: Obx(() => IndexedStack(
+                index: controller.tabIndex.value,
+                children: tabViews,
+              )),
             ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildSearchBar() {
+    return Obx(() => controller.isSearchVisible.value
+        ? Padding(
+            padding: EdgeInsets.only(top: 15.h, bottom: 5.h),
+            child: TextFormField(
+              autofocus: true,
+              textInputAction: TextInputAction.search,
+              style: const TextStyle(color: Colors.black),
+              decoration: InputDecoration(
+                hintText: "Search Name or Remark...".tr,
+                hintStyle: const TextStyle(color: Colors.black38),
+                prefixIcon: const Icon(Icons.search, size: 20, color: Colors.black45),
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: 12.h, horizontal: 16.w),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide(color: AppColors.primary),
+                ),
+              ),
+              onChanged: (val) => controller.setSearchQuery(val),
+            ),
+          )
+        : const SizedBox.shrink());
+  }
+
+  Widget _buildSummaryCards() {
+    return StreamBuilder<Map<String, double>>(
+      stream: controller.streamTotalLentBorrow(),
+      builder: (context, snapshot) {
+        final data =
+            snapshot.data ?? {"lent": 0.0, "borrow": 0.0, "net": 0.0};
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 10.h),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      final addTran =
+                          Get.find<addTranscationsController>();
+                      addTran.selectedType.value = "Lent";
+                      Get.toNamed(routes.addTranscations_screen);
+                    },
+                    child: _GlassCard(
+                      borderColor: Colors.orange.withOpacity(0.5),
+                      padding: EdgeInsets.all(16.r),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Lent".tr,
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                              Tooltip(
+                                message:
+                                    "Lent means giving money to another person with the expectation that it will be returned in the future."
+                                        .tr,
+                                triggerMode: TooltipTriggerMode.tap,
+                                child: Icon(
+                                  Icons.info_outline,
+                                  size: 14.sp,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              "৳${numberTranslation.toBnDigits(data["lent"]!.toStringAsFixed(1))}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
+                                fontSize: 22.sp,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            "You Will Receive.".tr,
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 11.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      final addTran =
+                          Get.find<addTranscationsController>();
+                      addTran.selectedType.value = "Borrow";
+                      Get.toNamed(routes.addTranscations_screen);
+                    },
+                    child: _GlassCard(
+                      borderColor: Colors.purple.withOpacity(0.5),
+                      padding: EdgeInsets.all(16.r),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Borrow".tr,
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.purple,
+                                ),
+                              ),
+                              Tooltip(
+                                message:
+                                    "Borrow means money you received and must repay later."
+                                        .tr,
+                                triggerMode: TooltipTriggerMode.tap,
+                                child: Icon(
+                                  Icons.info_outline,
+                                  size: 14.sp,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              "৳${numberTranslation.toBnDigits(data["borrow"]!.toStringAsFixed(1))}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple,
+                                fontSize: 22.sp,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            "You Need to Pay.".tr,
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 11.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20.h),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTransactionsList() {
+    return StreamBuilder<List<TranItem>>(
+      stream: controller.streamLentBorrowTransactions(),
+      initialData: controller.cachedLentBorrow,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        }
+
+        final live = snapshot.data ?? const <TranItem>[];
+        final cached = controller.cachedLentBorrow;
+        final rawItems = live.isNotEmpty ? live : cached;
+
+        return Obx(() {
+          final query = controller.searchQuery.value.toLowerCase();
+          final items = query.isEmpty
+              ? rawItems
+              : rawItems.where((item) {
+                  return item.category.toLowerCase().contains(query) ||
+                         item.note.toLowerCase().contains(query);
+                }).toList();
+
+          if (items.isEmpty) {
+            return Column(
+              children: [
+                _buildSummaryCards(),
+                 Expanded(
+                   child: Center(
+                    child: Text(query.isEmpty
+                        ? "No lent or borrow transactions".tr
+                        : "No matching results found".tr),
+                                 ),
+                 ),
+              ],
+            );
+          }
+
+          List<dynamic> groupedItems = [];
+          String? lastMonth;
+
+          for (var item in items) {
+            String currentMonth = DateFormat('MMMM yyyy').format(item.date);
+            if (currentMonth != lastMonth) {
+              groupedItems.add(currentMonth);
+              lastMonth = currentMonth;
+            }
+            groupedItems.add(item);
+          }
+
+          return ListView.builder(
+            padding: EdgeInsets.only(bottom: 115.h, top: 15.h),
+            itemCount: groupedItems.length + 1,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return _buildSummaryCards();
+              }
+
+              final itemIndex = index - 1;
+              final item = groupedItems[itemIndex];
+
+              if (item is String) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: 8.h, left: 4.w, top: itemIndex == 0 ? 0 : 20.h),
+                  child: Text(
+                    item,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                );
+              } else if (item is TranItem) {
+                 return Padding(
+                  padding: EdgeInsets.only(bottom: 12.h),
+                  child: _TransactionTile(
+                    item: item,
+                    onDelete: () async {
+                      await controller.deleteMonthlyTransaction(
+                        monthKey: item.monthKey,
+                        transactionId: item.id,
+                      );
+                    },
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          );
+        });
+      },
+    );
+  }
+
+  Widget _buildPersonList() {
+    return StreamBuilder<List<MonthPersonDebt>>(
+      stream: controller.streamDebtsByPersonByMonth(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator.adaptive());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        }
+        final rawMonthlyDebts = snapshot.data ?? [];
+
+        return Obx(() {
+          final query = controller.searchQuery.value.toLowerCase();
+          final monthlyDebts = query.isEmpty
+              ? rawMonthlyDebts
+              : rawMonthlyDebts.map((monthDebt) {
+                  final filteredDebts = monthDebt.debts.where((debt) {
+                    return debt.name.toLowerCase().contains(query);
+                  }).toList();
+                  return MonthPersonDebt(month: monthDebt.month, debts: filteredDebts);
+                }).where((monthDebt) => monthDebt.debts.isNotEmpty).toList();
+
+
+          if (monthlyDebts.isEmpty) {
+            return Center(
+              child: Text(
+                query.isEmpty ? "No debts to show".tr : "No matching results found".tr,
+                style: TextStyle(fontSize: 16.sp, color: Colors.black54),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: EdgeInsets.only(bottom: 115.h, top: 15.h),
+            itemCount: monthlyDebts.length,
+            itemBuilder: (context, index) {
+              final monthDebt = monthlyDebts[index];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 12.h, left: 4.w, top: index == 0 ? 0 : 20.h),
+                    child: Text(
+                      monthDebt.month,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  GridView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12.w,
+                      mainAxisSpacing: 12.h,
+                      childAspectRatio: 1.4,
+                    ),
+                    itemCount: monthDebt.debts.length,
+                    itemBuilder: (context, gridIndex) {
+                      final debt = monthDebt.debts[gridIndex];
+                      return _PersonDebtTile(debt: debt);
+                    },
+                  )
+                ],
+              );
+            },
+          );
+        });
+      },
+    );
+  }
+}
+
+Widget _tabButton({
+  required String label,
+  required int index,
+  required int selectedIndex,
+  required VoidCallback onTap,
+}) {
+  final isSelected = selectedIndex == index;
+
+  return Expanded(
+    child: GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black54,
+            fontWeight: FontWeight.bold,
+            fontSize: 14.sp,
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
+  final BorderRadius? borderRadius;
   final Color? borderColor;
 
   const _GlassCard({
     required this.child,
     this.margin,
     this.padding,
+    this.borderRadius,
     this.borderColor,
   });
 
@@ -333,7 +509,7 @@ class _GlassCard extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
         border: Border.all(color: borderColor ?? Colors.grey.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
@@ -344,7 +520,7 @@ class _GlassCard extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Padding(
@@ -465,8 +641,8 @@ class _TransactionTile extends StatelessWidget {
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date)) + 
-                    ", " + 
+                    numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date)) +
+                    ", " +
                     numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date)),
                     style: TextStyle(
                       color: Colors.black45,
@@ -675,6 +851,60 @@ class _TransactionTile extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PersonDebtTile extends StatelessWidget {
+  final PersonDebt debt;
+  const _PersonDebtTile({required this.debt});
+
+  @override
+  Widget build(BuildContext context) {
+    final isLent = debt.netAmount > 0;
+    final amount = debt.netAmount.abs();
+    final color = isLent ? Colors.orange : Colors.purple;
+    final status = isLent ? "You will receive".tr : "You need to pay".tr;
+
+    return _GlassCard(
+      borderColor: color.withOpacity(0.5),
+      padding: EdgeInsets.all(12.r),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            debt.name.tr,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15.sp,
+              color: Colors.black87,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              "৳${numberTranslation.toBnDigits(amount.toStringAsFixed(0))}",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18.sp,
+                color: color,
+              ),
+              maxLines: 1,
+            ),
+          ),
+          SizedBox(height: 2.h),
+          Text(
+            status,
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: 11.sp,
+            ),
+          ),
+        ],
       ),
     );
   }

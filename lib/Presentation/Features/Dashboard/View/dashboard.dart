@@ -3,8 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:lottie/lottie.dart';
-import 'package:sadid/App/assets_path.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:sadid/Core/numberTranslation.dart';
 import '../../../../App/AppColors.dart';
 import '../../../../App/routes.dart';
@@ -46,26 +45,20 @@ class DashboardPage extends StatelessWidget {
         centerTitle: false,
         elevation: 0,
         actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 30.w),
-            child: IconButton(
-              onPressed: () => Get.toNamed(routes.visual_representation_screen),
-              icon: HugeIcon(
-                icon: HugeIcons.strokeRoundedChartBubble01,
-                color: Colors.black,
-                size: 24.sp,
-              ),
+          IconButton(
+            onPressed: () => Get.toNamed(routes.visual_representation_screen),
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedChartBubble01,
+              color: Colors.black,
+              size: 24.sp,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(right: 8.w),
-            child: IconButton(
-              onPressed: () => Get.toNamed(routes.addTranscations_screen),
-              icon: HugeIcon(
-                icon: HugeIcons.strokeRoundedAddCircle,
-                color: Colors.black,
-                size: 24.sp,
-              ),
+          IconButton(
+            onPressed: () => Get.toNamed(routes.addTranscations_screen),
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedAddCircle,
+              color: Colors.black,
+              size: 24.sp,
             ),
           ),
         ],
@@ -87,29 +80,13 @@ class DashboardPage extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    _NewHeader(
-                      controller: controller,
-                      expense: expense,
-                      highestSpendCategory: highestSpendCategory,
-                    ),
-
-                    Positioned(
-                      top: -60.h,
-                      right: -25.w,
-                      child: SizedBox(
-                        width: 150.w,
-                        child: Lottie.asset(
-                          assets_path.cat,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: _NewHeader(
+                  controller: controller,
+                  expense: expense,
+                  highestSpendCategory: highestSpendCategory,
                 ),
               ),
+              _BudgetsSection(controller: controller),
               SizedBox(height: 15.h),
               _sectionHeader("Today Transactions".tr),
               Padding(
@@ -155,6 +132,187 @@ class DashboardPage extends StatelessWidget {
     );
   }
 }
+
+class _BudgetsSection extends StatelessWidget {
+  final DashboardController controller;
+  const _BudgetsSection({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (controller.budgets.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      final totalBudget = controller.totalBudget.value;
+      final totalSpent = controller.totalSpent.value;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: _TotalBudgetCard(
+              totalBudget: totalBudget,
+              totalSpent: totalSpent,
+            ),
+          ),
+          if (controller.budgets.length > 1 || (controller.budgets.length == 1 && controller.budgets.first.groupName != "Total"))
+            SizedBox(height: 16.h),
+          SizedBox(
+            height: 90.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              itemCount: controller.budgets.length,
+              itemBuilder: (context, index) {
+                final budget = controller.budgets[index];
+                return _BudgetCategoryCard(
+                  name: budget.groupName.tr,
+                  spent: budget.spent,
+                  total: budget.budget,
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class _TotalBudgetCard extends StatelessWidget {
+  final double totalBudget;
+  final double totalSpent;
+
+  const _TotalBudgetCard({required this.totalBudget, required this.totalSpent});
+
+  @override
+  Widget build(BuildContext context) {
+    final remaining = totalBudget - totalSpent;
+    final percentage = totalBudget > 0 ? (totalSpent / totalBudget) : 0.0;
+    final color = percentage > 1.0 ? Colors.red : (percentage >= 0.8 ? Colors.orange : AppColors.primary);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Monthly Budget".tr,
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.8)),
+        ),
+        // SizedBox(height: 12.h),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   crossAxisAlignment: CrossAxisAlignment.end,
+        //   children: [
+        //     Text(
+        //       "৳${numberTranslation.toBnDigits(totalSpent.toStringAsFixed(0))}",
+        //       style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.black),
+        //     ),
+        //     Column(
+        //       crossAxisAlignment: CrossAxisAlignment.end,
+        //       children: [
+        //         Text(
+        //           "৳${numberTranslation.toBnDigits(remaining.toStringAsFixed(0))}",
+        //           style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.black),
+        //         ),
+        //         SizedBox(height: 2.h),
+        //         Text(
+        //           "of ৳${numberTranslation.toBnDigits(totalBudget.toStringAsFixed(0))}",
+        //           style: TextStyle(fontSize: 12.sp, color: Colors.black54, fontWeight: FontWeight.w500),
+        //         ),
+        //       ],
+        //     ),
+        //   ],
+        // ),
+        // SizedBox(height: 8.h),
+        // ClipRRect(
+        //   borderRadius: BorderRadius.circular(10.r),
+        //   child: LinearProgressIndicator(
+        //     value: percentage > 1.0 ? 1.0 : percentage,
+        //     minHeight: 8.h,
+        //     backgroundColor: Colors.grey.withOpacity(0.2),
+        //     valueColor: AlwaysStoppedAnimation<Color>(color),
+        //   ),
+        // ),
+      ],
+    );
+  }
+}
+
+class _BudgetCategoryCard extends StatelessWidget {
+  final String name;
+  final double spent;
+  final double total;
+
+  const _BudgetCategoryCard({
+    required this.name,
+    required this.spent,
+    required this.total,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final percentage = total > 0 ? (spent / total) : 0.0;
+    final color = percentage > 1.0 ? Colors.red : (percentage >= 0.8 ? Colors.orange : AppColors.primary);
+
+    return Container(
+      width: 140.w,
+      margin: EdgeInsets.only(right: 12.w),
+      padding: EdgeInsets.all(10.r),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          const Spacer(),
+
+          Text(
+            "৳${numberTranslation.toBnDigits(total.toStringAsFixed(0))}",
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 14.sp, color: Colors.black45),
+          ),
+
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  "৳${numberTranslation.toBnDigits(spent.toStringAsFixed(0))}",
+                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: color),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 4.w, bottom: 1.h),
+                  child: Text(
+                    "(${(percentage * 100).toStringAsFixed(0)}%)",
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: color.withOpacity(0.8),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class _NewHeader extends StatelessWidget {
   final DashboardController controller;
