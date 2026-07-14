@@ -42,7 +42,7 @@ class saving extends StatelessWidget {
             borderRadius: BorderRadius.circular(15.r),
             side: BorderSide(color: Colors.white.withOpacity(0.3)),
           ),
-          child: Icon(Icons.ads_click_rounded, color: Colors.black, size: 30.sp),
+          child: Icon(Icons.add, color: Colors.black, size: 30.sp),
         ),
 
         body: SingleChildScrollView(
@@ -175,7 +175,7 @@ Widget allMonthSavingsList() {
     final year = int.tryParse(parts[0]) ?? 0;
     final month = int.tryParse(parts[1]) ?? 1;
     final dt = DateTime(year, month, 1);
-    return DateFormat('MMM yyyy').format(dt);
+    return DateFormat('MMMM yyyy').format(dt);
   }
 
   Widget buildList(List<MonthSaving> months) {
@@ -184,51 +184,72 @@ Widget allMonthSavingsList() {
       children: months.map((m) {
         final saving = m.saving;
         final isPositive = saving >= 0;
+        final progress = (m.income > 0) ? (saving / m.income).clamp(0.0, 1.0) : 0.0;
+        final progressColor = Color.lerp(Colors.orange, Colors.green, progress)!;
 
         return _GlassCard(
-          margin: EdgeInsets.only(bottom: 20.h),
-          padding: EdgeInsets.all(16.r),
+          margin: EdgeInsets.only(bottom: 16.h),
+          padding: EdgeInsets.symmetric(vertical: 16.r, horizontal: 20.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Text(
-                  numberTranslation.formatMonthYearBnFromString(formatMonth(m.monthKey)),
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black87,
-                  ),
+              Text(
+                numberTranslation.formatMonthYearBnFromString(formatMonth(m.monthKey)),
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black.withOpacity(0.6),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 12.h),
-                child: Divider(color: Colors.black.withOpacity(0.05)),
+              SizedBox(height: 12.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                   Text(
+                    "Monthly Saving".tr,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    "${isPositive ? '+' : ''}${numberTranslation.toBnDigits(saving.toStringAsFixed(0))} ৳",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: isPositive ? AppColors.primary : Colors.orange,
+                      fontSize: 22.sp,
+                    ),
+                  ),
+                ],
               ),
+              SizedBox(height: 10.h),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10.r),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 8.h,
+                  backgroundColor: Colors.grey.withOpacity(0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                ),
+              ),
+              SizedBox(height: 12.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _SavingsStat(
-                    icon: Icons.trending_up_outlined,
+                   _Stat(
                     label: "Income".tr,
                     amount: m.income,
                     color: Colors.green,
                   ),
-                  _SavingsStat(
-                    icon: Icons.trending_down_rounded,
+                   _Stat(
                     label: "Expense".tr,
                     amount: m.expense,
-                    color: Colors.redAccent,
-                  ),
-                  _SavingsStat(
-                    icon: Icons.account_balance_rounded,
-                    label: "Balance".tr,
-                    amount: saving,
-                    color: isPositive ? Colors.blue : Colors.orange,
-                    showSign: true,
+                    color: Colors.red,
                   ),
                 ],
-              ),
+              )
             ],
           ),
         );
@@ -239,15 +260,12 @@ Widget allMonthSavingsList() {
   return StreamBuilder<List<MonthSaving>>(
     stream: controller.streamAllMonthSavings(),
     builder: (context, snap) {
-      // ✅ Save new data into cache (silent updates)
       if (snap.hasData) {
         controller.cachedMonths.assignAll(snap.data!);
       }
 
-      // ✅ Use cached data when waiting (no flicker)
       final months = controller.cachedMonths;
 
-      // ✅ Show loader only on very first load (no cache yet)
       if (snap.connectionState == ConnectionState.waiting && months.isEmpty) {
         return const Center(child: CircularProgressIndicator.adaptive());
       }
@@ -257,7 +275,11 @@ Widget allMonthSavingsList() {
       }
 
       if (months.isEmpty) {
-        return Center(child: Text("No monthly data found".tr));
+        return Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 100.h),
+              child: Text("No monthly data found".tr, style: TextStyle(color: Colors.black54)),
+            ));
       }
 
       return Obx(() => buildList(controller.cachedMonths));
@@ -265,49 +287,45 @@ Widget allMonthSavingsList() {
   );
 }
 
-class _SavingsStat extends StatelessWidget {
-  final IconData icon;
+class _Stat extends StatelessWidget {
   final String label;
   final double amount;
   final Color color;
-  final bool showSign;
 
-  const _SavingsStat({
-    required this.icon,
+  const _Stat({
     required this.label,
     required this.amount,
     required this.color,
-    this.showSign = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(8.r),
+          width: 8.r,
+          height: 8.r,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: color, size: 16.sp),
         ),
-        SizedBox(height: 6.h),
+        SizedBox(width: 6.w),
         Text(
           label,
           style: TextStyle(
-            fontSize: 11.sp,
+            fontSize: 12.sp,
             color: Colors.black54,
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 2.h),
+        SizedBox(width: 8.w),
         Text(
-          "${showSign && amount > 0 ? '+' : ''}${numberTranslation.toBnDigits(amount.toStringAsFixed(0))} ৳",
+          "${numberTranslation.toBnDigits(amount.toStringAsFixed(0))} ৳",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: color,
-            fontSize: 15.sp,
+            color: Colors.black87,
+            fontSize: 13.sp,
           ),
         ),
       ],

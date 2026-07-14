@@ -29,6 +29,10 @@ class categories extends StatelessWidget {
           child: Icon(Icons.add, color: AppColors.primary,),
         ),
         body: Obx(() {
+          if (controller.isLoading.value) {
+            return _buildSkeletonLoader();
+          }
+
           final list = controller.categories;
       
           if (list.isEmpty) {
@@ -100,6 +104,68 @@ class categories extends StatelessWidget {
   }
 
   // ---------- UI widgets ----------
+
+  Widget _buildSkeletonLoader() {
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: 8, // Display 8 skeleton items
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (context, index) => _skeletonTile(),
+    );
+  }
+
+  Widget _skeletonTile() {
+    // A simple greyed-out version of the category tile
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 2, sigmaY: 3),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.20),
+            ),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.grey.withOpacity(0.3),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 16,
+                      width: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 12,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _categoryTile({
     required String name,

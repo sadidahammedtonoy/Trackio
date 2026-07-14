@@ -5,6 +5,7 @@ import 'package:sadid/Core/snakbar.dart';
 
 class caregoriesController extends GetxController {
   final categories = <Map<String, dynamic>>[].obs;
+  final isLoading = true.obs;
 
   @override
   void onInit() {
@@ -20,19 +21,30 @@ class caregoriesController extends GetxController {
   }
 
   Future<void> fetchCategories() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    isLoading.value = true;
+    try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+            categories.value = [];
+            return;
+        }
 
-    final snap = await _catRef(user.uid)
-        .orderBy('createdAt', descending: true)
-        .get();
+        final snap = await _catRef(user.uid)
+            .orderBy('createdAt', descending: true)
+            .get();
 
-    categories.value = snap.docs
-        .map((d) => {
-      "id": d.id,
-      ...d.data(),
-    })
-        .toList();
+        categories.value = snap.docs
+            .map((d) => {
+                  "id": d.id,
+                  ...d.data(),
+                })
+            .toList();
+    } catch (e) {
+        AppSnackbar.show("Failed to load categories.".tr);
+        categories.value = [];
+    } finally {
+        isLoading.value = false;
+    }
   }
 
   Future<void> addCategory(String name) async {

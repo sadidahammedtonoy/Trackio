@@ -10,55 +10,11 @@ import '../../../../Core/snakbar.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:ui';
+import 'package:collection/collection.dart';
 
 import '../Controller/Controller.dart';
+import '../Model/savingHistoryModel.dart';
 
-class SavingItem {
-  final String id;
-  final double amount;
-  final DateTime date;
-  final String wallet;
-  final String source;
-  final String? note;
-
-  SavingItem({
-    required this.id,
-    required this.amount,
-    required this.date,
-    required this.wallet,
-    required this.source,
-    this.note,
-  });
-
-  factory SavingItem.fromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data();
-
-    double parseAmount(dynamic raw) {
-      if (raw is num) return raw.toDouble();
-      if (raw is String) return double.tryParse(raw.replaceAll(',', '')) ?? 0.0;
-      return 0.0;
-    }
-
-    DateTime parseDate(dynamic raw) {
-      if (raw is Timestamp) return raw.toDate();
-      if (raw is DateTime) return raw;
-      return DateTime.now();
-    }
-
-    final noteRaw = data["note"];
-
-    return SavingItem(
-      id: doc.id,
-      amount: parseAmount(data["amount"]),
-      date: parseDate(data["date"]),
-      wallet: (data["wallet"] ?? "").toString(),
-      source: (data["source"] ?? "").toString(),
-      note: (noteRaw == null || noteRaw.toString().trim().isEmpty)
-          ? null
-          : noteRaw.toString(),
-    );
-  }
-}
 
 class AllSavingsListWidget extends StatefulWidget {
   const AllSavingsListWidget({
@@ -73,13 +29,9 @@ class AllSavingsListWidget extends StatefulWidget {
 
   final String? uid;
   final int? limit;
-
   final bool shrinkWrap;
   final ScrollPhysics physics;
-
   final String emptyText;
-
-  /// If false, disables swipe actions
   final bool enableSwipeActions;
 
   @override
@@ -122,9 +74,7 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
   }
 
   Future<bool> _confirmDelete(BuildContext context) async {
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
-      // 🍎 iOS Style
-      final res = await showCupertinoDialog<bool>(
+     final res = await showCupertinoDialog<bool>(
         context: context,
         builder: (_) => CupertinoAlertDialog(
           title: Text("Delete saving?".tr),
@@ -146,37 +96,6 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
         ),
       );
       return res ?? false;
-    } else {
-      // 🤖 Android Style
-      final res = await showDialog<bool>(
-        context: context,
-        builder: (_) => AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text("Delete saving?".tr),
-          content: Text("This item will be deleted permanently.".tr),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(
-                "Cancel".tr,
-                style: const TextStyle(color: Colors.black),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(
-                "Delete".tr,
-                style: const TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        ),
-      );
-      return res ?? false;
-    }
   }
 
 
@@ -195,10 +114,10 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
     try {
       await _listRef(uid).doc(item.id).delete();
       _toast(context, "Deleted".tr);
-      return true; // allow dismiss
+      return true;
     } catch (e) {
       _toast(context, _friendlyError(e));
-      return false; // don't dismiss
+      return false;
     }
   }
 
@@ -236,184 +155,262 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
           );
         }
 
+        final groupedData = groupBy(list, (SavingItem item) {
+          return DateFormat('yyyy-MM-dd').format(item.date);
+        });
+
+        final sortedKeys = groupedData.keys.toList()
+          ..sort((a, b) => b.compareTo(a));
+
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _GlassCard(child: StreamBuilder<String>(
-              stream: Get.find<savingController>().streamTotalSavingsText(),
-              builder: (context, snapshot) {
-                final totalText = snapshot.data ?? "0";
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    SizedBox(width: double.infinity,),
-                    Text(
-                      "Total History Savings".tr,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    Text(
-                      "৳${numberTranslation.toBnDigits(totalText)}",
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            )),
-            SizedBox(height: 10.h),
-
-            ListView.separated(
+             _TotalSavingsHeader(),
+             SizedBox(height: 10.h),
+            ListView.builder(
               shrinkWrap: widget.shrinkWrap,
               physics: widget.physics,
-              itemCount: list.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 0),
-              itemBuilder: (context, i) {
-                final item = list[i];
-                final dateText = numberTranslation.formatDateBnFromString(
-                  DateFormat("dd MMM yyyy").format(item.date),
-                );
-
-                final card = _GlassCard(
-                  margin: EdgeInsets.only(bottom: 16.h),
-                  padding: EdgeInsets.all(12.r),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 44.r,
-                            height: 44.r,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.savings_rounded,
-                              color: AppColors.primary,
-                              size: 22.sp,
-                            ),
-                          ),
-                          SizedBox(width: 14.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.source.isEmpty ? "Saving".tr : item.source.tr,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16.sp,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                SizedBox(height: 2.h),
-                                Row(
-                                  children: [
-                                    Icon(Icons.account_balance_wallet_outlined, size: 12.sp, color: Colors.black45),
-                                    SizedBox(width: 4.w),
-                                    Text(
-                                      item.wallet.tr,
-                                      style: TextStyle(
-                                        color: Colors.black54,
-                                        fontSize: 11.sp,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 16.sp,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              SizedBox(height: 4.h),
-                              Text(
-                                dateText,
-                                style: TextStyle(
-                                  color: Colors.black45,
-                                  fontSize: 10.sp,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      if (item.note != null && item.note!.isNotEmpty) ...[
-                        Padding(
-                          padding: EdgeInsets.only(top: 10.h, left: 58.w),
-                          child: Text(
-                            item.note!,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.black87,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                );
-
-                if (!widget.enableSwipeActions) return card;
-
-                return Dismissible(
-                  key: ValueKey(item.id),
-
-                  // ✅ Only Right->Left (Delete)
-                  direction: DismissDirection.endToStart,
-
-                  // ✅ Delete background only
-                  background: const SizedBox.shrink(),
-                  secondaryBackground: Container(
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Delete".tr,
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(Icons.delete_outline, color: Colors.red),
-                      ],
-                    ),
-                  ),
-
-                  confirmDismiss: (direction) async {
-                    return _handleDelete(context: context, uid: uid, item: item);
-                  },
-
-                  child: card,
+              itemCount: sortedKeys.length,
+              itemBuilder: (context, index) {
+                final dateKey = sortedKeys[index];
+                final itemsOnDate = groupedData[dateKey]!;
+                final date = itemsOnDate.first.date;
+                
+                return _DateGroup(
+                  date: date,
+                  items: itemsOnDate,
+                  onDelete: (item) => _handleDelete(context: context, uid: uid, item: item),
+                  onEdit: (item) => Get.find<savingController>().openEditSavingSheet(context, item),
+                  enableSwipeActions: widget.enableSwipeActions,
                 );
               },
             ),
           ],
         );
       },
+    );
+  }
+}
+
+class _TotalSavingsHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return _GlassCard(
+      child: StreamBuilder<String>(
+        stream: Get.find<savingController>().streamTotalSavingsText(),
+        builder: (context, snapshot) {
+          final totalText = snapshot.data ?? "0";
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: double.infinity),
+              Text(
+                "Total Savings in History".tr,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54,
+                ),
+              ),
+              Text(
+                "৳${numberTranslation.toBnDigits(totalText)}",
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _DateGroup extends StatelessWidget {
+  final DateTime date;
+  final List<SavingItem> items;
+  final bool enableSwipeActions;
+  final Function(SavingItem) onEdit;
+  final Future<bool> Function(SavingItem) onDelete;
+
+  const _DateGroup({
+    required this.date,
+    required this.items,
+    required this.onDelete,
+    required this.onEdit,
+    required this.enableSwipeActions,
+  });
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final dateToCompare = DateTime(date.year, date.month, date.day);
+
+    if (dateToCompare == today) {
+      return "Today".tr;
+    } else if (dateToCompare == yesterday) {
+      return "Yesterday".tr;
+    } else {
+      return DateFormat('dd MMM, yyyy').format(date);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dailyTotal = items.fold<double>(0, (sum, item) => sum + item.amount);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _formatDate(date),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                  color: Colors.black87,
+                ),
+              ),
+              Text(
+                "৳${numberTranslation.toBnDigits(dailyTotal.toStringAsFixed(0))}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ),
+        _GlassCard(
+          padding: EdgeInsets.zero,
+          child: ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: items.length,
+            separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.withOpacity(0.1), indent: 16.w, endIndent: 16.w),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              final historyItem = _TimelineSavingItem(item: item);
+
+               if (!enableSwipeActions) return historyItem;
+
+                return Dismissible(
+                  key: ValueKey(item.id),
+                  background: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20.r)
+                    ),
+                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.edit_outlined, color: Colors.blue),
+                        SizedBox(width: 8.w),
+                        Text(
+                          "Edit".tr,
+                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                  ),
+                  secondaryBackground: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                       borderRadius: BorderRadius.circular(20.r)
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Delete".tr,
+                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(width: 8.w),
+                        Icon(Icons.delete_outline, color: Colors.red),
+                      ],
+                    ),
+                  ),
+                  confirmDismiss: (direction) async {
+                    if (direction == DismissDirection.endToStart) {
+                      // This is the delete swipe
+                      return await onDelete(item);
+                    } else if (direction == DismissDirection.startToEnd) {
+                      // This is the edit swipe
+                      onEdit(item);
+                      return false; // Do not dismiss the item
+                    }
+                    return false;
+                  },
+                  child: historyItem,
+                );
+            },
+          ),
+        ),
+        SizedBox(height: 20.h),
+      ],
+    );
+  }
+}
+class _TimelineSavingItem extends StatelessWidget {
+  final SavingItem item;
+  const _TimelineSavingItem({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  item.source.isEmpty ? "Saving".tr : item.source.tr,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp, color: Colors.black87),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                "+৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15.sp,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            item.wallet.tr,
+            style: TextStyle(color: Colors.black54, fontSize: 11.sp),
+          ),
+          if (item.note != null && item.note!.isNotEmpty) ...[
+            SizedBox(height: 6.h),
+            Text(
+              item.note!,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.black.withOpacity(0.6),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

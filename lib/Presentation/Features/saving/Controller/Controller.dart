@@ -16,6 +16,9 @@ class savingController extends GetxController {
   final RxString monthKey = ''.obs;
   final tabIndex = 0.obs; // 0 = Overview, 1 = History
 
+  // track which item is being edited. if null, we are adding a new one.
+  String? editingItemId;
+
   void changeTab(int i) => tabIndex.value = i;
 
   @override
@@ -262,6 +265,8 @@ class savingController extends GetxController {
   }
 
   void openAddSavingSheet(BuildContext context) {
+    editingItemId = null; // Ensure we are in "add" mode
+
     // reset fields
     amountC.clear();
     sourceC.clear();
@@ -271,16 +276,25 @@ class savingController extends GetxController {
 
     // new motivation each time
     _pickMotivation();
-    Get.to(AddSavingSheet(controller: Get.find<savingController>(),));
-
-    // Get.bottomSheet(
-    //   AddSavingSheet(controller: this),
-    //   isScrollControlled: true,
-    //   backgroundColor: Colors.transparent,
-    // );
+    Get.to(AddSavingSheet(controller: this));
   }
 
-  Future<void> addSaving() async {
+  void openEditSavingSheet(BuildContext context, SavingItem item) {
+    editingItemId = item.id; // Set the ID for "edit" mode
+
+    // Pre-fill fields with existing data
+    amountC.text = item.amount.toStringAsFixed(0);
+    sourceC.text = item.source;
+    noteC.text = item.note ?? "";
+    selectedDate.value = item.date;
+    selectedWallet.value = item.wallet;
+
+    _pickMotivation(); // show a motivation message
+    Get.to(AddSavingSheet(controller: this));
+  }
+
+
+  Future<void> saveSaving() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       AppSnackbar.show("User not logged in");
@@ -300,29 +314,42 @@ class savingController extends GetxController {
       AppSnackbar.show("Please enter where this money came from.");
       return;
     }
-
     final note = noteC.text.trim();
 
-    AppLoader.show(message: "Adding saving...");
+    final data = {
+      "amount": amount,
+      "date": Timestamp.fromDate(selectedDate.value),
+      "wallet": selectedWallet.value,
+      "source": source,
+      "note": note.isEmpty ? null : note,
+      "updatedAt": FieldValue.serverTimestamp(),
+    };
+
+    final isEditing = editingItemId != null;
+
+    AppLoader.show(message: isEditing ? "Updating..." : "Adding...");
 
     try {
-      await _savingsRef(user.uid).collection('savings').doc('items').collection('list').add({
-        "amount": amount,
-        "date": Timestamp.fromDate(selectedDate.value),
-        "wallet": selectedWallet.value,
-        "source": source,
-        "note": note.isEmpty ? null : note,
-        "createdAt": FieldValue.serverTimestamp(),
-      });
+      if (isEditing) {
+        // Update existing item
+        await _listRef(user.uid).doc(editingItemId).update(data);
+      } else {
+        // Add new item
+        data["createdAt"] = FieldValue.serverTimestamp();
+        await _listRef(user.uid).add(data);
+      }
 
       AppLoader.hide();
       Get.back(); // close sheet
-      AppSnackbar.show("Saving added successfully");
+      AppSnackbar.show(isEditing ? "Saving updated" : "Saving added");
     } catch (e) {
       AppLoader.hide();
-      AppSnackbar.show("Failed to add saving. Please try again.");
+      AppSnackbar.show("Operation failed. Please try again.");
+    } finally {
+       editingItemId = null; // reset editing state
     }
   }
+
 
   final cachedSavings = <SavingItem>[].obs;
 

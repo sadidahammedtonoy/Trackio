@@ -88,17 +88,13 @@ class DashboardPage extends StatelessWidget {
               ),
               _BudgetsSection(controller: controller),
               SizedBox(height: 15.h),
-              _sectionHeader("Today Transactions".tr),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: Column(
-                  children: [
-                    if (controller.todayTransactions.isEmpty)
-                      _GlassCard(
-                        padding: EdgeInsets.all(20.r),
-                        child: Center(child: Text("No transactions today".tr)),
-                      )
-                    else
+              if (controller.todayTransactions.isNotEmpty) ...[
+                _sectionHeader("Today Transactions".tr),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  child: Column(
+                    children: [
                       ...controller.todayTransactions.map(
                         (t) => Padding(
                           padding: EdgeInsets.only(bottom: 10.h),
@@ -108,9 +104,10 @@ class DashboardPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         );
