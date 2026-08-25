@@ -161,26 +161,29 @@ class AddSavingSheet extends StatelessWidget {
       () => _GlassCard(
         tablet: tablet,
         padding: EdgeInsets.all(tablet ? 16.0 : 16.r),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              controller.motivationTitle.value.tr,
-              style: TextStyle(
-                fontSize: tablet ? 16.0 : 15.sp,
-                fontWeight: FontWeight.w800,
-                color: Colors.black87,
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                controller.motivationTitle.value.tr,
+                style: TextStyle(
+                  fontSize: tablet ? 16.0 : 15.sp,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-            SizedBox(height: tablet ? 4.0 : 4.h),
-            Text(
-              controller.motivationSubtitle.value.tr,
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: tablet ? 14.0 : 13.sp,
+              SizedBox(height: tablet ? 4.0 : 4.h),
+              Text(
+                controller.motivationSubtitle.value.tr,
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: tablet ? 14.0 : 13.sp,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

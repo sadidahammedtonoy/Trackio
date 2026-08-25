@@ -14,10 +14,12 @@ class AppTranslations extends Translations {
       'Failed': 'Failed',
 
       // Login Screen
-      'Keep a clear record of where your money goes.': 'Keep a clear record of where your money goes.',
+      'Keep a clear record of where your money goes.':
+          'Keep a clear record of where your money goes.',
       'Email Address': 'Email Address',
       'Please enter your email address': 'Please enter your email address',
-      'Please enter a valid email address': 'Please enter a valid email address',
+      'Please enter a valid email address':
+          'Please enter a valid email address',
       'Enter your email address': 'Enter your email address',
       'Password': 'Password',
       'Please enter your password': 'Please enter your password',
@@ -30,18 +32,20 @@ class AppTranslations extends Translations {
       'Continue as Guest': 'Continue as Guest',
       'Continue with Google': 'Continue with Google',
       'Continue with Apple': 'Continue with Apple',
-      
+
       // Budgets Screen
       'Budgets': 'Budgets',
+      'Apply': 'Apply',
       'Total Budget': 'Total Budget',
       'Spent': 'Spent',
       'No budgets added for this month.': 'No budgets added for this month.',
       'Delete Budget': 'Delete Budget',
-      'Are you sure you want to delete this budget?': 'Are you sure you want to delete this budget?',
+      'Are you sure you want to delete this budget?':
+          'Are you sure you want to delete this budget?',
       'Cancel': 'Cancel',
       'Delete': 'Delete',
       'Edit': 'Edit',
-      
+
       // Add Budget Screen
       'Add Budget': 'Add Budget',
       'Edit Budget': 'Edit Budget',
@@ -62,38 +66,52 @@ class AppTranslations extends Translations {
       'Account Deletion': 'Account Deletion',
       'Account Termination': 'Account Termination',
       'Account created successfully.': 'Account created successfully.',
-      'Account creation failed. Please try again.': 'Account creation failed. Please try again.',
+      'Account creation failed. Please try again.':
+          'Account creation failed. Please try again.',
       'Account deleted successfully.': 'Account deleted successfully.',
       'Account deletion failed.': 'Account deletion failed.',
-      'Account deletion failed. Please try again.': 'Account deletion failed. Please try again.',
-      'Account information from Firebase Authentication (email, UID, display name, profile image if available).': 'Account information from Firebase Authentication (email, UID, display name, profile image if available).',
+      'Account deletion failed. Please try again.':
+          'Account deletion failed. Please try again.',
+      'Account information from Firebase Authentication (email, UID, display name, profile image if available).':
+          'Account information from Firebase Authentication (email, UID, display name, profile image if available).',
       'Accounts & Access': 'Accounts & Access',
-      'Accounts are managed through Firebase Authentication.': 'Accounts are managed through Firebase Authentication.',
+      'Accounts are managed through Firebase Authentication.':
+          'Accounts are managed through Firebase Authentication.',
       'Add': 'Add',
-      'Add \${controller.selectedType.value}': 'Add \${controller.selectedType.value}',
+      'Add \${controller.selectedType.value}':
+          'Add \${controller.selectedType.value}',
       'Add Category': 'Add Category',
       'Add Saving': 'Add Saving',
       'Add Transaction': 'Add Transaction',
       'Adding transaction...': 'Adding transaction...',
       'All Months': 'All Months',
       'All Transactions': 'All Transactions',
-      'All data is stored in Firebase Firestore under your unique user ID (UID).': 'All data is stored in Firebase Firestore under your unique user ID (UID).',
-      'All reports and summaries are for informational purposes only.': 'All reports and summaries are for informational purposes only.',
+      'All data is stored in Firebase Firestore under your unique user ID (UID).':
+          'All data is stored in Firebase Firestore under your unique user ID (UID).',
+      'All reports and summaries are for informational purposes only.':
+          'All reports and summaries are for informational purposes only.',
       'Already have an account? ': 'Already have an account? ',
-      'An account already exists with the same email but different sign-in method.': 'An account already exists with the same email but different sign-in method.',
-      'Anonymous (guest) users are assigned a temporary UID by Firebase.': 'Anonymous (guest) users are assigned a temporary UID by Firebase.',
-      'Another category already has this name': 'Another category already has this name',
+      'An account already exists with the same email but different sign-in method.':
+          'An account already exists with the same email but different sign-in method.',
+      'Anonymous (guest) users are assigned a temporary UID by Firebase.':
+          'Anonymous (guest) users are assigned a temporary UID by Firebase.',
+      'Another category already has this name':
+          'Another category already has this name',
       'Anything you want to remember...': 'Anything you want to remember...',
       'Are you sure you want to delete': 'Are you sure you want to delete',
-      'Are you sure you want to delete this transaction?': 'Are you sure you want to delete this transaction?',
-      'Are you sure you want to delete this?': 'Are you sure you want to delete this?',
+      'Are you sure you want to delete this transaction?':
+          'Are you sure you want to delete this transaction?',
+      'Are you sure you want to delete this?':
+          'Are you sure you want to delete this?',
       'Are you sure you want to logout?': 'Are you sure you want to logout?',
       'Back': 'Back',
       'Back to Login': 'Back to Login',
       'Background saved successfully': 'Background saved successfully',
       'Borrow': 'Borrow',
-      'By creating an account, you agree to our ': 'By creating an account, you agree to our ',
-      'By using this app, you agree to these terms.': 'By using this app, you agree to these terms.',
+      'By creating an account, you agree to our ':
+          'By creating an account, you agree to our ',
+      'By using this app, you agree to these terms.':
+          'By using this app, you agree to these terms.',
       'Calculator': 'Calculator',
       'Camera': 'Camera',
       'Categories': 'Categories',
@@ -113,22 +131,26 @@ class AppTranslations extends Translations {
       'Confirm Password': 'Confirm Password',
       'Confirm your password': 'Confirm your password',
       'Contact Support': 'Contact Support',
-      'Could not save user info. Please try again.': 'Could not save user info. Please try again.',
+      'Could not save user info. Please try again.':
+          'Could not save user info. Please try again.',
       'Create Account': 'Create Account',
       'Create with Email': 'Create with Email',
       'Create your account': 'Create your account',
       'Creating account...': 'Creating account...',
       'Current Password': 'Current Password',
       'Current password': 'Current password',
-      'Current password doesn\'t match. Please try again.': 'Current password doesn\'t match. Please try again.',
+      'Current password doesn\'t match. Please try again.':
+          'Current password doesn\'t match. Please try again.',
       'Current password is incorrect.': 'Current password is incorrect.',
       'Daily Expense': 'Daily Expense',
       'Daily Limit': 'Daily Limit',
       'Dashboard': 'Dashboard',
       'Data Sharing': 'Data Sharing',
       'Data Storage & Security': 'Data Storage & Security',
-      'Data is linked to an anonymous Firebase UID.': 'Data is linked to an anonymous Firebase UID.',
-      'Data may be processed by Firebase services to provide authentication and cloud storage.': 'Data may be processed by Firebase services to provide authentication and cloud storage.',
+      'Data is linked to an anonymous Firebase UID.':
+          'Data is linked to an anonymous Firebase UID.',
+      'Data may be processed by Firebase services to provide authentication and cloud storage.':
+          'Data may be processed by Firebase services to provide authentication and cloud storage.',
       'Date': 'Date',
       'Date:': 'Date:',
       'Debts': 'Debts',
@@ -138,7 +160,8 @@ class AppTranslations extends Translations {
       'Delete saving?': 'Delete saving?',
       'Deleted': 'Deleted',
       'Deleting account...': 'Deleting account...',
-      'Deleting an account may permanently remove associated data.': 'Deleting an account may permanently remove associated data.',
+      'Deleting an account may permanently remove associated data.':
+          'Deleting an account may permanently remove associated data.',
       'Describe the issue': 'Describe the issue',
       'Done': 'Done',
       'Edit Category': 'Edit Category',
@@ -152,47 +175,62 @@ class AppTranslations extends Translations {
       'Enter a valid name': 'Enter a valid name',
       'Enter your email': 'Enter your email',
       'Enter your email address..': 'Enter your email address..',
-      'Enter your email and we’ll send a password reset link.': 'Enter your email and we’ll send a password reset link.',
+      'Enter your email and we’ll send a password reset link.':
+          'Enter your email and we’ll send a password reset link.',
       'Enter your name': 'Enter your name',
       'Expense': 'Expense',
       'Expense Calendar': 'Expense Calendar',
       'Fail to add Transaction': 'Fail to add Transaction',
       'Failed to load categories.': 'Failed to load categories.',
-      'Failed to submit report. Please try again.': 'Failed to submit report. Please try again.',
+      'Failed to submit report. Please try again.':
+          'Failed to submit report. Please try again.',
       'Failed to update transaction': 'Failed to update transaction',
       'Failed to upload image to server.': 'Failed to upload image to server.',
-      'Failed to upload image. Please try again.': 'Failed to upload image. Please try again.',
-      'Failed", e.message ?? "Could not send reset email.': 'Failed", e.message ?? "Could not send reset email.',
+      'Failed to upload image. Please try again.':
+          'Failed to upload image. Please try again.',
+      'Failed", e.message ?? "Could not send reset email.':
+          'Failed", e.message ?? "Could not send reset email.',
       'Failed. Try again.': 'Failed. Try again.',
-      'Features may change or be updated without notice.': 'Features may change or be updated without notice.',
+      'Features may change or be updated without notice.':
+          'Features may change or be updated without notice.',
       'Filter by Month': 'Filter by Month',
       'Financial Disclaimer': 'Financial Disclaimer',
-      'Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.': 'Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.',
-      'Firebase security rules restrict access so only your account can read or write your data.': 'Firebase security rules restrict access so only your account can read or write your data.',
-      'For security, please login again and then delete your account.': 'For security, please login again and then delete your account.',
+      'Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.':
+          'Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.',
+      'Firebase security rules restrict access so only your account can read or write your data.':
+          'Firebase security rules restrict access so only your account can read or write your data.',
+      'For security, please login again and then delete your account.':
+          'For security, please login again and then delete your account.',
       'Frequently Asked Questions': 'Frequently Asked Questions',
       'From where this money came from': 'From where this money came from',
       'Gallery': 'Gallery',
       'General': 'General',
-      'Google connected! Account is now permanent.': 'Google connected! Account is now permanent.',
+      'Google connected! Account is now permanent.':
+          'Google connected! Account is now permanent.',
       'Google sign-in failed.': 'Google sign-in failed.',
       'Guest (Anonymous) Accounts': 'Guest (Anonymous) Accounts',
       'Guest account deleted.': 'Guest account deleted.',
-      'Guest users can use the app without creating an account.': 'Guest users can use the app without creating an account.',
-      'Guest users may lose data if they log out or delete the account.': 'Guest users may lose data if they log out or delete the account.',
+      'Guest users can use the app without creating an account.':
+          'Guest users can use the app without creating an account.',
+      'Guest users may lose data if they log out or delete the account.':
+          'Guest users may lose data if they log out or delete the account.',
       'Help & Support': 'Help & Support',
       'Highest spend': 'Highest spend',
       'History': 'History',
       'Home': 'Home',
       'How We Use Your Information': 'How We Use Your Information',
       'How much?': 'How much?',
-      'If you do not agree with these terms, please stop using the app.': 'If you do not agree with these terms, please stop using the app.',
-      'If you have any questions about this Privacy Policy, please contact support.': 'If you have any questions about this Privacy Policy, please contact support.',
-      'If you log out or delete the guest account, the data may be permanently lost.': 'If you log out or delete the guest account, the data may be permanently lost.',
+      'If you do not agree with these terms, please stop using the app.':
+          'If you do not agree with these terms, please stop using the app.',
+      'If you have any questions about this Privacy Policy, please contact support.':
+          'If you have any questions about this Privacy Policy, please contact support.',
+      'If you log out or delete the guest account, the data may be permanently lost.':
+          'If you log out or delete the guest account, the data may be permanently lost.',
       'Images Background': 'Images Background',
       'Income': 'Income',
       'Information We Collect': 'Information We Collect',
-      'Internet connectivity is required for syncing data.': 'Internet connectivity is required for syncing data.',
+      'Internet connectivity is required for syncing data.':
+          'Internet connectivity is required for syncing data.',
       'Invalid email address.': 'Invalid email address.',
       'Language': 'Language',
       'Lent': 'Lent',
@@ -212,25 +250,33 @@ class AppTranslations extends Translations {
       'Monthly Saving': 'Monthly Saving',
       'More': 'More',
       'N/A': 'N/A',
-      'Name change is available for permanent accounts only.': 'Name change is available for permanent accounts only.',
-      'Name change is not available for guest accounts.': 'Name change is not available for guest accounts.',
+      'Name change is available for permanent accounts only.':
+          'Name change is available for permanent accounts only.',
+      'Name change is not available for guest accounts.':
+          'Name change is not available for guest accounts.',
       'Name is required': 'Name is required',
       'Name updated successfully.': 'Name updated successfully.',
-      'Need help quickly? Contact us using one of the options below.': 'Need help quickly? Contact us using one of the options below.',
+      'Need help quickly? Contact us using one of the options below.':
+          'Need help quickly? Contact us using one of the options below.',
       'New Password': 'New Password',
       'New password': 'New password',
-      'New password is too weak (min 6 characters).': 'New password is too weak (min 6 characters).',
-      'New password must be at least 6 characters.': 'New password must be at least 6 characters.',
+      'New password is too weak (min 6 characters).':
+          'New password is too weak (min 6 characters).',
+      'New password must be at least 6 characters.':
+          'New password must be at least 6 characters.',
       'No': 'No',
       'No Name': 'No Name',
       'No Remark': 'No Remark',
       'No Transactions for analysis': 'No Transactions for analysis',
-      'No account exists with this email.': 'No account exists with this email.',
+      'No account exists with this email.':
+          'No account exists with this email.',
       'No categories available.': 'No categories available.',
       'No categories yet': 'No categories yet',
       'No debts to show': 'No debts to show',
-      'No internet connection. Please check your network.': 'No internet connection. Please check your network.',
-      'No internet connection. Please try again.': 'No internet connection. Please try again.',
+      'No internet connection. Please check your network.':
+          'No internet connection. Please check your network.',
+      'No internet connection. Please try again.':
+          'No internet connection. Please try again.',
       'No lent or borrow transactions': 'No lent or borrow transactions',
       'No matching results found': 'No matching results found',
       'No monthly data found': 'No monthly data found',
@@ -239,18 +285,25 @@ class AppTranslations extends Translations {
       'No transactions yet': 'No transactions yet',
       'No user found.': 'No user found.',
       'No user is logged in.': 'No user is logged in.',
-      'No user session found. Please login again.': 'No user session found. Please login again.',
+      'No user session found. Please login again.':
+          'No user session found. Please login again.',
       'Note (optional)': 'Note (optional)',
       'OR': 'OR',
-      'Once deleted, your data may be permanently removed and cannot be recovered.': 'Once deleted, your data may be permanently removed and cannot be recovered.',
+      'Once deleted, your data may be permanently removed and cannot be recovered.':
+          'Once deleted, your data may be permanently removed and cannot be recovered.',
       'Overview': 'Overview',
-      'Password change not available for this account.': 'Password change not available for this account.',
+      'Password change not available for this account.':
+          'Password change not available for this account.',
       'Password changed successfully': 'Password changed successfully',
       'Password is required': 'Password is required',
-      'Password is too weak. Use at least 6 characters.': 'Password is too weak. Use at least 6 characters.',
-      'Password must be at least 6 characters': 'Password must be at least 6 characters',
-      'Password must be at least 6 characters.': 'Password must be at least 6 characters.',
-      'Password update failed. Please try again.': 'Password update failed. Please try again.',
+      'Password is too weak. Use at least 6 characters.':
+          'Password is too weak. Use at least 6 characters.',
+      'Password must be at least 6 characters':
+          'Password must be at least 6 characters',
+      'Password must be at least 6 characters.':
+          'Password must be at least 6 characters.',
+      'Password update failed. Please try again.':
+          'Password update failed. Please try again.',
       'Passwords do not match': 'Passwords do not match',
       'Passwords must be different': 'Passwords must be different',
       'Permanent account created!': 'Permanent account created!',
@@ -261,9 +314,12 @@ class AppTranslations extends Translations {
       'Please enter a person name.': 'Please enter a person name.',
       'Please enter a valid amount.': 'Please enter a valid amount.',
       'Please enter a valid email': 'Please enter a valid email',
-      'Please enter a valid email address.': 'Please enter a valid email address.',
-      'Please enter your current password': 'Please enter your current password',
-      'Please enter your current password.': 'Please enter your current password.',
+      'Please enter a valid email address.':
+          'Please enter a valid email address.',
+      'Please enter your current password':
+          'Please enter your current password',
+      'Please enter your current password.':
+          'Please enter your current password.',
       'Please enter your email': 'Please enter your email',
       'Please enter your name.': 'Please enter your name.',
       'Please enter your new password': 'Please enter your new password',
@@ -274,61 +330,85 @@ class AppTranslations extends Translations {
       'Please provide title and details.': 'Please provide title and details.',
       'Please select a category.': 'Please select a category.',
       'Privacy Policy': 'Privacy Policy',
-      'Profile image updated successfully.': 'Profile image updated successfully.',
-      'Profile image upload is for permanent accounts only.': 'Profile image upload is for permanent accounts only.',
+      'Profile image updated successfully.':
+          'Profile image updated successfully.',
+      'Profile image upload is for permanent accounts only.':
+          'Profile image upload is for permanent accounts only.',
       'Questions?': 'Questions?',
       'Remaining': 'Remaining',
       'Remark': 'Remark',
       'Remark:': 'Remark:',
       'Report a problem': 'Report a problem',
-      'Reset link sent. Check inbox/spam.': 'Reset link sent. Check inbox/spam.',
+      'Reset link sent. Check inbox/spam.':
+          'Reset link sent. Check inbox/spam.',
       'Reset your password': 'Reset your password',
       'Save': 'Save',
       'Saving': 'Saving',
       'Savings': 'Savings',
       'Scroll to top': 'Scroll to top',
-      'Search Category, remark, wallet or amount...': 'Search Category, remark, wallet or amount...',
+      'Search Category, remark, wallet or amount...':
+          'Search Category, remark, wallet or amount...',
       'Search Name or Remark...': 'Search Name or Remark...',
-      'Search questions (sync, guest, password...)': 'Search questions (sync, guest, password...)',
+      'Search questions (sync, guest, password...)':
+          'Search questions (sync, guest, password...)',
       'Security & Support': 'Security & Support',
       'Select': 'Select',
       'Select Category': 'Select Category',
       'Select Image Source': 'Select Image Source',
       'Select Wallet': 'Select Wallet',
       'Select a Color': 'Select a Color',
-      'Select a month to filter your transactions': 'Select a month to filter your transactions',
+      'Select a month to filter your transactions':
+          'Select a month to filter your transactions',
       'Select your preferred language': 'Select your preferred language',
       'Send Reset Link': 'Send Reset Link',
       'Service Availability': 'Service Availability',
-      'Session expired. Please log in again and retry.': 'Session expired. Please log in again and retry.',
-      'Sign up to start tracking your expenses.': 'Sign up to start tracking your expenses.',
-      'Something went wrong. Please try again.': 'Something went wrong. Please try again.',
+      'Session expired. Please log in again and retry.':
+          'Session expired. Please log in again and retry.',
+      'Sign up to start tracking your expenses.':
+          'Sign up to start tracking your expenses.',
+      'Something went wrong. Please try again.':
+          'Something went wrong. Please try again.',
       'Source': 'Source',
       'Submit': 'Submit',
       'Submitting report...': 'Submitting report...',
       'Swipe Down to Return': 'Swipe Down to Return',
       'Swipe Up to See All Colors': 'Swipe Up to See All Colors',
       'Terms & Conditions': 'Terms & Conditions',
-      'Thanks! Your report has been submitted.': 'Thanks! Your report has been submitted.',
+      'Thanks! Your report has been submitted.':
+          'Thanks! Your report has been submitted.',
       'Theme': 'Theme',
-      'This Google account is already linked to another user.': 'This Google account is already linked to another user.',
-      'This account has been disabled. Contact support.': 'This account has been disabled. Contact support.',
-      'This account is already permanent.': 'This account is already permanent.',
-      'This app does not provide financial, tax, or legal advice.': 'This app does not provide financial, tax, or legal advice.',
-      'This credential is already linked to another account.': 'This credential is already linked to another account.',
-      'This email is already in use. Try logging in instead.': 'This email is already in use. Try logging in instead.',
-      'This email is already registered. Try logging in.': 'This email is already registered. Try logging in.',
-      'This email is registered with Google. Please sign in with Google.': 'This email is registered with Google. Please sign in with Google.',
-      'This item will be deleted permanently.': 'This item will be deleted permanently.',
+      'This Google account is already linked to another user.':
+          'This Google account is already linked to another user.',
+      'This account has been disabled. Contact support.':
+          'This account has been disabled. Contact support.',
+      'This account is already permanent.':
+          'This account is already permanent.',
+      'This app does not provide financial, tax, or legal advice.':
+          'This app does not provide financial, tax, or legal advice.',
+      'This credential is already linked to another account.':
+          'This credential is already linked to another account.',
+      'This email is already in use. Try logging in instead.':
+          'This email is already in use. Try logging in instead.',
+      'This email is already registered. Try logging in.':
+          'This email is already registered. Try logging in.',
+      'This email is registered with Google. Please sign in with Google.':
+          'This email is registered with Google. Please sign in with Google.',
+      'This item will be deleted permanently.':
+          'This item will be deleted permanently.',
       'Title': 'Title',
-      'To confirm, enter your current password:': 'To confirm, enter your current password:',
-      'To generate summaries, reports, and insights about your spending and income.': 'To generate summaries, reports, and insights about your spending and income.',
-      'To improve app performance, stability, and security.': 'To improve app performance, stability, and security.',
-      'To securely store and sync your financial data across devices.': 'To securely store and sync your financial data across devices.',
+      'To confirm, enter your current password:':
+          'To confirm, enter your current password:',
+      'To generate summaries, reports, and insights about your spending and income.':
+          'To generate summaries, reports, and insights about your spending and income.',
+      'To improve app performance, stability, and security.':
+          'To improve app performance, stability, and security.',
+      'To securely store and sync your financial data across devices.':
+          'To securely store and sync your financial data across devices.',
       'Today': 'Today',
       'Today Transactions': 'Today Transactions',
       'Today spend': 'Today spend',
-      'Too many attempts. Please wait and try again later.': 'Too many attempts. Please wait and try again later.',
+      'Too many attempts. Please wait and try again later.':
+          'Too many attempts. Please wait and try again later.',
       'Total Savings in History': 'Total Savings in History',
       'Total spent': 'Total spent',
       'Transaction': 'Transaction',
@@ -336,11 +416,14 @@ class AppTranslations extends Translations {
       'Transaction not found': 'Transaction not found',
       'Transaction updated successfully': 'Transaction updated successfully',
       'Transactions': 'Transactions',
-      'Try searching with different keywords or clear filters.': 'Try searching with different keywords or clear filters.',
-      'Unable to logout. Please try again.': 'Unable to logout. Please try again.',
+      'Try searching with different keywords or clear filters.':
+          'Try searching with different keywords or clear filters.',
+      'Unable to logout. Please try again.':
+          'Unable to logout. Please try again.',
       'Uncategorized': 'Uncategorized',
       'Update': 'Update',
-      'Update \${controller.selectedType.value}': 'Update \${controller.selectedType.value}',
+      'Update \${controller.selectedType.value}':
+          'Update \${controller.selectedType.value}',
       'Update Name': 'Update Name',
       'Update Saving': 'Update Saving',
       'Updating name...': 'Updating name...',
@@ -353,27 +436,42 @@ class AppTranslations extends Translations {
       'Visual Representation': 'Visual Representation',
       'Wallet': 'Wallet',
       'Wallet:': 'Wallet:',
-      'We are not liable for service interruptions or data loss beyond our control.': 'We are not liable for service interruptions or data loss beyond our control.',
-      'We are not responsible for losses due to incorrect data entry.': 'We are not responsible for losses due to incorrect data entry.',
-      'We do not sell or rent your personal data.': 'We do not sell or rent your personal data.',
-      'We do not store your passwords on our servers.': 'We do not store your passwords on our servers.',
-      'We may disclose data if required by law.': 'We may disclose data if required by law.',
-      'We strive to keep the app available at all times.': 'We strive to keep the app available at all times.',
+      'We are not liable for service interruptions or data loss beyond our control.':
+          'We are not liable for service interruptions or data loss beyond our control.',
+      'We are not responsible for losses due to incorrect data entry.':
+          'We are not responsible for losses due to incorrect data entry.',
+      'We do not sell or rent your personal data.':
+          'We do not sell or rent your personal data.',
+      'We do not store your passwords on our servers.':
+          'We do not store your passwords on our servers.',
+      'We may disclose data if required by law.':
+          'We may disclose data if required by law.',
+      'We strive to keep the app available at all times.':
+          'We strive to keep the app available at all times.',
       'Yesterday': 'Yesterday',
       'You Need to Pay.': 'You Need to Pay.',
       'You Will Receive.': 'You Will Receive.',
-      'You are responsible for keeping your login method secure.': 'You are responsible for keeping your login method secure.',
-      'You are responsible for the accuracy of the data you enter.': 'You are responsible for the accuracy of the data you enter.',
-      'You are using a Guest account. Make it permanent to keep data forever.': 'You are using a Guest account. Make it permanent to keep data forever.',
-      'You can delete your account from the app settings.': 'You can delete your account from the app settings.',
-      'You don\'t have permission to do this.': 'You don\'t have permission to do this.',
-      'You may delete your account at any time from the app.': 'You may delete your account at any time from the app.',
-      'You must use this app for lawful and personal financial tracking purposes only.': 'You must use this app for lawful and personal financial tracking purposes only.',
+      'You are responsible for keeping your login method secure.':
+          'You are responsible for keeping your login method secure.',
+      'You are responsible for the accuracy of the data you enter.':
+          'You are responsible for the accuracy of the data you enter.',
+      'You are using a Guest account. Make it permanent to keep data forever.':
+          'You are using a Guest account. Make it permanent to keep data forever.',
+      'You can delete your account from the app settings.':
+          'You can delete your account from the app settings.',
+      'You don\'t have permission to do this.':
+          'You don\'t have permission to do this.',
+      'You may delete your account at any time from the app.':
+          'You may delete your account at any time from the app.',
+      'You must use this app for lawful and personal financial tracking purposes only.':
+          'You must use this app for lawful and personal financial tracking purposes only.',
       'You need to pay': 'You need to pay',
       'You will receive': 'You will receive',
       'Your Name': 'Your Name',
-      'Your account is already permanent.': 'Your account is already permanent.',
-      'Your privacy matters to us. This explains how your data is collected, stored, and protected.': 'Your privacy matters to us. This explains how your data is collected, stored, and protected.',
+      'Your account is already permanent.':
+          'Your account is already permanent.',
+      'Your privacy matters to us. This explains how your data is collected, stored, and protected.':
+          'Your privacy matters to us. This explains how your data is collected, stored, and protected.',
       '⚠️ Warning': '⚠️ Warning',
     },
     'bn_BD': {
@@ -387,10 +485,12 @@ class AppTranslations extends Translations {
       'Failed': 'ব্যর্থ',
 
       // Login Screen
-      'Keep a clear record of where your money goes.': 'আপনার টাকা কোথায় যায়, তার একটি পরিষ্কার রেকর্ড রাখুন।',
+      'Keep a clear record of where your money goes.':
+          'আপনার টাকা কোথায় যায়, তার একটি পরিষ্কার রেকর্ড রাখুন।',
       'Email Address': 'ইমেইল ঠিকানা',
       'Please enter your email address': 'অনুগ্রহ করে আপনার ইমেইল ঠিকানা লিখুন',
-      'Please enter a valid email address': 'অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা লিখুন',
+      'Please enter a valid email address':
+          'অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা লিখুন',
       'Enter your email address': 'আপনার ইমেইল ঠিকানা লিখুন',
       'Password': 'পাসওয়ার্ড',
       'Please enter your password': 'অনুগ্রহ করে আপনার পাসওয়ার্ড লিখুন',
@@ -406,15 +506,18 @@ class AppTranslations extends Translations {
 
       // Budgets Screen
       'Budgets': 'বাজেট',
+      'Apply': 'প্রয়োগ করুন',
       'Total Budget': 'মোট বাজেট',
       'Spent': 'ব্যয় হয়েছে',
-      'No budgets added for this month.': 'এই মাসের জন্য কোনো বাজেট যোগ করা হয়নি।',
+      'No budgets added for this month.':
+          'এই মাসের জন্য কোনো বাজেট যোগ করা হয়নি।',
       'Delete Budget': 'বাজেট মুছুন',
-      'Are you sure you want to delete this budget?': 'আপনি কি নিশ্চিত যে এই বাজেটটি মুছতে চান?',
+      'Are you sure you want to delete this budget?':
+          'আপনি কি নিশ্চিত যে এই বাজেটটি মুছতে চান?',
       'Cancel': 'বাতিল করুন',
       'Delete': 'মুছে ফেলুন',
       'Edit': 'সম্পাদনা করুন',
-      
+
       // Add Budget Screen
       'Add Budget': 'বাজেট যোগ করুন',
       'Edit Budget': 'বাজেট সম্পাদনা করুন',
@@ -435,38 +538,54 @@ class AppTranslations extends Translations {
       'Account Deletion': 'অ্যাকাউন্ট মুছে ফেলা',
       'Account Termination': 'অ্যাকাউন্ট বাতিলকরণ',
       'Account created successfully.': 'অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে।',
-      'Account creation failed. Please try again.': 'অ্যাকাউন্ট তৈরি ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
+      'Account creation failed. Please try again.':
+          'অ্যাকাউন্ট তৈরি ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
       'Account deleted successfully.': 'অ্যাকাউন্ট সফলভাবে মুছে ফেলা হয়েছে।',
       'Account deletion failed.': 'অ্যাকাউন্ট মুছে ফেলা ব্যর্থ হয়েছে।',
-      'Account deletion failed. Please try again.': 'অ্যাকাউন্ট মুছে ফেলা ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
-      'Account information from Firebase Authentication (email, UID, display name, profile image if available).': 'ফায়ারবেস অথেন্টিকেশন থেকে অ্যাকাউন্ট তথ্য (ইমেইল, ইউআইডি, নাম, প্রোফাইল ছবি যদি থাকে)।',
+      'Account deletion failed. Please try again.':
+          'অ্যাকাউন্ট মুছে ফেলা ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
+      'Account information from Firebase Authentication (email, UID, display name, profile image if available).':
+          'ফায়ারবেস অথেন্টিকেশন থেকে অ্যাকাউন্ট তথ্য (ইমেইল, ইউআইডি, নাম, প্রোফাইল ছবি যদি থাকে)।',
       'Accounts & Access': 'অ্যাকাউন্ট এবং অ্যাক্সেস',
-      'Accounts are managed through Firebase Authentication.': 'অ্যাকাউন্টগুলো ফায়ারবেস অথেন্টিকেশন এর মাধ্যমে পরিচালিত হয়।',
+      'Accounts are managed through Firebase Authentication.':
+          'অ্যাকাউন্টগুলো ফায়ারবেস অথেন্টিকেশন এর মাধ্যমে পরিচালিত হয়।',
       'Add': 'যোগ করুন',
-      'Add \${controller.selectedType.value}': 'যোগ করুন \${controller.selectedType.value}',
+      'Add \${controller.selectedType.value}':
+          'যোগ করুন \${controller.selectedType.value}',
       'Add Category': 'ক্যাটাগরি যোগ করুন',
       'Add Saving': 'সঞ্চয় যোগ করুন',
       'Add Transaction': 'লেনদেন যোগ করুন',
       'Adding transaction...': 'লেনদেন যোগ করা হচ্ছে...',
       'All Months': 'সব মাস',
       'All Transactions': 'সকল লেনদেন',
-      'All data is stored in Firebase Firestore under your unique user ID (UID).': 'সমস্ত ডেটা ফায়ারবেস ফায়ারস্টোরে আপনার অনন্য ব্যবহারকারী আইডি (UID) এর অধীনে সংরক্ষিত থাকে।',
-      'All reports and summaries are for informational purposes only.': 'সমস্ত রিপোর্ট এবং সারসংক্ষেপ শুধুমাত্র তথ্যের উদ্দেশ্যে।',
+      'All data is stored in Firebase Firestore under your unique user ID (UID).':
+          'সমস্ত ডেটা ফায়ারবেস ফায়ারস্টোরে আপনার অনন্য ব্যবহারকারী আইডি (UID) এর অধীনে সংরক্ষিত থাকে।',
+      'All reports and summaries are for informational purposes only.':
+          'সমস্ত রিপোর্ট এবং সারসংক্ষেপ শুধুমাত্র তথ্যের উদ্দেশ্যে।',
       'Already have an account? ': 'আগে থেকেই একটি অ্যাকাউন্ট আছে? ',
-      'An account already exists with the same email but different sign-in method.': 'একই ইমেইল কিন্তু ভিন্ন সাইন-ইন পদ্ধতি দিয়ে একটি অ্যাকাউন্ট ইতিমধ্যেই বিদ্যমান।',
-      'Anonymous (guest) users are assigned a temporary UID by Firebase.': 'অতিথি ব্যবহারকারীদের ফায়ারবেস দ্বারা একটি অস্থায়ী ইউআইডি (UID) দেওয়া হয়।',
-      'Another category already has this name': 'অন্য একটি ক্যাটাগরিতে আগে থেকেই এই নামটি আছে',
+      'An account already exists with the same email but different sign-in method.':
+          'একই ইমেইল কিন্তু ভিন্ন সাইন-ইন পদ্ধতি দিয়ে একটি অ্যাকাউন্ট ইতিমধ্যেই বিদ্যমান।',
+      'Anonymous (guest) users are assigned a temporary UID by Firebase.':
+          'অতিথি ব্যবহারকারীদের ফায়ারবেস দ্বারা একটি অস্থায়ী ইউআইডি (UID) দেওয়া হয়।',
+      'Another category already has this name':
+          'অন্য একটি ক্যাটাগরিতে আগে থেকেই এই নামটি আছে',
       'Anything you want to remember...': 'আপনি যা মনে রাখতে চান...',
-      'Are you sure you want to delete': 'আপনি কি নিশ্চিত যে আপনি এটি মুছে ফেলতে চান?',
-      'Are you sure you want to delete this transaction?': 'আপনি কি নিশ্চিত যে আপনি এই লেনদেনটি মুছে ফেলতে চান?',
-      'Are you sure you want to delete this?': 'আপনি কি নিশ্চিত যে আপনি এটি মুছে ফেলতে চান?',
-      'Are you sure you want to logout?': 'আপনি কি নিশ্চিত যে আপনি লগআউট করতে চান?',
+      'Are you sure you want to delete':
+          'আপনি কি নিশ্চিত যে আপনি এটি মুছে ফেলতে চান?',
+      'Are you sure you want to delete this transaction?':
+          'আপনি কি নিশ্চিত যে আপনি এই লেনদেনটি মুছে ফেলতে চান?',
+      'Are you sure you want to delete this?':
+          'আপনি কি নিশ্চিত যে আপনি এটি মুছে ফেলতে চান?',
+      'Are you sure you want to logout?':
+          'আপনি কি নিশ্চিত যে আপনি লগআউট করতে চান?',
       'Back': 'পিছনে',
       'Back to Login': 'লগইনে ফিরে যান',
       'Background saved successfully': 'ব্যাকগ্রাউন্ড সফলভাবে সংরক্ষিত হয়েছে',
       'Borrow': 'ধার নেওয়া',
-      'By creating an account, you agree to our ': 'একটি অ্যাকাউন্ট তৈরি করার মাধ্যমে, আপনি আমাদের সাথে সম্মত হচ্ছেন ',
-      'By using this app, you agree to these terms.': 'এই অ্যাপটি ব্যবহার করার মাধ্যমে, আপনি এই শর্তাবলীতে সম্মত হচ্ছেন।',
+      'By creating an account, you agree to our ':
+          'একটি অ্যাকাউন্ট তৈরি করার মাধ্যমে, আপনি আমাদের সাথে সম্মত হচ্ছেন ',
+      'By using this app, you agree to these terms.':
+          'এই অ্যাপটি ব্যবহার করার মাধ্যমে, আপনি এই শর্তাবলীতে সম্মত হচ্ছেন।',
       'Calculator': 'ক্যালকুলেটর',
       'Camera': 'ক্যামেরা',
       'Categories': 'ক্যাটাগরি সমূহ',
@@ -486,22 +605,26 @@ class AppTranslations extends Translations {
       'Confirm Password': 'পাসওয়ার্ড নিশ্চিত করুন',
       'Confirm your password': 'আপনার পাসওয়ার্ড নিশ্চিত করুন',
       'Contact Support': 'সাপোর্টের সাথে যোগাযোগ করুন',
-      'Could not save user info. Please try again.': 'ব্যবহারকারীর তথ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।',
+      'Could not save user info. Please try again.':
+          'ব্যবহারকারীর তথ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।',
       'Create Account': 'অ্যাকাউন্ট তৈরি করুন',
       'Create with Email': 'ইমেইল দিয়ে তৈরি করুন',
       'Create your account': 'আপনার অ্যাকাউন্ট তৈরি করুন',
       'Creating account...': 'অ্যাকাউন্ট তৈরি করা হচ্ছে...',
       'Current Password': 'বর্তমান পাসওয়ার্ড',
       'Current password': 'বর্তমান পাসওয়ার্ড',
-      'Current password doesn\'t match. Please try again.': 'বর্তমান পাসওয়ার্ড মিলছে না। অনুগ্রহ করে আবার চেষ্টা করুন।',
+      'Current password doesn\'t match. Please try again.':
+          'বর্তমান পাসওয়ার্ড মিলছে না। অনুগ্রহ করে আবার চেষ্টা করুন।',
       'Current password is incorrect.': 'বর্তমান পাসওয়ার্ড ভুল।',
       'Daily Expense': 'দৈনিক খরচ',
       'Daily Limit': 'দৈনিক সীমা',
       'Dashboard': 'ড্যাশবোর্ড',
       'Data Sharing': 'ডেটা শেয়ারিং',
       'Data Storage & Security': 'ডেটা সংরক্ষণ এবং নিরাপত্তা',
-      'Data is linked to an anonymous Firebase UID.': 'ডেটা একটি বেনামী ফায়ারবেস UID এর সাথে সংযুক্ত।',
-      'Data may be processed by Firebase services to provide authentication and cloud storage.': 'প্রমাণীকরণ এবং ক্লাউড স্টোরেজ প্রদানের জন্য ফায়ারবেস পরিষেবাগুলি দ্বারা ডেটা প্রক্রিয়া করা হতে পারে।',
+      'Data is linked to an anonymous Firebase UID.':
+          'ডেটা একটি বেনামী ফায়ারবেস UID এর সাথে সংযুক্ত।',
+      'Data may be processed by Firebase services to provide authentication and cloud storage.':
+          'প্রমাণীকরণ এবং ক্লাউড স্টোরেজ প্রদানের জন্য ফায়ারবেস পরিষেবাগুলি দ্বারা ডেটা প্রক্রিয়া করা হতে পারে।',
       'Date': 'তারিখ',
       'Date:': 'তারিখ:',
       'Debts': 'ঋণ',
@@ -511,7 +634,8 @@ class AppTranslations extends Translations {
       'Delete saving?': 'সঞ্চয় মুছে ফেলবেন?',
       'Deleted': 'মুছে ফেলা হয়েছে',
       'Deleting account...': 'অ্যাকাউন্ট মুছে ফেলা হচ্ছে...',
-      'Deleting an account may permanently remove associated data.': 'একটি অ্যাকাউন্ট মুছে ফেলা হলে তার সাথে সংযুক্ত ডেটা স্থায়ীভাবে মুছে যেতে পারে।',
+      'Deleting an account may permanently remove associated data.':
+          'একটি অ্যাকাউন্ট মুছে ফেলা হলে তার সাথে সংযুক্ত ডেটা স্থায়ীভাবে মুছে যেতে পারে।',
       'Describe the issue': 'সমস্যাটি বর্ণনা করুন',
       'Done': 'সম্পন্ন',
       'Edit Category': 'ক্যাটাগরি সম্পাদনা করুন',
@@ -525,47 +649,62 @@ class AppTranslations extends Translations {
       'Enter a valid name': 'একটি বৈধ নাম লিখুন',
       'Enter your email': 'আপনার ইমেইল লিখুন',
       'Enter your email address..': 'আপনার ইমেইল ঠিকানা লিখুন..',
-      'Enter your email and we’ll send a password reset link.': 'আপনার ইমেইল লিখুন এবং আমরা একটি পাসওয়ার্ড রিসেট লিঙ্ক পাঠাব।',
+      'Enter your email and we’ll send a password reset link.':
+          'আপনার ইমেইল লিখুন এবং আমরা একটি পাসওয়ার্ড রিসেট লিঙ্ক পাঠাব।',
       'Enter your name': 'আপনার নাম লিখুন',
       'Expense': 'খরচ',
       'Expense Calendar': 'খরচের ক্যালেন্ডার',
       'Fail to add Transaction': 'লেনদেন যোগ করতে ব্যর্থ',
       'Failed to load categories.': 'ক্যাটাগরি লোড করতে ব্যর্থ।',
-      'Failed to submit report. Please try again.': 'রিপোর্ট জমা দিতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।',
+      'Failed to submit report. Please try again.':
+          'রিপোর্ট জমা দিতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।',
       'Failed to update transaction': 'লেনদেন আপডেট করতে ব্যর্থ',
       'Failed to upload image to server.': 'সার্ভারে ছবি আপলোড করতে ব্যর্থ।',
-      'Failed to upload image. Please try again.': 'ছবি আপলোড করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।',
-      'Failed", e.message ?? "Could not send reset email.': 'ব্যর্থ", e.message ?? "রিসেট ইমেইল পাঠানো যায়নি।',
+      'Failed to upload image. Please try again.':
+          'ছবি আপলোড করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।',
+      'Failed", e.message ?? "Could not send reset email.':
+          'ব্যর্থ", e.message ?? "রিসেট ইমেইল পাঠানো যায়নি।',
       'Failed. Try again.': 'ব্যর্থ। আবার চেষ্টা করুন।',
-      'Features may change or be updated without notice.': 'বৈশিষ্ট্যগুলি নোটিশ ছাড়াই পরিবর্তন বা আপডেট হতে পারে।',
+      'Features may change or be updated without notice.':
+          'বৈশিষ্ট্যগুলি নোটিশ ছাড়াই পরিবর্তন বা আপডেট হতে পারে।',
       'Filter by Month': 'মাস অনুযায়ী ফিল্টার করুন',
       'Financial Disclaimer': 'আর্থিক দাবিত্যাগ',
-      'Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.': 'আপনার যোগ করা আর্থিক রেকর্ড যেমন আয়, ব্যয়, সঞ্চয়, ধার দেওয়া/নেওয়া, নোট এবং ক্যাটাগরিগুলি।',
-      'Firebase security rules restrict access so only your account can read or write your data.': 'ফায়ারবেস নিরাপত্তা নিয়মগুলি অ্যাক্সেস সীমাবদ্ধ করে তাই শুধুমাত্র আপনার অ্যাকাউন্ট আপনার ডেটা পড়তে বা লিখতে পারে।',
-      'For security, please login again and then delete your account.': 'নিরাপত্তার জন্য, অনুগ্রহ করে আবার লগইন করুন এবং তারপর আপনার অ্যাকাউন্ট মুছুন।',
+      'Financial records you add such as income, expenses, savings, lend/borrow entries, notes, and categories.':
+          'আপনার যোগ করা আর্থিক রেকর্ড যেমন আয়, ব্যয়, সঞ্চয়, ধার দেওয়া/নেওয়া, নোট এবং ক্যাটাগরিগুলি।',
+      'Firebase security rules restrict access so only your account can read or write your data.':
+          'ফায়ারবেস নিরাপত্তা নিয়মগুলি অ্যাক্সেস সীমাবদ্ধ করে তাই শুধুমাত্র আপনার অ্যাকাউন্ট আপনার ডেটা পড়তে বা লিখতে পারে।',
+      'For security, please login again and then delete your account.':
+          'নিরাপত্তার জন্য, অনুগ্রহ করে আবার লগইন করুন এবং তারপর আপনার অ্যাকাউন্ট মুছুন।',
       'Frequently Asked Questions': 'সাধারণ জিজ্ঞাসা (FAQ)',
       'From where this money came from': 'এই টাকা কোথা থেকে এসেছে',
       'Gallery': 'গ্যালারি',
       'General': 'সাধারণ',
-      'Google connected! Account is now permanent.': 'গুগল সংযুক্ত! অ্যাকাউন্ট এখন স্থায়ী।',
+      'Google connected! Account is now permanent.':
+          'গুগল সংযুক্ত! অ্যাকাউন্ট এখন স্থায়ী।',
       'Google sign-in failed.': 'গুগল সাইন-ইন ব্যর্থ হয়েছে।',
       'Guest (Anonymous) Accounts': 'অতিথি (বেনামী) অ্যাকাউন্ট',
       'Guest account deleted.': 'অতিথি অ্যাকাউন্ট মুছে ফেলা হয়েছে।',
-      'Guest users can use the app without creating an account.': 'অতিথি ব্যবহারকারীরা অ্যাকাউন্ট তৈরি না করেই অ্যাপটি ব্যবহার করতে পারেন।',
-      'Guest users may lose data if they log out or delete the account.': 'অতিথি ব্যবহারকারীরা লগ আউট করলে বা অ্যাকাউন্ট মুছে ফেললে ডেটা হারাতে পারেন।',
+      'Guest users can use the app without creating an account.':
+          'অতিথি ব্যবহারকারীরা অ্যাকাউন্ট তৈরি না করেই অ্যাপটি ব্যবহার করতে পারেন।',
+      'Guest users may lose data if they log out or delete the account.':
+          'অতিথি ব্যবহারকারীরা লগ আউট করলে বা অ্যাকাউন্ট মুছে ফেললে ডেটা হারাতে পারেন।',
       'Help & Support': 'সাহায্য ও সাপোর্ট',
       'Highest spend': 'সর্বোচ্চ খরচ',
       'History': 'ইতিহাস',
       'Home': 'হোম',
       'How We Use Your Information': 'আমরা আপনার তথ্য কীভাবে ব্যবহার করি',
       'How much?': 'পরিমাণ কত?',
-      'If you do not agree with these terms, please stop using the app.': 'আপনি যদি এই শর্তাবলীর সাথে একমত না হন, তবে অনুগ্রহ করে অ্যাপটির ব্যবহার বন্ধ করুন।',
-      'If you have any questions about this Privacy Policy, please contact support.': 'এই গোপনীয়তা নীতি সম্পর্কে আপনার কোনো প্রশ্ন থাকলে, সহায়তার জন্য যোগাযোগ করুন।',
-      'If you log out or delete the guest account, the data may be permanently lost.': 'যদি আপনি লগ আউট করেন বা অতিথি অ্যাকাউন্টটি মুছে ফেলেন, তাহলে ডেটা স্থায়ীভাবে হারিয়ে যেতে পারে।',
+      'If you do not agree with these terms, please stop using the app.':
+          'আপনি যদি এই শর্তাবলীর সাথে একমত না হন, তবে অনুগ্রহ করে অ্যাপটির ব্যবহার বন্ধ করুন।',
+      'If you have any questions about this Privacy Policy, please contact support.':
+          'এই গোপনীয়তা নীতি সম্পর্কে আপনার কোনো প্রশ্ন থাকলে, সহায়তার জন্য যোগাযোগ করুন।',
+      'If you log out or delete the guest account, the data may be permanently lost.':
+          'যদি আপনি লগ আউট করেন বা অতিথি অ্যাকাউন্টটি মুছে ফেলেন, তাহলে ডেটা স্থায়ীভাবে হারিয়ে যেতে পারে।',
       'Images Background': 'ছবির ব্যাকগ্রাউন্ড',
       'Income': 'আয়',
       'Information We Collect': 'আমরা যে তথ্য সংগ্রহ করি',
-      'Internet connectivity is required for syncing data.': 'ডেটা সিঙ্ক করার জন্য ইন্টারনেট সংযোগ প্রয়োজন।',
+      'Internet connectivity is required for syncing data.':
+          'ডেটা সিঙ্ক করার জন্য ইন্টারনেট সংযোগ প্রয়োজন।',
       'Invalid email address.': 'অবৈধ ইমেইল ঠিকানা।',
       'Language': 'ভাষা',
       'Lent': 'ধার দেওয়া',
@@ -585,25 +724,33 @@ class AppTranslations extends Translations {
       'Monthly Saving': 'মাসিক সঞ্চয়',
       'More': 'আরও',
       'N/A': 'প্রযোজ্য নয়',
-      'Name change is available for permanent accounts only.': 'নাম পরিবর্তন শুধুমাত্র স্থায়ী অ্যাকাউন্টগুলির জন্য উপলব্ধ।',
-      'Name change is not available for guest accounts.': 'অতিথি অ্যাকাউন্টগুলির জন্য নাম পরিবর্তন উপলব্ধ নয়।',
+      'Name change is available for permanent accounts only.':
+          'নাম পরিবর্তন শুধুমাত্র স্থায়ী অ্যাকাউন্টগুলির জন্য উপলব্ধ।',
+      'Name change is not available for guest accounts.':
+          'অতিথি অ্যাকাউন্টগুলির জন্য নাম পরিবর্তন উপলব্ধ নয়।',
       'Name is required': 'নাম প্রয়োজন',
       'Name updated successfully.': 'নাম সফলভাবে আপডেট করা হয়েছে।',
-      'Need help quickly? Contact us using one of the options below.': 'দ্রুত সাহায্য প্রয়োজন? নিচের যেকোনো একটি অপশন ব্যবহার করে আমাদের সাথে যোগাযোগ করুন।',
+      'Need help quickly? Contact us using one of the options below.':
+          'দ্রুত সাহায্য প্রয়োজন? নিচের যেকোনো একটি অপশন ব্যবহার করে আমাদের সাথে যোগাযোগ করুন।',
       'New Password': 'নতুন পাসওয়ার্ড',
       'New password': 'নতুন পাসওয়ার্ড',
-      'New password is too weak (min 6 characters).': 'নতুন পাসওয়ার্ড খুব দুর্বল (ন্যূনতম ৬ ক্যারেক্টার)।',
-      'New password must be at least 6 characters.': 'নতুন পাসওয়ার্ড কমপক্ষে ৬ ক্যারেক্টার হতে হবে।',
+      'New password is too weak (min 6 characters).':
+          'নতুন পাসওয়ার্ড খুব দুর্বল (ন্যূনতম ৬ ক্যারেক্টার)।',
+      'New password must be at least 6 characters.':
+          'নতুন পাসওয়ার্ড কমপক্ষে ৬ ক্যারেক্টার হতে হবে।',
       'No': 'না',
       'No Name': 'নাম নেই',
       'No Remark': 'কোন মন্তব্য নেই',
       'No Transactions for analysis': 'বিশ্লেষণের জন্য কোনো লেনদেন নেই',
-      'No account exists with this email.': 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট নেই।',
+      'No account exists with this email.':
+          'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট নেই।',
       'No categories available.': 'কোনো ক্যাটাগরি উপলব্ধ নেই।',
       'No categories yet': 'এখনও কোনো ক্যাটাগরি নেই',
       'No debts to show': 'দেখানোর মতো কোনো ঋণ নেই',
-      'No internet connection. Please check your network.': 'ইন্টারনেট সংযোগ নেই। আপনার নেটওয়ার্ক চেক করুন।',
-      'No internet connection. Please try again.': 'ইন্টারনেট সংযোগ নেই। অনুগ্রহ করে আবার চেষ্টা করুন।',
+      'No internet connection. Please check your network.':
+          'ইন্টারনেট সংযোগ নেই। আপনার নেটওয়ার্ক চেক করুন।',
+      'No internet connection. Please try again.':
+          'ইন্টারনেট সংযোগ নেই। অনুগ্রহ করে আবার চেষ্টা করুন।',
       'No lent or borrow transactions': 'কোনো ধার দেওয়া বা নেওয়ার লেনদেন নেই',
       'No matching results found': 'কোনো মিলে যাওয়া ফলাফল পাওয়া যায়নি',
       'No monthly data found': 'কোনো মাসিক ডেটা পাওয়া যায়নি',
@@ -612,96 +759,134 @@ class AppTranslations extends Translations {
       'No transactions yet': 'এখনও কোনো লেনদেন নেই',
       'No user found.': 'কোনো ব্যবহারকারী পাওয়া যায়নি।',
       'No user is logged in.': 'কোনো ব্যবহারকারী লগইন করা নেই।',
-      'No user session found. Please login again.': 'কোনো ব্যবহারকারী সেশন পাওয়া যায়নি। অনুগ্রহ করে আবার লগইন করুন।',
+      'No user session found. Please login again.':
+          'কোনো ব্যবহারকারী সেশন পাওয়া যায়নি। অনুগ্রহ করে আবার লগইন করুন।',
       'Note (optional)': 'নোট (ঐচ্ছিক)',
       'OR': 'অথবা',
-      'Once deleted, your data may be permanently removed and cannot be recovered.': 'একবার মুছে ফেলা হলে, আপনার ডেটা স্থায়ীভাবে সরানো হতে পারে এবং আর পুনরুদ্ধার করা যাবে না।',
+      'Once deleted, your data may be permanently removed and cannot be recovered.':
+          'একবার মুছে ফেলা হলে, আপনার ডেটা স্থায়ীভাবে সরানো হতে পারে এবং আর পুনরুদ্ধার করা যাবে না।',
       'Overview': 'ওভারভিউ',
-      'Password change not available for this account.': 'এই অ্যাকাউন্টের জন্য পাসওয়ার্ড পরিবর্তন উপলব্ধ নয়।',
+      'Password change not available for this account.':
+          'এই অ্যাকাউন্টের জন্য পাসওয়ার্ড পরিবর্তন উপলব্ধ নয়।',
       'Password changed successfully': 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে',
       'Password is required': 'পাসওয়ার্ড প্রয়োজন',
-      'Password is too weak. Use at least 6 characters.': 'পাসওয়ার্ড খুব দুর্বল। কমপক্ষে ৬টি অক্ষর ব্যবহার করুন।',
-      'Password must be at least 6 characters': 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে',
-      'Password must be at least 6 characters.': 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।',
-      'Password update failed. Please try again.': 'পাসওয়ার্ড আপডেট ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
+      'Password is too weak. Use at least 6 characters.':
+          'পাসওয়ার্ড খুব দুর্বল। কমপক্ষে ৬টি অক্ষর ব্যবহার করুন।',
+      'Password must be at least 6 characters':
+          'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে',
+      'Password must be at least 6 characters.':
+          'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।',
+      'Password update failed. Please try again.':
+          'পাসওয়ার্ড আপডেট ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
       'Passwords do not match': 'পাসওয়ার্ড মিলছে না',
       'Passwords must be different': 'পাসওয়ার্ড আলাদা হতে হবে',
       'Permanent account created!': 'স্থায়ী অ্যাকাউন্ট তৈরি হয়েছে!',
       'Person': 'ব্যক্তি',
       'Person Name:': 'ব্যক্তির নাম:',
       'Plain Background': 'সাধারণ ব্যাকগ্রাউন্ড',
-      'Please confirm your new password': 'দয়া করে আপনার নতুন পাসওয়ার্ড নিশ্চিত করুন',
+      'Please confirm your new password':
+          'দয়া করে আপনার নতুন পাসওয়ার্ড নিশ্চিত করুন',
       'Please enter a person name.': 'অনুগ্রহ করে একজন ব্যক্তির নাম লিখুন।',
       'Please enter a valid amount.': 'অনুগ্রহ করে একটি সঠিক পরিমাণ লিখুন।',
       'Please enter a valid email': 'দয়া করে একটি বৈধ ইমেইল দিন',
-      'Please enter a valid email address.': 'অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা লিখুন।',
-      'Please enter your current password': 'দয়া করে আপনার বর্তমান পাসওয়ার্ড লিখুন',
-      'Please enter your current password.': 'অনুগ্রহ করে আপনার বর্তমান পাসওয়ার্ড লিখুন।',
+      'Please enter a valid email address.':
+          'অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা লিখুন।',
+      'Please enter your current password':
+          'দয়া করে আপনার বর্তমান পাসওয়ার্ড লিখুন',
+      'Please enter your current password.':
+          'অনুগ্রহ করে আপনার বর্তমান পাসওয়ার্ড লিখুন।',
       'Please enter your email': 'দয়া করে আপনার ইমেইল লিখুন',
       'Please enter your name.': 'অনুগ্রহ করে আপনার নাম লিখুন।',
       'Please enter your new password': 'দয়া করে আপনার নতুন পাসওয়ার্ড লিখুন',
       'Please fill in all fields.': 'দয়া করে সমস্ত ঘর পূরণ করুন।',
-      'Please fill title and details.': 'দয়া করে শিরোনাম এবং বিস্তারিত পূরণ করুন।',
-      'Please login and try again.': 'অনুগ্রহ করে লগইন করুন এবং আবার চেষ্টা করুন।',
+      'Please fill title and details.':
+          'দয়া করে শিরোনাম এবং বিস্তারিত পূরণ করুন।',
+      'Please login and try again.':
+          'অনুগ্রহ করে লগইন করুন এবং আবার চেষ্টা করুন।',
       'Please login to view savings.': 'সঞ্চয় দেখতে অনুগ্রহ করে লগইন করুন।',
-      'Please provide title and details.': 'দয়া করে শিরোনাম এবং বিস্তারিত প্রদান করুন।',
+      'Please provide title and details.':
+          'দয়া করে শিরোনাম এবং বিস্তারিত প্রদান করুন।',
       'Please select a category.': 'অনুগ্রহ করে একটি ক্যাটাগরি নির্বাচন করুন।',
       'Privacy Policy': 'গোপনীয়তা নীতি',
-      'Profile image updated successfully.': 'প্রোফাইল ছবি সফলভাবে আপডেট করা হয়েছে।',
-      'Profile image upload is for permanent accounts only.': 'প্রোফাইল ছবি আপলোড শুধুমাত্র স্থায়ী অ্যাকাউন্টগুলির জন্য।',
+      'Profile image updated successfully.':
+          'প্রোফাইল ছবি সফলভাবে আপডেট করা হয়েছে।',
+      'Profile image upload is for permanent accounts only.':
+          'প্রোফাইল ছবি আপলোড শুধুমাত্র স্থায়ী অ্যাকাউন্টগুলির জন্য।',
       'Questions?': 'কোনো প্রশ্ন?',
       'Remaining': 'অবশিষ্ট',
       'Remark': 'মন্তব্য',
       'Remark:': 'মন্তব্য:',
       'Report a problem': 'একটি সমস্যা রিপোর্ট করুন',
-      'Reset link sent. Check inbox/spam.': 'রিসেট লিঙ্ক পাঠানো হয়েছে। ইনবক্স/স্প্যাম চেক করুন।',
+      'Reset link sent. Check inbox/spam.':
+          'রিসেট লিঙ্ক পাঠানো হয়েছে। ইনবক্স/স্প্যাম চেক করুন।',
       'Reset your password': 'আপনার পাসওয়ার্ড রিসেট করুন',
       'Save': 'সংরক্ষণ করুন',
       'Saving': 'সঞ্চয়',
       'Savings': 'সঞ্চয়',
       'Scroll to top': 'উপরে স্ক্রল করুন',
-      'Search Category, remark, wallet or amount...': 'ক্যাটাগরি, মন্তব্য, ওয়ালেট বা পরিমাণ খুঁজুন...',
+      'Search Category, remark, wallet or amount...':
+          'ক্যাটাগরি, মন্তব্য, ওয়ালেট বা পরিমাণ খুঁজুন...',
       'Search Name or Remark...': 'নাম বা মন্তব্য খুঁজুন...',
-      'Search questions (sync, guest, password...)': 'প্রশ্ন খুঁজুন (সিঙ্ক, অতিথি, পাসওয়ার্ড...)',
+      'Search questions (sync, guest, password...)':
+          'প্রশ্ন খুঁজুন (সিঙ্ক, অতিথি, পাসওয়ার্ড...)',
       'Security & Support': 'নিরাপত্তা ও সাপোর্ট',
       'Select': 'নির্বাচন করুন',
       'Select Category': 'ক্যাটাগরি নির্বাচন করুন',
       'Select Image Source': 'ছবির উৎস নির্বাচন করুন',
       'Select Wallet': 'ওয়ালেট নির্বাচন করুন',
       'Select a Color': 'একটি রঙ নির্বাচন করুন',
-      'Select a month to filter your transactions': 'আপনার লেনদেন ফিল্টার করতে একটি মাস নির্বাচন করুন',
+      'Select a month to filter your transactions':
+          'আপনার লেনদেন ফিল্টার করতে একটি মাস নির্বাচন করুন',
       'Select your preferred language': 'আপনার পছন্দের ভাষা নির্বাচন করুন',
       'Send Reset Link': 'রিসেট লিঙ্ক পাঠান',
       'Service Availability': 'পরিষেবার প্রাপ্যতা',
-      'Session expired. Please log in again and retry.': 'সেশন শেষ হয়েছে। অনুগ্রহ করে আবার লগ ইন করুন এবং পুনরায় চেষ্টা করুন।',
-      'Sign up to start tracking your expenses.': 'আপনার খরচ ট্র্যাক করতে সাইন আপ করুন।',
-      'Something went wrong. Please try again.': 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।',
+      'Session expired. Please log in again and retry.':
+          'সেশন শেষ হয়েছে। অনুগ্রহ করে আবার লগ ইন করুন এবং পুনরায় চেষ্টা করুন।',
+      'Sign up to start tracking your expenses.':
+          'আপনার খরচ ট্র্যাক করতে সাইন আপ করুন।',
+      'Something went wrong. Please try again.':
+          'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।',
       'Source': 'উৎস',
       'Submit': 'জমা দিন',
       'Submitting report...': 'রিপোর্ট জমা দেওয়া হচ্ছে...',
       'Swipe Down to Return': 'ফিরে যেতে নিচে সোয়াইপ করুন',
       'Swipe Up to See All Colors': 'সব রঙ দেখতে উপরে সোয়াইপ করুন',
       'Terms & Conditions': 'শর্তাবলী',
-      'Thanks! Your report has been submitted.': 'ধন্যবাদ! আপনার রিপোর্ট জমা দেওয়া হয়েছে।',
+      'Thanks! Your report has been submitted.':
+          'ধন্যবাদ! আপনার রিপোর্ট জমা দেওয়া হয়েছে।',
       'Theme': 'থিম',
-      'This Google account is already linked to another user.': 'এই গুগল অ্যাকাউন্টটি ইতিমধ্যে অন্য একজন ব্যবহারকারীর সাথে সংযুক্ত।',
-      'This account has been disabled. Contact support.': 'এই অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে। সাপোর্টের সাথে যোগাযোগ করুন।',
-      'This account is already permanent.': 'এই অ্যাকাউন্টটি আগে থেকেই স্থায়ী।',
-      'This app does not provide financial, tax, or legal advice.': 'এই অ্যাপটি আর্থিক, কর, বা আইনি পরামর্শ প্রদান করে না।',
-      'This credential is already linked to another account.': 'এই ক্রেডেনশিয়ালটি ইতিমধ্যে অন্য একটি অ্যাকাউন্টের সাথে যুক্ত।',
-      'This email is already in use. Try logging in instead.': 'এই ইমেইলটি ইতিমধ্যে ব্যবহৃত হচ্ছে। এর পরিবর্তে লগ ইন করার চেষ্টা করুন।',
-      'This email is already registered. Try logging in.': 'এই ইমেইলটি ইতিমধ্যে নিবন্ধিত। লগ ইন করার চেষ্টা করুন।',
-      'This email is registered with Google. Please sign in with Google.': 'এই ইমেইলটি গুগলে নিবন্ধিত। অনুগ্রহ করে গুগল দিয়ে সাইন ইন করুন।',
-      'This item will be deleted permanently.': 'এই আইটেমটি স্থায়ীভাবে মুছে ফেলা হবে।',
+      'This Google account is already linked to another user.':
+          'এই গুগল অ্যাকাউন্টটি ইতিমধ্যে অন্য একজন ব্যবহারকারীর সাথে সংযুক্ত।',
+      'This account has been disabled. Contact support.':
+          'এই অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে। সাপোর্টের সাথে যোগাযোগ করুন।',
+      'This account is already permanent.':
+          'এই অ্যাকাউন্টটি আগে থেকেই স্থায়ী।',
+      'This app does not provide financial, tax, or legal advice.':
+          'এই অ্যাপটি আর্থিক, কর, বা আইনি পরামর্শ প্রদান করে না।',
+      'This credential is already linked to another account.':
+          'এই ক্রেডেনশিয়ালটি ইতিমধ্যে অন্য একটি অ্যাকাউন্টের সাথে যুক্ত।',
+      'This email is already in use. Try logging in instead.':
+          'এই ইমেইলটি ইতিমধ্যে ব্যবহৃত হচ্ছে। এর পরিবর্তে লগ ইন করার চেষ্টা করুন।',
+      'This email is already registered. Try logging in.':
+          'এই ইমেইলটি ইতিমধ্যে নিবন্ধিত। লগ ইন করার চেষ্টা করুন।',
+      'This email is registered with Google. Please sign in with Google.':
+          'এই ইমেইলটি গুগলে নিবন্ধিত। অনুগ্রহ করে গুগল দিয়ে সাইন ইন করুন।',
+      'This item will be deleted permanently.':
+          'এই আইটেমটি স্থায়ীভাবে মুছে ফেলা হবে।',
       'Title': 'শিরোনাম',
-      'To confirm, enter your current password:': 'নিশ্চিত করতে, আপনার বর্তমান পাসওয়ার্ড লিখুন:',
-      'To generate summaries, reports, and insights about your spending and income.': 'আপনার ব্যয় এবং আয়ের বিষয়ে সারসংক্ষেপ, রিপোর্ট এবং অন্তর্দৃষ্টি তৈরি করতে।',
-      'To improve app performance, stability, and security.': 'অ্যাপের কর্মক্ষমতা, স্থিতিশীলতা এবং নিরাপত্তা উন্নত করতে।',
-      'To securely store and sync your financial data across devices.': 'ডিভাইস জুড়ে আপনার আর্থিক ডেটা নিরাপদে সংরক্ষণ এবং সিঙ্ক করতে।',
+      'To confirm, enter your current password:':
+          'নিশ্চিত করতে, আপনার বর্তমান পাসওয়ার্ড লিখুন:',
+      'To generate summaries, reports, and insights about your spending and income.':
+          'আপনার ব্যয় এবং আয়ের বিষয়ে সারসংক্ষেপ, রিপোর্ট এবং অন্তর্দৃষ্টি তৈরি করতে।',
+      'To improve app performance, stability, and security.':
+          'অ্যাপের কর্মক্ষমতা, স্থিতিশীলতা এবং নিরাপত্তা উন্নত করতে।',
+      'To securely store and sync your financial data across devices.':
+          'ডিভাইস জুড়ে আপনার আর্থিক ডেটা নিরাপদে সংরক্ষণ এবং সিঙ্ক করতে।',
       'Today': 'আজ',
       'Today Transactions': 'আজকের লেনদেন',
       'Today spend': 'আজকের খরচ',
-      'Too many attempts. Please wait and try again later.': 'অনেক বেশি চেষ্টা করা হয়েছে। অনুগ্রহ করে অপেক্ষা করুন এবং পরে আবার চেষ্টা করুন।',
+      'Too many attempts. Please wait and try again later.':
+          'অনেক বেশি চেষ্টা করা হয়েছে। অনুগ্রহ করে অপেক্ষা করুন এবং পরে আবার চেষ্টা করুন।',
       'Total Savings in History': 'ইতিহাসে মোট সঞ্চয়',
       'Total spent': 'মোট খরচ',
       'Transaction': 'লেনদেন',
@@ -709,11 +894,14 @@ class AppTranslations extends Translations {
       'Transaction not found': 'লেনদেন পাওয়া যায়নি',
       'Transaction updated successfully': 'লেনদেন সফলভাবে আপডেট করা হয়েছে',
       'Transactions': 'লেনদেনসমূহ',
-      'Try searching with different keywords or clear filters.': 'ভিন্ন শব্দ দিয়ে অনুসন্ধান করার চেষ্টা করুন বা ফিল্টারগুলো পরিষ্কার করুন।',
-      'Unable to logout. Please try again.': 'লগআউট করা যাচ্ছে না। অনুগ্রহ করে আবার চেষ্টা করুন।',
+      'Try searching with different keywords or clear filters.':
+          'ভিন্ন শব্দ দিয়ে অনুসন্ধান করার চেষ্টা করুন বা ফিল্টারগুলো পরিষ্কার করুন।',
+      'Unable to logout. Please try again.':
+          'লগআউট করা যাচ্ছে না। অনুগ্রহ করে আবার চেষ্টা করুন।',
       'Uncategorized': 'ক্যাটাগরি ছাড়া',
       'Update': 'আপডেট করুন',
-      'Update \${controller.selectedType.value}': 'আপডেট করুন \${controller.selectedType.value}',
+      'Update \${controller.selectedType.value}':
+          'আপডেট করুন \${controller.selectedType.value}',
       'Update Name': 'নাম আপডেট করুন',
       'Update Saving': 'সঞ্চয় আপডেট করুন',
       'Updating name...': 'নাম আপডেট করা হচ্ছে...',
@@ -726,28 +914,42 @@ class AppTranslations extends Translations {
       'Visual Representation': 'ভিজ্যুয়াল রিপ্রেজেন্টেশন',
       'Wallet': 'ওয়ালেট',
       'Wallet:': 'ওয়ালেট:',
-      'We are not liable for service interruptions or data loss beyond our control.': 'আমাদের নিয়ন্ত্রণের বাইরে পরিষেবা বিঘ্নিত বা ডেটা হারানোর জন্য আমরা দায়ী নই।',
-      'We are not responsible for losses due to incorrect data entry.': 'ভুল ডেটা এন্ট্রির কারণে ক্ষতির জন্য আমরা দায়ী নই।',
-      'We do not sell or rent your personal data.': 'আমরা আপনার ব্যক্তিগত ডেটা বিক্রি বা ভাড়া দিই না।',
-      'We do not store your passwords on our servers.': 'আমরা আমাদের সার্ভারে আপনার পাসওয়ার্ড সংরক্ষণ করি না।',
-      'We may disclose data if required by law.': 'আইনের প্রয়োজন হলে আমরা ডেটা প্রকাশ করতে পারি।',
-      'We strive to keep the app available at all times.': 'আমরা সবসময় অ্যাপটি চালু রাখার চেষ্টা করি।',
+      'We are not liable for service interruptions or data loss beyond our control.':
+          'আমাদের নিয়ন্ত্রণের বাইরে পরিষেবা বিঘ্নিত বা ডেটা হারানোর জন্য আমরা দায়ী নই।',
+      'We are not responsible for losses due to incorrect data entry.':
+          'ভুল ডেটা এন্ট্রির কারণে ক্ষতির জন্য আমরা দায়ী নই।',
+      'We do not sell or rent your personal data.':
+          'আমরা আপনার ব্যক্তিগত ডেটা বিক্রি বা ভাড়া দিই না।',
+      'We do not store your passwords on our servers.':
+          'আমরা আমাদের সার্ভারে আপনার পাসওয়ার্ড সংরক্ষণ করি না।',
+      'We may disclose data if required by law.':
+          'আইনের প্রয়োজন হলে আমরা ডেটা প্রকাশ করতে পারি।',
+      'We strive to keep the app available at all times.':
+          'আমরা সবসময় অ্যাপটি চালু রাখার চেষ্টা করি।',
       'Yesterday': 'গতকাল',
       'You Need to Pay.': 'আপনাকে পরিশোধ করতে হবে।',
       'You Will Receive.': 'আপনি পাবেন।',
-      'You are responsible for keeping your login method secure.': 'আপনার লগইন পদ্ধতি নিরাপদ রাখার দায়িত্ব আপনার।',
-      'You are responsible for the accuracy of the data you enter.': 'আপনার প্রবেশ করা ডেটার নির্ভুলতার জন্য আপনি দায়ী।',
-      'You are using a Guest account. Make it permanent to keep data forever.': 'আপনি একটি গেস্ট অ্যাকাউন্ট ব্যবহার করছেন। ডেটা চিরকালের জন্য রাখতে এটিকে স্থায়ী করুন।',
-      'You can delete your account from the app settings.': 'আপনি অ্যাপ সেটিংস থেকে আপনার অ্যাকাউন্ট মুছতে পারেন।',
+      'You are responsible for keeping your login method secure.':
+          'আপনার লগইন পদ্ধতি নিরাপদ রাখার দায়িত্ব আপনার।',
+      'You are responsible for the accuracy of the data you enter.':
+          'আপনার প্রবেশ করা ডেটার নির্ভুলতার জন্য আপনি দায়ী।',
+      'You are using a Guest account. Make it permanent to keep data forever.':
+          'আপনি একটি গেস্ট অ্যাকাউন্ট ব্যবহার করছেন। ডেটা চিরকালের জন্য রাখতে এটিকে স্থায়ী করুন।',
+      'You can delete your account from the app settings.':
+          'আপনি অ্যাপ সেটিংস থেকে আপনার অ্যাকাউন্ট মুছতে পারেন।',
       'You don\'t have permission to do this.': 'আপনার এটি করার অনুমতি নেই।',
-      'You may delete your account at any time from the app.': 'আপনি যেকোনো সময় অ্যাপ থেকে আপনার অ্যাকাউন্ট মুছে ফেলতে পারেন।',
-      'You must use this app for lawful and personal financial tracking purposes only.': 'আপনাকে অবশ্যই এই অ্যাপটি শুধুমাত্র আইনী এবং ব্যক্তিগত আর্থিক ট্র্যাকিং উদ্দেশ্যে ব্যবহার করতে হবে।',
+      'You may delete your account at any time from the app.':
+          'আপনি যেকোনো সময় অ্যাপ থেকে আপনার অ্যাকাউন্ট মুছে ফেলতে পারেন।',
+      'You must use this app for lawful and personal financial tracking purposes only.':
+          'আপনাকে অবশ্যই এই অ্যাপটি শুধুমাত্র আইনী এবং ব্যক্তিগত আর্থিক ট্র্যাকিং উদ্দেশ্যে ব্যবহার করতে হবে।',
       'You need to pay': 'আপনাকে পরিশোধ করতে হবে',
       'You will receive': 'আপনি পাবেন',
       'Your Name': 'আপনার নাম',
-      'Your account is already permanent.': 'আপনার অ্যাকাউন্ট আগে থেকেই স্থায়ী।',
-      'Your privacy matters to us. This explains how your data is collected, stored, and protected.': 'আপনার গোপনীয়তা আমাদের কাছে গুরুত্বপূর্ণ। এটি ব্যাখ্যা করে কিভাবে আপনার ডেটা সংগ্রহ, সংরক্ষণ এবং সুরক্ষিত করা হয়।',
+      'Your account is already permanent.':
+          'আপনার অ্যাকাউন্ট আগে থেকেই স্থায়ী।',
+      'Your privacy matters to us. This explains how your data is collected, stored, and protected.':
+          'আপনার গোপনীয়তা আমাদের কাছে গুরুত্বপূর্ণ। এটি ব্যাখ্যা করে কিভাবে আপনার ডেটা সংগ্রহ, সংরক্ষণ এবং সুরক্ষিত করা হয়।',
       '⚠️ Warning': '⚠️ সতর্কতা',
-    }
+    },
   };
 }

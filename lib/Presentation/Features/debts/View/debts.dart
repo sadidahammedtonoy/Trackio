@@ -833,126 +833,204 @@ class _TransactionTile extends StatelessWidget {
     final dateText = numberTranslation.formatDateBnFromString(
       DateFormat('dd MMM yyyy').format(item.date),
     );
+    final timeText = numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date));
     final typeColor = _typeColor(item.type);
+    final tablet = _isTablet(context);
+
+    final isLent = item.type == 'Lent';
+    final isBorrow = item.type == 'Borrow';
+    final gradientColors = isBorrow
+        ? [const Color(0xFF9B59B6), const Color(0xFF8E44AD)]
+        : isLent
+            ? [const Color(0xFFFF9F43), const Color(0xFFEE5A24)]
+            : [const Color(0xFF2ECC71), const Color(0xFF27AE60)];
+    final typeIcon = isBorrow
+        ? Icons.arrow_downward_rounded
+        : Icons.arrow_upward_rounded;
 
     Get.dialog(
       BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: Dialog(
-          backgroundColor: Colors.white.withOpacity(0.85),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
-            side: BorderSide(color: typeColor.withOpacity(0.15)),
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: tablet ? 160 : 20,
+            vertical: 24,
           ),
-          child: Padding(
-            padding: EdgeInsets.all(20.r),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: typeColor.withValues(alpha: 0.25),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                )
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          item.type.tr,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22.sp,
-                            color: typeColor,
-                          ),
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          "Transaction".tr,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (item.marked)
-                      Icon(Icons.check_circle, color: Colors.green, size: 24.sp),
-                  ],
-                ),
-                SizedBox(height: 15.h),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    "৳ ${numberTranslation.toBnDigits("${item.amount}")}",
-                    style: TextStyle(
-                      fontSize: 28.sp,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black,
+                // Gradient Header
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: tablet ? 28.0 : 22.0,
+                    vertical: tablet ? 24.0 : 20.0,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: gradientColors,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                   ),
-                ),
-                const Divider(),
-                SizedBox(height: 10.h),
-                _DetailRow(
-                  icon: item.type == "Lent" || item.type == "Borrow"
-                      ? Icons.person_outline
-                      : Icons.category_outlined,
-                  label: item.type == "Lent" || item.type == "Borrow"
-                      ? "Person Name:".tr
-                      : "Category:".tr,
-                  value: item.category.isEmpty ? "No Name".tr : item.category.tr,
-                ),
-                _DetailRow(
-                  icon: Icons.account_balance_wallet_outlined,
-                  label: "Wallet:".tr,
-                  value: item.wallet.tr,
-                ),
-                _DetailRow(
-                  icon: Icons.calendar_today_outlined,
-                  label: "Date:".tr,
-                  value: dateText,
-                ),
-                _DetailRow(
-                  icon: Icons.notes_outlined,
-                  label: "Remark:".tr,
-                  value: item.note.isEmpty ? "No Remark".tr : item.note.tr,
-                ),
-                SizedBox(height: 20.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Get.find<debtsController>().toggleTransactionMarked(
-                            monthKey: item.monthKey,
-                            transactionId: item.id,
-                          );
-                          Get.back();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              item.marked ? Colors.orange : Colors.green,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.25),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(typeIcon, color: Colors.white, size: tablet ? 18 : 16),
                           ),
-                        ),
-                        child: Text(
-                          "Mark as ${item.marked ? "Pending".tr : "Completed".tr}"
-                              .tr,
+                          const SizedBox(width: 10),
+                          Text(
+                            "${item.type.tr} ${'Transaction'.tr}",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: tablet ? 16.0 : 15.0,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const Spacer(),
+                          if (item.marked)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_circle, color: Colors.white, size: 14),
+                                  const SizedBox(width: 4),
+                                  Text('Completed'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                      SizedBox(height: tablet ? 14 : 12),
+                      Text(
+                        "৳ ${numberTranslation.toBnDigits("${item.amount}")}",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: tablet ? 34.0 : 30.0,
+                          letterSpacing: -0.5,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        timeText,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: tablet ? 13.0 : 12.0,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 8.h),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: () => Get.back(),
-                    child: Text(
-                      "Close".tr,
-                      style: const TextStyle(color: Colors.black54),
-                    ),
+
+                // Detail Rows
+                Padding(
+                  padding: EdgeInsets.all(tablet ? 24.0 : 20.0),
+                  child: Column(
+                    children: [
+                      _DetailRow(
+                        icon: item.type == "Lent" || item.type == "Borrow"
+                            ? Icons.person_outline
+                            : Icons.category_outlined,
+                        label: item.type == "Lent" || item.type == "Borrow"
+                            ? "Person Name:".tr
+                            : "Category:".tr,
+                        value: item.category.isEmpty ? "No Name".tr : item.category.tr,
+                      ),
+                      _DetailRow(
+                        icon: Icons.account_balance_wallet_outlined,
+                        label: "Wallet:".tr,
+                        value: item.wallet.tr,
+                      ),
+                      _DetailRow(
+                        icon: Icons.calendar_today_outlined,
+                        label: "Date:".tr,
+                        value: dateText,
+                      ),
+                      _DetailRow(
+                        icon: Icons.notes_outlined,
+                        label: "Remark:".tr,
+                        value: item.note.isEmpty ? "No Remark".tr : item.note.tr,
+                      ),
+                      SizedBox(height: tablet ? 12 : 10),
+                      // Mark button
+                      SizedBox(
+                        width: double.infinity,
+                        height: tablet ? 50 : 46,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.find<debtsController>().toggleTransactionMarked(
+                              monthKey: item.monthKey,
+                              transactionId: item.id,
+                            );
+                            Get.back();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: item.marked ? Colors.orange : Colors.green,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: Text(
+                            item.marked
+                                ? "Mark as Pending".tr
+                                : "Mark as Completed".tr,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      // Close Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: tablet ? 50 : 46,
+                        child: OutlinedButton(
+                          onPressed: () => Get.back(),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: Colors.grey.shade300),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: Text(
+                            "Close".tr,
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w600,
+                              fontSize: tablet ? 15 : 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -1032,26 +1110,27 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tablet = MediaQuery.of(context).size.shortestSide >= 600;
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 6.h),
+      padding: EdgeInsets.symmetric(vertical: tablet ? 5.0 : 6.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16.sp, color: Colors.black54),
-          SizedBox(width: 8.w),
+          Icon(icon, size: tablet ? 14.0 : 16.sp, color: Colors.black54),
+          SizedBox(width: tablet ? 6.0 : 8.w),
           Text(
             label,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: tablet ? 13.0 : 14.sp,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
           ),
-          SizedBox(width: 6.w),
+          SizedBox(width: tablet ? 4.0 : 6.w),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+              style: TextStyle(fontSize: tablet ? 13.0 : 14.sp, color: Colors.black87),
             ),
           ),
         ],

@@ -27,6 +27,7 @@ class DashboardController extends GetxController {
   final RxDouble thisMonthSavings = 0.0.obs;
   final RxMap<String, double> categorySummary = <String, double>{}.obs;
   final RxList<TranItem> todayTransactions = <TranItem>[].obs;
+  final RxList<TranItem> allMonthTransactions = <TranItem>[].obs;
   final RxList<double> weeklyAmounts = List.filled(7, 0.0).obs;
   final RxList<String> labels = <String>[].obs;
   final RxBool isLoading = true.obs;
@@ -149,6 +150,10 @@ class DashboardController extends GetxController {
     todayExpense.value = todayExp;
     categorySummary.assignAll(catSum);
     todayTransactions.assignAll(todayTxsList);
+    allMonthTransactions.assignAll(
+      allTxs.where((tx) => tx.monthKey == monthKey).toList()
+        ..sort((a, b) => b.date.compareTo(a.date)),
+    );
     dailyExpenses.assignAll(dailyExp);
     weeklyAmounts.assignAll(weekly);
     

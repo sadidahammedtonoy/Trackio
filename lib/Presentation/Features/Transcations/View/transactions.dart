@@ -604,75 +604,169 @@ Future<bool> _showDeleteDialog(BuildContext context) async {
 void _showDetailsDialog(BuildContext context, TranItem item, Color typeColor) {
   final dateText = numberTranslation
       .formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date));
+  final timeText = numberTranslation
+      .toBnDigits(DateFormat('hh:mm a').format(item.date));
   final tablet = _isTablet(context);
+  final isExpense = item.type.toLowerCase() == 'expense';
+  final gradientColors = isExpense
+      ? [const Color(0xFFFF6B6B), const Color(0xFFEE5A24)]
+      : [const Color(0xFF2ECC71), const Color(0xFF27AE60)];
+  final icon = isExpense ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded;
+
   Get.dialog(
     BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
       child: Dialog(
-        backgroundColor: Colors.white.withAlpha(217),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(tablet ? 20.0 : 24.r),
-            side: BorderSide(color: typeColor.withAlpha(38))),
-        child: Padding(
-          padding: EdgeInsets.all(tablet ? 20.0 : 20.r),
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: tablet ? 160 : 20,
+          vertical: 20,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: typeColor.withValues(alpha: 0.2),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              )
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("${item.type.tr} Transaction".tr,
+              // Header Gradient
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: tablet ? 28.0 : 22.0,
+                  vertical: tablet ? 24.0 : 20.0,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: gradientColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.25),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(icon, color: Colors.white, size: tablet ? 18 : 16),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          "${item.type.tr} ${'Transaction'.tr}",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: tablet ? 16.0 : 15.0,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (item.marked)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.25),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.white, size: 14),
+                                const SizedBox(width: 4),
+                                Text('Cleared'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: tablet ? 14 : 12),
+                    Text(
+                      "৳ ${numberTranslation.toBnDigits("${item.amount}")}",
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: tablet ? 16.0 : 20.sp,
-                          color: typeColor)),
-                  if (item.marked)
-                    Icon(Icons.check_circle,
-                        color: Colors.green,
-                        size: tablet ? 20.0 : 24.sp),
-                ],
-              ),
-              SizedBox(height: tablet ? 12.0 : 15.h),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                    "৳ ${numberTranslation.toBnDigits("${item.amount}")}",
-                    style: TextStyle(
-                        fontSize: tablet ? 22.0 : 28.sp,
+                        color: Colors.white,
                         fontWeight: FontWeight.w900,
-                        color: Colors.black)),
+                        fontSize: tablet ? 34.0 : 30.0,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      timeText,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: tablet ? 13.0 : 12.0,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const Divider(),
-              _DetailRow(
-                  icon: Icons.category_outlined,
-                  label: "Category:".tr,
-                  value: item.category.isEmpty
-                      ? "Uncategorized".tr
-                      : item.category.tr,
-                  isTablet: tablet),
-              _DetailRow(
-                  icon: Icons.account_balance_wallet_outlined,
-                  label: "Wallet:".tr,
-                  value: item.wallet.tr,
-                  isTablet: tablet),
-              _DetailRow(
-                  icon: Icons.calendar_today_outlined,
-                  label: "Date:".tr,
-                  value: dateText,
-                  isTablet: tablet),
-              _DetailRow(
-                  icon: Icons.notes_outlined,
-                  label: "Remark:".tr,
-                  value: item.note.isEmpty ? "No Remark".tr : item.note,
-                  isTablet: tablet),
-              SizedBox(height: tablet ? 16.0 : 20.h),
-              SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                      onPressed: Get.back,
-                      child: Text("Close".tr,
-                          style: const TextStyle(color: Colors.black54)))),
+
+              // Detail Rows
+              Padding(
+                padding: EdgeInsets.all(tablet ? 24.0 : 20.0),
+                child: Column(
+                  children: [
+                    _DetailRow(
+                        icon: Icons.category_outlined,
+                        label: "Category:".tr,
+                        value: item.category.isEmpty
+                            ? "Uncategorized".tr
+                            : item.category.tr,
+                        isTablet: tablet),
+                    _DetailRow(
+                        icon: Icons.account_balance_wallet_outlined,
+                        label: "Wallet:".tr,
+                        value: item.wallet.tr,
+                        isTablet: tablet),
+                    _DetailRow(
+                        icon: Icons.calendar_today_outlined,
+                        label: "Date:".tr,
+                        value: dateText,
+                        isTablet: tablet),
+                    _DetailRow(
+                        icon: Icons.notes_outlined,
+                        label: "Remark:".tr,
+                        value: item.note.isEmpty ? "No Remark".tr : item.note,
+                        isTablet: tablet),
+                    SizedBox(height: tablet ? 8 : 4),
+                    // Close Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: tablet ? 50 : 46,
+                      child: OutlinedButton(
+                        onPressed: Get.back,
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          "Close".tr,
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w600,
+                            fontSize: tablet ? 15 : 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

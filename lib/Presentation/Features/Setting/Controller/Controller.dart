@@ -523,66 +523,119 @@ class settingController extends GetxController {
   }
 
   void showImageSourceDialog() {
+    final context = Get.context!;
     if (GetPlatform.isIOS) {
-      Get.dialog(
-        CupertinoActionSheet(
+      showCupertinoModalPopup<void>(
+        context: context,
+        builder: (ctx) => CupertinoActionSheet(
           title: Text("Select Image Source".tr),
           actions: [
             CupertinoActionSheetAction(
               onPressed: () {
-                Get.back();
+                Navigator.pop(ctx);
                 pickAndUploadImage(ImageSource.camera);
               },
               child: Text("Camera".tr),
             ),
             CupertinoActionSheetAction(
               onPressed: () {
-                Get.back();
+                Navigator.pop(ctx);
                 pickAndUploadImage(ImageSource.gallery);
               },
               child: Text("Gallery".tr),
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            onPressed: () => Get.back(),
+            onPressed: () => Navigator.pop(ctx),
+            isDestructiveAction: false,
             child: Text("Cancel".tr),
           ),
         ),
       );
     } else {
-      Get.dialog(
-        AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text("Select Image Source".tr),
-          content: Column(
+      Get.bottomSheet(
+        Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: Text("Camera".tr),
-                onTap: () {
-                  Get.back();
-                  pickAndUploadImage(ImageSource.camera);
-                },
+              Container(
+                height: 4, width: 40,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: Text("Gallery".tr),
-                onTap: () {
-                  Get.back();
-                  pickAndUploadImage(ImageSource.gallery);
-                },
+              Text(
+                "Select Image Source".tr,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              _imageSourceTile(
+                icon: Icons.camera_alt_outlined,
+                label: "Camera".tr,
+                onTap: () { Get.back(); pickAndUploadImage(ImageSource.camera); },
+              ),
+              const SizedBox(height: 10),
+              _imageSourceTile(
+                icon: Icons.photo_library_outlined,
+                label: "Gallery".tr,
+                onTap: () { Get.back(); pickAndUploadImage(ImageSource.gallery); },
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: Get.back,
+                  child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
+                ),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(),
-              child: Text("Cancel".tr, style: const TextStyle(color: Colors.black)),
+        ),
+        isScrollControlled: true,
+      );
+    }
+  }
+
+  Widget _imageSourceTile({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 22, color: Colors.black87),
+            ),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
             ),
           ],
         ),
-      );
-    }
+      ),
+    );
   }
 }

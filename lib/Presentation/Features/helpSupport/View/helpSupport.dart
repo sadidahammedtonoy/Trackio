@@ -258,32 +258,35 @@ class _FaqTile extends StatelessWidget {
     return _Card(
       tablet: tablet,
       margin: EdgeInsets.only(bottom: tablet ? 14.0 : 10.0),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.symmetric(horizontal: tablet ? 14.0 : 10.0),
-        childrenPadding: EdgeInsets.fromLTRB(
-          tablet ? 20.0 : 16.0, 
-          0, 
-          tablet ? 20.0 : 16.0, 
-          tablet ? 18.0 : 14.0
-        ),
-        leading: Icon(Icons.help_outline, color: Colors.black54, size: tablet ? 24.0 : 20.0),
-        title: Text(
-          question.tr,
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: tablet ? 16.0 : 15.0),
-        ),
-        subtitle: Padding(
-          padding: EdgeInsets.only(top: tablet ? 6.0 : 4.0),
-          child: Text(
-            tag.tr,
-            style: TextStyle(fontSize: tablet ? 13.0 : 12.0, color: Colors.black54),
+      child: Material(
+        color: Colors.transparent,
+        child: ExpansionTile(
+          tilePadding: EdgeInsets.symmetric(horizontal: tablet ? 14.0 : 10.0),
+          childrenPadding: EdgeInsets.fromLTRB(
+            tablet ? 20.0 : 16.0,
+            0,
+            tablet ? 20.0 : 16.0,
+            tablet ? 18.0 : 14.0
           ),
-        ),
-        children: [
-          Text(
-            answer.tr,
-            style: TextStyle(color: Colors.black87, height: 1.35, fontSize: tablet ? 15.0 : 14.0),
+          leading: Icon(Icons.help_outline, color: Colors.black54, size: tablet ? 24.0 : 20.0),
+          title: Text(
+            question.tr,
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: tablet ? 16.0 : 15.0),
           ),
-        ],
+          subtitle: Padding(
+            padding: EdgeInsets.only(top: tablet ? 6.0 : 4.0),
+            child: Text(
+              tag.tr,
+              style: TextStyle(fontSize: tablet ? 13.0 : 12.0, color: Colors.black54),
+            ),
+          ),
+          children: [
+            Text(
+              answer.tr,
+              style: TextStyle(color: Colors.black87, height: 1.35, fontSize: tablet ? 15.0 : 14.0),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -339,7 +342,7 @@ class _Card extends StatelessWidget {
       margin: margin ?? EdgeInsets.zero,
       padding: EdgeInsets.all(tablet ? 18.0 : 14.0),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.black12),
       ),

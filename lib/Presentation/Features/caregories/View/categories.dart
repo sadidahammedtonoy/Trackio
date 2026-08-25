@@ -90,6 +90,7 @@ class categories extends StatelessWidget {
               name: name,
               createdAtText: createdAtText,
               tablet: tablet,
+              index: index,
             ),
           );
         },
@@ -186,11 +187,46 @@ class categories extends StatelessWidget {
     );
   }
 
+  static const List<Color> _iconColors = [
+    Color(0xFFFF6F00), // Deep Amber
+    Color(0xFFAD1457), // Dark Pink
+    Color(0xFF6A1B9A), // Deep Purple
+    Color(0xFF00695C), // Dark Teal
+    Color(0xFF0277BD), // Steel Blue
+    Color(0xFFE65100), // Burnt Orange
+    Color(0xFF558B2F), // Olive Green
+    Color(0xFF4527A0), // Indigo
+    Color(0xFF00838F), // Dark Cyan
+    Color(0xFFC62828), // Crimson
+    Color(0xFF283593), // Navy Blue
+    Color(0xFF6D4C41), // Brown
+    Color(0xFF37474F), // Blue Grey
+    Color(0xFFAF4448), // Dusty Rose
+    Color(0xFF00600F), // Forest
+    Color(0xFF1A237E), // Deep Indigo
+    Color(0xFF33691E), // Avocado
+    Color(0xFF880E4F), // Fuchsia
+    Color(0xFFBF360C), // Rust
+    Color(0xFF01579B), // Ocean Blue
+    Color(0xFF4E342E), // Espresso
+    Color(0xFF006064), // Deep Cyan
+    Color(0xFF8D6E63), // Warm Taupe
+    Color(0xFF546E7A), // Slate
+    Color(0xFF7B1FA2), // Violet
+    Color(0xFFE91E63), // Hot Pink
+    Color(0xFF00897B), // Emerald
+    Color(0xFF1565C0), // Cobalt
+    Color(0xFFF57F17), // Golden
+    Color(0xFF5D4037), // Mocha
+  ];
+
   Widget _categoryTile({
     required String name,
     required String createdAtText,
     required bool tablet,
+    required int index,
   }) {
+    final iconColor = _iconColors[index % _iconColors.length];
     return ClipRRect(
       borderRadius: BorderRadius.circular(tablet ? 16.0 : 14.0),
       child: BackdropFilter(
@@ -198,7 +234,7 @@ class categories extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: tablet ? 18.0 : 14.0, vertical: tablet ? 16.0 : 12.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2), // Used 0.2 for better visibility like glass card
+            color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(tablet ? 16.0 : 14.0),
             border: Border.all(
               color: Colors.grey.withOpacity(0.20),
@@ -208,12 +244,12 @@ class categories extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: tablet ? 22.0 : 18.0,
-                backgroundColor: const Color(0xFFF2F4F7),
+                backgroundColor: iconColor.withValues(alpha: 0.12),
                 child: HugeIcon(
-                  icon: HugeIcons.strokeRoundedFavourite, 
-                  color: Colors.black87, 
+                  icon: HugeIcons.strokeRoundedFavourite,
+                  color: iconColor,
                   size: tablet ? 22.0 : 18.0
-                ), 
+                ),
               ),
               SizedBox(width: tablet ? 16.0 : 12.0),
               Expanded(
