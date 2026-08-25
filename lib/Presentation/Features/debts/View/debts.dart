@@ -15,16 +15,20 @@ import '../Controller/Controller.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
+
 class deptsPage extends StatelessWidget {
   deptsPage({super.key});
   final controller = Get.find<debtsController>();
 
   @override
   Widget build(BuildContext context) {
-    // Define widgets for tabs to prevent rebuilding them on tab change
+    final tablet = _isTablet(context);
+
     final List<Widget> tabViews = [
-      _buildTransactionsList(),
-      _buildPersonList(),
+      _buildTransactionsList(tablet),
+      _buildPersonList(tablet),
     ];
 
     return Scaffold(
@@ -35,7 +39,7 @@ class deptsPage extends StatelessWidget {
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 20.sp,
+            fontSize: tablet ? 16.0 : 20.sp,
           ),
         ),
         centerTitle: false,
@@ -44,7 +48,11 @@ class deptsPage extends StatelessWidget {
           Obx(() => IconButton(
                 icon: controller.isSearchVisible.value
                     ? const Icon(Icons.close, color: Colors.black)
-                    : HugeIcon(icon: HugeIcons.strokeRoundedSearch02, color: Colors.black, size: 24.sp),
+                    : HugeIcon(
+                        icon: HugeIcons.strokeRoundedSearch02,
+                        color: Colors.black,
+                        size: tablet ? 20.0 : 24.sp,
+                      ),
                 onPressed: () {
                   controller.toggleSearch();
                 },
@@ -52,12 +60,12 @@ class deptsPage extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: tablet ? 20.0 : 16.w),
         child: Column(
           children: [
             _GlassCard(
-              padding: EdgeInsets.all(4.r),
-              borderRadius: BorderRadius.circular(16.r),
+              padding: EdgeInsets.all(tablet ? 4.0 : 4.r),
+              borderRadius: BorderRadius.circular(tablet ? 16.0 : 16.r),
               child: Obx(() {
                 return Row(
                   children: [
@@ -66,18 +74,20 @@ class deptsPage extends StatelessWidget {
                       index: 0,
                       selectedIndex: controller.tabIndex.value,
                       onTap: () => controller.changeTab(0),
+                      isTablet: tablet,
                     ),
                     _tabButton(
                       label: "Person".tr,
                       index: 1,
                       selectedIndex: controller.tabIndex.value,
                       onTap: () => controller.changeTab(1),
+                      isTablet: tablet,
                     ),
                   ],
                 );
               }),
             ),
-            _buildSearchBar(),
+            _buildSearchBar(tablet),
             Expanded(
               child: Obx(() => IndexedStack(
                 index: controller.tabIndex.value,
@@ -90,31 +100,39 @@ class deptsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(bool tablet) {
     return Obx(() => controller.isSearchVisible.value
         ? Padding(
-            padding: EdgeInsets.only(top: 15.h, bottom: 5.h),
+            padding: EdgeInsets.only(
+              top: tablet ? 10.0 : 15.h,
+              bottom: tablet ? 4.0 : 5.h,
+            ),
             child: TextFormField(
               autofocus: true,
               textInputAction: TextInputAction.search,
               style: const TextStyle(color: Colors.black),
               decoration: InputDecoration(
                 hintText: "Search Name or Remark...".tr,
-                hintStyle: const TextStyle(color: Colors.black38),
-                prefixIcon: const Icon(Icons.search, size: 20, color: Colors.black45),
+                hintStyle: TextStyle(
+                  color: Colors.black38,
+                  fontSize: tablet ? 13.0 : 13.sp,
+                ),
+                prefixIcon: Icon(Icons.search, size: tablet ? 18.0 : 20.sp, color: Colors.black45),
                 isDense: true,
                 contentPadding: EdgeInsets.symmetric(
-                    vertical: 12.h, horizontal: 16.w),
+                  vertical: tablet ? 8.0 : 12.h,
+                  horizontal: tablet ? 16.0 : 16.w,
+                ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(tablet ? 12.0 : 12.r),
                   borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(tablet ? 12.0 : 12.r),
                   borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(tablet ? 12.0 : 12.r),
                   borderSide: BorderSide(color: AppColors.primary),
                 ),
               ),
@@ -124,7 +142,7 @@ class deptsPage extends StatelessWidget {
         : const SizedBox.shrink());
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildSummaryCards(bool tablet) {
     return StreamBuilder<Map<String, double>>(
       stream: controller.streamTotalLentBorrow(),
       builder: (context, snapshot) {
@@ -134,7 +152,7 @@ class deptsPage extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10.h),
+            SizedBox(height: tablet ? 8.0 : 10.h),
             Row(
               children: [
                 Expanded(
@@ -147,7 +165,7 @@ class deptsPage extends StatelessWidget {
                     },
                     child: _GlassCard(
                       borderColor: Colors.orange.withOpacity(0.5),
-                      padding: EdgeInsets.all(16.r),
+                      padding: EdgeInsets.all(tablet ? 12.0 : 16.r),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -158,7 +176,7 @@ class deptsPage extends StatelessWidget {
                               Text(
                                 "Lent".tr,
                                 style: TextStyle(
-                                  fontSize: 18.sp,
+                                  fontSize: tablet ? 14.0 : 18.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.orange,
                                 ),
@@ -170,13 +188,13 @@ class deptsPage extends StatelessWidget {
                                 triggerMode: TooltipTriggerMode.tap,
                                 child: Icon(
                                   Icons.info_outline,
-                                  size: 14.sp,
+                                  size: tablet ? 14.0 : 14.sp,
                                   color: Colors.grey,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 8.h),
+                          SizedBox(height: tablet ? 6.0 : 8.h),
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -184,16 +202,16 @@ class deptsPage extends StatelessWidget {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.orange,
-                                fontSize: 22.sp,
+                                fontSize: tablet ? 18.0 : 22.sp,
                               ),
                             ),
                           ),
-                          SizedBox(height: 4.h),
+                          SizedBox(height: tablet ? 3.0 : 4.h),
                           Text(
                             "You Will Receive.".tr,
                             style: TextStyle(
                               color: Colors.black54,
-                              fontSize: 11.sp,
+                              fontSize: tablet ? 11.0 : 11.sp,
                             ),
                           ),
                         ],
@@ -201,7 +219,7 @@ class deptsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: tablet ? 10.0 : 12.w),
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
@@ -212,7 +230,7 @@ class deptsPage extends StatelessWidget {
                     },
                     child: _GlassCard(
                       borderColor: Colors.purple.withOpacity(0.5),
-                      padding: EdgeInsets.all(16.r),
+                      padding: EdgeInsets.all(tablet ? 12.0 : 16.r),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -223,7 +241,7 @@ class deptsPage extends StatelessWidget {
                               Text(
                                 "Borrow".tr,
                                 style: TextStyle(
-                                  fontSize: 18.sp,
+                                  fontSize: tablet ? 14.0 : 18.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.purple,
                                 ),
@@ -235,13 +253,13 @@ class deptsPage extends StatelessWidget {
                                 triggerMode: TooltipTriggerMode.tap,
                                 child: Icon(
                                   Icons.info_outline,
-                                  size: 14.sp,
+                                  size: tablet ? 14.0 : 14.sp,
                                   color: Colors.grey,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 8.h),
+                          SizedBox(height: tablet ? 6.0 : 8.h),
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -249,16 +267,16 @@ class deptsPage extends StatelessWidget {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.purple,
-                                fontSize: 22.sp,
+                                fontSize: tablet ? 18.0 : 22.sp,
                               ),
                             ),
                           ),
-                          SizedBox(height: 4.h),
+                          SizedBox(height: tablet ? 3.0 : 4.h),
                           Text(
                             "You Need to Pay.".tr,
                             style: TextStyle(
                               color: Colors.black54,
-                              fontSize: 11.sp,
+                              fontSize: tablet ? 11.0 : 11.sp,
                             ),
                           ),
                         ],
@@ -268,14 +286,14 @@ class deptsPage extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: tablet ? 14.0 : 20.h),
           ],
         );
       },
     );
   }
 
-  Widget _buildTransactionsList() {
+  Widget _buildTransactionsList(bool tablet) {
     return StreamBuilder<List<TranItem>>(
       stream: controller.streamLentBorrowTransactions(),
       initialData: controller.cachedLentBorrow,
@@ -300,7 +318,7 @@ class deptsPage extends StatelessWidget {
           if (items.isEmpty) {
             return Column(
               children: [
-                _buildSummaryCards(),
+                _buildSummaryCards(tablet),
                  Expanded(
                    child: Center(
                     child: Text(query.isEmpty
@@ -312,46 +330,93 @@ class deptsPage extends StatelessWidget {
             );
           }
 
-          List<dynamic> groupedItems = [];
-          String? lastMonth;
-
+          // --- Build grouped sections ---
+          // Group items by month
+          final Map<String, List<TranItem>> monthMap = {};
+          final List<String> monthOrder = [];
           for (var item in items) {
-            String currentMonth = DateFormat('MMMM yyyy').format(item.date);
-            if (currentMonth != lastMonth) {
-              groupedItems.add(currentMonth);
-              lastMonth = currentMonth;
+            final month = DateFormat('MMMM yyyy').format(item.date);
+            if (!monthMap.containsKey(month)) {
+              monthMap[month] = [];
+              monthOrder.add(month);
             }
-            groupedItems.add(item);
+            monthMap[month]!.add(item);
           }
 
-          return ListView.builder(
-            padding: EdgeInsets.only(bottom: 115.h, top: 15.h),
-            itemCount: groupedItems.length + 1,
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return _buildSummaryCards();
-              }
+          // Build flat list: [summaryCards, then per-month: [header, ...rows]]
+          // Each "row" on tablet = up to 2 items; on phone = 1 item
+          final List<Widget> rows = [];
+          rows.add(_buildSummaryCards(tablet));
 
-              final itemIndex = index - 1;
-              final item = groupedItems[itemIndex];
+          for (int mi = 0; mi < monthOrder.length; mi++) {
+            final month = monthOrder[mi];
+            final monthItems = monthMap[month]!;
 
-              if (item is String) {
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 8.h, left: 4.w, top: itemIndex == 0 ? 0 : 20.h),
-                  child: Text(
-                    item,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+            // Month header
+            rows.add(Padding(
+              padding: EdgeInsets.only(
+                bottom: tablet ? 6.0 : 8.h,
+                left: tablet ? 4.0 : 4.w,
+                top: mi == 0 ? 0 : (tablet ? 16.0 : 20.h),
+              ),
+              child: Text(
+                month,
+                style: TextStyle(
+                  fontSize: tablet ? 14.0 : 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ));
+
+            if (tablet) {
+              // 2-column grid rows
+              for (int i = 0; i < monthItems.length; i += 2) {
+                final left = monthItems[i];
+                final right = (i + 1) < monthItems.length ? monthItems[i + 1] : null;
+                rows.add(Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _TransactionTile(
+                          item: left,
+                          isTablet: true,
+                          onDelete: () async {
+                            await controller.deleteMonthlyTransaction(
+                              monthKey: left.monthKey,
+                              transactionId: left.id,
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 10.0),
+                      Expanded(
+                        child: right != null
+                            ? _TransactionTile(
+                                item: right,
+                                isTablet: true,
+                                onDelete: () async {
+                                  await controller.deleteMonthlyTransaction(
+                                    monthKey: right.monthKey,
+                                    transactionId: right.id,
+                                  );
+                                },
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
                   ),
-                );
-              } else if (item is TranItem) {
-                 return Padding(
+                ));
+              }
+            } else {
+              // Single column
+              for (final item in monthItems) {
+                rows.add(Padding(
                   padding: EdgeInsets.only(bottom: 12.h),
                   child: _TransactionTile(
                     item: item,
+                    isTablet: false,
                     onDelete: () async {
                       await controller.deleteMonthlyTransaction(
                         monthKey: item.monthKey,
@@ -359,17 +424,24 @@ class deptsPage extends StatelessWidget {
                       );
                     },
                   ),
-                );
+                ));
               }
-              return const SizedBox.shrink();
-            },
+            }
+          }
+
+          return ListView(
+            padding: EdgeInsets.only(
+              bottom: tablet ? 80.0 : 115.h,
+              top: tablet ? 10.0 : 15.h,
+            ),
+            children: rows,
           );
         });
       },
     );
   }
 
-  Widget _buildPersonList() {
+  Widget _buildPersonList(bool tablet) {
     return StreamBuilder<List<MonthPersonDebt>>(
       stream: controller.streamDebtsByPersonByMonth(),
       builder: (context, snapshot) {
@@ -397,13 +469,19 @@ class deptsPage extends StatelessWidget {
             return Center(
               child: Text(
                 query.isEmpty ? "No debts to show".tr : "No matching results found".tr,
-                style: TextStyle(fontSize: 16.sp, color: Colors.black54),
+                style: TextStyle(
+                  fontSize: tablet ? 14.0 : 16.sp,
+                  color: Colors.black54,
+                ),
               ),
             );
           }
 
           return ListView.builder(
-            padding: EdgeInsets.only(bottom: 115.h, top: 15.h),
+            padding: EdgeInsets.only(
+              bottom: tablet ? 80.0 : 115.h,
+              top: tablet ? 10.0 : 15.h,
+            ),
             itemCount: monthlyDebts.length,
             itemBuilder: (context, index) {
               final monthDebt = monthlyDebts[index];
@@ -411,11 +489,15 @@ class deptsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(bottom: 12.h, left: 4.w, top: index == 0 ? 0 : 20.h),
+                    padding: EdgeInsets.only(
+                      bottom: tablet ? 10.0 : 12.h,
+                      left: tablet ? 4.0 : 4.w,
+                      top: index == 0 ? 0 : (tablet ? 16.0 : 20.h),
+                    ),
                     child: Text(
                       monthDebt.month,
                       style: TextStyle(
-                        fontSize: 16.sp,
+                        fontSize: tablet ? 14.0 : 16.sp,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
@@ -426,15 +508,15 @@ class deptsPage extends StatelessWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12.w,
-                      mainAxisSpacing: 12.h,
-                      childAspectRatio: 1.4,
+                      crossAxisCount: tablet ? 3 : 2,
+                      crossAxisSpacing: tablet ? 10.0 : 12.w,
+                      mainAxisSpacing: tablet ? 10.0 : 12.h,
+                      mainAxisExtent: tablet ? 90.0 : 110.0,
                     ),
                     itemCount: monthDebt.debts.length,
                     itemBuilder: (context, gridIndex) {
                       final debt = monthDebt.debts[gridIndex];
-                      return _PersonDebtTile(debt: debt);
+                      return _PersonDebtTile(debt: debt, isTablet: tablet);
                     },
                   )
                 ],
@@ -452,6 +534,7 @@ Widget _tabButton({
   required int index,
   required int selectedIndex,
   required VoidCallback onTap,
+  bool isTablet = false,
 }) {
   final isSelected = selectedIndex == index;
 
@@ -460,10 +543,10 @@ Widget _tabButton({
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(vertical: 12.h),
+        padding: EdgeInsets.symmetric(vertical: isTablet ? 8.0 : 12.h),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(isTablet ? 10.0 : 12.r),
           boxShadow: isSelected
               ? [
                   BoxShadow(
@@ -480,7 +563,7 @@ Widget _tabButton({
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.black54,
             fontWeight: FontWeight.bold,
-            fontSize: 14.sp,
+            fontSize: isTablet ? 13.0 : 14.sp,
           ),
         ),
       ),
@@ -534,10 +617,15 @@ class _GlassCard extends StatelessWidget {
 }
 
 class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({required this.item, required this.onDelete});
+  const _TransactionTile({
+    required this.item,
+    required this.onDelete,
+    this.isTablet = false,
+  });
 
   final TranItem item;
   final Future<void> Function() onDelete;
+  final bool isTablet;
 
   Color _typeColor(String type) {
     if (type == "Expense") return Colors.red;
@@ -550,6 +638,15 @@ class _TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final typeColor = _typeColor(item.type);
+
+    final double avatarSize = isTablet ? 36.0 : 50.r;
+    final double avatarFont = isTablet ? 14.0 : 18.sp;
+    final double hGap = isTablet ? 10.0 : 15.w;
+    final double catFont = isTablet ? 13.0 : 15.sp;
+    final double walletFont = isTablet ? 11.0 : 12.sp;
+    final double amtFont = isTablet ? 13.0 : 15.sp;
+    final double dateFont = isTablet ? 9.0 : 10.sp;
+    final double cardPad = isTablet ? 10.0 : 12.r;
 
     return Dismissible(
       key: ValueKey(item.id),
@@ -573,12 +670,12 @@ class _TransactionTile extends StatelessWidget {
       child: GestureDetector(
         onLongPress: () => _showDetailsDialog(context),
         child: _GlassCard(
-          padding: EdgeInsets.all(12.r),
+          padding: EdgeInsets.all(cardPad),
           child: Row(
             children: [
               Container(
-                width: 50.r,
-                height: 50.r,
+                width: avatarSize,
+                height: avatarSize,
                 decoration: BoxDecoration(
                   color: typeColor.withOpacity(0.1),
                   shape: BoxShape.circle,
@@ -588,13 +685,13 @@ class _TransactionTile extends StatelessWidget {
                     item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
                     style: TextStyle(
                       color: typeColor,
-                      fontSize: 18.sp,
+                      fontSize: avatarFont,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-              SizedBox(width: 15.w),
+              SizedBox(width: hGap),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,24 +702,24 @@ class _TransactionTile extends StatelessWidget {
                           item.category.isEmpty ? "No Name".tr : item.category.tr,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 15.sp,
+                            fontSize: catFont,
                             color: Colors.black87,
                           ),
                         ),
                         if (item.marked)
                           Padding(
-                            padding: EdgeInsets.only(left: 6.w),
+                            padding: EdgeInsets.only(left: isTablet ? 5.0 : 6.w),
                             child: Icon(Icons.check_circle,
-                                color: Colors.green, size: 14.sp),
+                                color: Colors.green, size: isTablet ? 13.0 : 14.sp),
                           ),
                       ],
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 2),
                     Text(
                       item.wallet.tr,
                       style: TextStyle(
                         color: Colors.black54,
-                        fontSize: 12.sp,
+                        fontSize: walletFont,
                       ),
                     ),
                   ],
@@ -635,23 +732,26 @@ class _TransactionTile extends StatelessWidget {
                     "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
+                      fontSize: amtFont,
                       color: typeColor,
                     ),
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 2),
                   Text(
-                    numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date)) +
-                    ", " +
-                    numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date)),
+                    isTablet
+                        ? DateFormat('dd MMM yyyy, hh:mm a').format(item.date)
+                        : numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date)) +
+                          ", " +
+                          numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date)),
                     style: TextStyle(
                       color: Colors.black45,
-                      fontSize: 10.sp,
+                      fontSize: dateFont,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
                 ],
               ),
+              SizedBox(width: isTablet ? 8.0 : 4.0),
             ],
           ),
         ),
@@ -661,17 +761,25 @@ class _TransactionTile extends StatelessWidget {
 
   Widget _buildActionBg(dynamic icon, String text, Color color, Alignment alignment) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.symmetric(horizontal: isTablet ? 16.0 : 20.w),
       alignment: alignment,
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(isTablet ? 14.0 : 14.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: alignment == Alignment.centerLeft
-            ? [HugeIcon(icon: icon, color: color, size: 22.sp), SizedBox(width: 8.w), Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold))]
-            : [Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold)), SizedBox(width: 8.w), HugeIcon(icon: icon, color: color, size: 22.sp)],
+            ? [
+                HugeIcon(icon: icon, color: color, size: isTablet ? 18.0 : 22.sp),
+                SizedBox(width: isTablet ? 6.0 : 8.w),
+                Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: isTablet ? 12.0 : null)),
+              ]
+            : [
+                Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: isTablet ? 12.0 : null)),
+                SizedBox(width: isTablet ? 6.0 : 8.w),
+                HugeIcon(icon: icon, color: color, size: isTablet ? 18.0 : 22.sp),
+              ],
       ),
     );
   }
@@ -858,7 +966,8 @@ class _TransactionTile extends StatelessWidget {
 
 class _PersonDebtTile extends StatelessWidget {
   final PersonDebt debt;
-  const _PersonDebtTile({required this.debt});
+  final bool isTablet;
+  const _PersonDebtTile({required this.debt, this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
@@ -869,7 +978,7 @@ class _PersonDebtTile extends StatelessWidget {
 
     return _GlassCard(
       borderColor: color.withOpacity(0.5),
-      padding: EdgeInsets.all(12.r),
+      padding: EdgeInsets.all(isTablet ? 10.0 : 12.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -877,7 +986,7 @@ class _PersonDebtTile extends StatelessWidget {
             debt.name.tr,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 15.sp,
+              fontSize: isTablet ? 13.0 : 15.sp,
               color: Colors.black87,
             ),
             maxLines: 1,
@@ -890,18 +999,18 @@ class _PersonDebtTile extends StatelessWidget {
               "৳${numberTranslation.toBnDigits(amount.toStringAsFixed(0))}",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 18.sp,
+                fontSize: isTablet ? 16.0 : 18.sp,
                 color: color,
               ),
               maxLines: 1,
             ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: isTablet ? 2.0 : 2.h),
           Text(
             status,
             style: TextStyle(
               color: Colors.black54,
-              fontSize: 11.sp,
+              fontSize: isTablet ? 10.0 : 11.sp,
             ),
           ),
         ],

@@ -56,9 +56,9 @@ class ForgotPasswordController extends GetxController {
       }
 
       // ✅ 4) Unknown provider
-      Get.snackbar("Not supported", "This account uses: $provider");
+      Get.snackbar("Not supported".tr, "This account uses: $provider");
     } on FirebaseAuthException catch (e) {
-      Get.snackbar("Failed", e.message ?? "Could not send reset email.".tr);
+      Get.snackbar("Failed".tr, e.message ?? "Could not send reset email.".tr);
     } catch (e) {
       AppSnackbar.show("Something went wrong. Please try again.".tr);
     } finally {

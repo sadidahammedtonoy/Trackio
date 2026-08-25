@@ -3,50 +3,55 @@ import 'package:get/get.dart';
 import 'package:sadid/App/assets_path.dart';
 import '../Controller/Controller.dart';
 
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
+
 class MakePermanentDialog extends StatelessWidget {
   const MakePermanentDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
     final c = Get.put(MakePermanentController());
+    final tablet = _isTablet(context);
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      child: Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      elevation: 0,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: tablet ? 24.0 : 16.0, 
+        vertical: tablet ? 32.0 : 24.0
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: tablet ? 400.0 : double.infinity),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(22), // 🔥 smoother radius
+          borderRadius: BorderRadius.circular(22),
           child: Obx(() {
             final guest = c.isGuest.value;
-
+  
             return Stack(
               children: [
                 // Background image
                 Positioned.fill(
                   child: Container(color: Colors.white,)
                 ),
-
+  
                 // Main content
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(tablet ? 24.0 : 16.0),
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 14),
-
+                        SizedBox(height: tablet ? 18.0 : 14.0),
+  
                         // Header
                         Row(
                           children: [
                             Text(
                               "Make Permanent Account".tr,
-                              style: const TextStyle(
-                                fontSize: 16,
+                              style: TextStyle(
+                                fontSize: tablet ? 18.0 : 16.0,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
@@ -57,28 +62,29 @@ class MakePermanentDialog extends StatelessWidget {
                             )
                           ],
                         ),
-
-                        const SizedBox(height: 10),
-
+  
+                        SizedBox(height: tablet ? 14.0 : 10.0),
+  
                         _statusCard(
                           guest: guest,
                           email: c.displayEmail.value,
+                          tablet: tablet,
                         ),
-
-                        const SizedBox(height: 14),
-
+  
+                        SizedBox(height: tablet ? 18.0 : 14.0),
+  
                         if (!guest) ...[
                           Text(
                             "Your account is already permanent.".tr,
-                            style: const TextStyle(
-                              fontSize: 14,
+                            style: TextStyle(
+                              fontSize: tablet ? 15.0 : 14.0,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: tablet ? 16.0 : 12.0),
                           SizedBox(
                             width: double.infinity,
-                            height: 46,
+                            height: tablet ? 50.0 : 46.0,
                             child: ElevatedButton(
                               onPressed: () => Get.back(),
                               child: Text(
@@ -91,13 +97,13 @@ class MakePermanentDialog extends StatelessWidget {
                         ] else ...[
                           Text(
                             "Create with Email".tr,
-                            style: const TextStyle(
-                              fontSize: 14,
+                            style: TextStyle(
+                              fontSize: tablet ? 15.0 : 14.0,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const SizedBox(height: 10),
-
+                          SizedBox(height: tablet ? 14.0 : 10.0),
+  
                           TextField(
                             controller: c.emailC,
                             keyboardType: TextInputType.emailAddress,
@@ -108,9 +114,9 @@ class MakePermanentDialog extends StatelessWidget {
                               ),
                             ),
                           ),
-
-                          const SizedBox(height: 12),
-
+  
+                          SizedBox(height: tablet ? 16.0 : 12.0),
+  
                           Obx(() => TextField(
                             controller: c.passC,
                             obscureText: c.hidePass.value,
@@ -130,12 +136,12 @@ class MakePermanentDialog extends StatelessWidget {
                               ),
                             ),
                           )),
-
-                          const SizedBox(height: 12),
-
+  
+                          SizedBox(height: tablet ? 16.0 : 12.0),
+  
                           SizedBox(
                             width: double.infinity,
-                            height: 46,
+                            height: tablet ? 50.0 : 46.0,
                             child: ElevatedButton(
                               onPressed: c.isLoading.value
                                   ? null
@@ -146,9 +152,9 @@ class MakePermanentDialog extends StatelessWidget {
                               ),
                             ),
                           ),
-
-                          const SizedBox(height: 14),
-
+  
+                          SizedBox(height: tablet ? 18.0 : 14.0),
+  
                           Center(
                             child: Text(
                               "OR".tr,
@@ -157,19 +163,19 @@ class MakePermanentDialog extends StatelessWidget {
                               ),
                             ),
                           ),
-
-                          const SizedBox(height: 14),
-
+  
+                          SizedBox(height: tablet ? 18.0 : 14.0),
+  
                           SizedBox(
                             width: double.infinity,
-                            height: 46,
+                            height: tablet ? 50.0 : 46.0,
                             child: OutlinedButton.icon(
                               onPressed: c.isLoading.value
                                   ? null
                                   : c.makePermanentWithGoogle,
                               icon: Image.asset(
                                 assets_path.google,
-                                width: 25,
+                                width: tablet ? 28.0 : 25.0,
                               ),
                               label: Text(
                                 "Continue with Google".tr,
@@ -177,26 +183,26 @@ class MakePermanentDialog extends StatelessWidget {
                               ),
                             ),
                           ),
-
-                          const SizedBox(height: 10),
-
+  
+                          SizedBox(height: tablet ? 14.0 : 10.0),
+  
                           Text(
                             "This upgrades your guest account to a permanent account."
                                 .tr,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.grey.shade700,
-                              fontSize: 12,
+                              fontSize: tablet ? 13.0 : 12.0,
                             ),
                           ),
-
-                          const SizedBox(height: 15),
+  
+                          SizedBox(height: tablet ? 20.0 : 15.0),
                         ],
                       ],
                     ),
                   ),
                 ),
-
+  
                 // Loading overlay
                 if (c.isLoading.value)
                   Positioned.fill(
@@ -204,11 +210,11 @@ class MakePermanentDialog extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.25),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: SizedBox(
-                          width: 34,
-                          height: 34,
-                          child: CircularProgressIndicator.adaptive(),
+                          width: tablet ? 42.0 : 34.0,
+                          height: tablet ? 42.0 : 34.0,
+                          child: const CircularProgressIndicator.adaptive(),
                         ),
                       ),
                     ),
@@ -221,10 +227,10 @@ class MakePermanentDialog extends StatelessWidget {
     );
   }
 
-  Widget _statusCard({required bool guest, required String email}) {
+  Widget _statusCard({required bool guest, required String email, required bool tablet}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(tablet ? 16.0 : 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: guest ? Colors.orange.withOpacity(0.12) : Colors.green.withOpacity(0.12),
@@ -235,14 +241,15 @@ class MakePermanentDialog extends StatelessWidget {
           Icon(
             guest ? Icons.person_outline : Icons.verified,
             color: guest ? Colors.orange : Colors.green,
+            size: tablet ? 28.0 : 24.0,
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: tablet ? 14.0 : 10.0),
           Expanded(
             child: Text(
               guest
                   ? "You are using a Guest account. Make it permanent to keep data forever.".tr
                   : "Permanent account${email.isNotEmpty ? ": $email" : ""}",
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: tablet ? 15.0 : 14.0),
             ),
           ),
         ],

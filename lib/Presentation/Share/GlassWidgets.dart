@@ -59,6 +59,7 @@ class GlassChip extends StatelessWidget {
   final VoidCallback onTap;
   final IconData? icon;
   final Color? activeColor;
+  final bool isTablet;
 
   const GlassChip({
     super.key,
@@ -67,6 +68,7 @@ class GlassChip extends StatelessWidget {
     required this.onTap,
     this.icon,
     this.activeColor,
+    this.isTablet = false,
   });
 
   @override
@@ -75,21 +77,26 @@ class GlassChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: GlassCard(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-        borderRadius: BorderRadius.circular(14.r),
+        padding: EdgeInsets.symmetric(
+          horizontal: isTablet ? 12.0 : 16.w,
+          vertical: isTablet ? 6.0 : 10.h,
+        ),
+        borderRadius: BorderRadius.circular(isTablet ? 10.0 : 14.r),
         borderColor: isSelected ? color : null,
         opacity: isSelected ? 0.3 : 0.1,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 16.sp, color: isSelected ? color : Colors.black54),
-              SizedBox(width: 8.w),
+              Icon(icon,
+                  size: isTablet ? 14.0 : 16.sp,
+                  color: isSelected ? color : Colors.black54),
+              SizedBox(width: isTablet ? 6.0 : 8.w),
             ],
             Text(
               label,
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: isTablet ? 12.0 : 13.sp,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                 color: isSelected ? color : Colors.black87,
               ),
@@ -110,6 +117,7 @@ class GlassTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final bool obscureText;
   final ValueChanged<String>? onChanged;
+  final bool isTablet;
 
   const GlassTextField({
     super.key,
@@ -121,6 +129,7 @@ class GlassTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.onChanged,
+    this.isTablet = false,
   });
 
   @override
@@ -131,23 +140,25 @@ class GlassTextField extends StatelessWidget {
       keyboardType: keyboardType,
       obscureText: obscureText,
       onChanged: onChanged,
-      style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+      style: TextStyle(fontSize: isTablet ? 14.0 : 14.sp, color: Colors.black87),
       decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.black54, fontSize: 13.sp),
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(horizontal: isTablet ? 16.0 : 16.w, vertical: isTablet ? 8.0 : 12.h),
+        labelText: label.isEmpty ? null : label,
+        labelStyle: TextStyle(color: Colors.black54, fontSize: isTablet ? 13.0 : 13.sp),
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.black26, fontSize: 13.sp),
-        prefixIcon: Icon(icon, size: 18.sp, color: AppColors.primary.withOpacity(0.5)),
+        hintStyle: TextStyle(color: Colors.black26, fontSize: isTablet ? 13.0 : 13.sp),
+        prefixIcon: Icon(icon, size: isTablet ? 18.0 : 18.sp, color: AppColors.primary.withOpacity(0.5)),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(isTablet ? 14.0 : 14.r),
           borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(isTablet ? 14.0 : 14.r),
           borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(isTablet ? 14.0 : 14.r),
           borderSide: BorderSide(color: AppColors.primary),
         ),
         filled: true,

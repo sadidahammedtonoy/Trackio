@@ -12,13 +12,63 @@ import '../Model/savingModel.dart';
 import 'history.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:ui';
+
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
+
 class saving extends StatelessWidget {
   final controller = Get.put(savingController());
   saving({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final widgets = [allMonthSavingsList(), AllSavingsListWidget()];
+    final tablet = _isTablet(context);
+    final widgets = [allMonthSavingsList(context, tablet), const AllSavingsListWidget()];
+
+    Widget body = SingleChildScrollView(
+      padding: EdgeInsets.all(tablet ? 16.0 : 12.0),
+      child: Column(
+        children: [
+          _GlassCard(
+            tablet: tablet,
+            padding: EdgeInsets.all(tablet ? 6.0 : 4.r),
+            borderRadius: BorderRadius.circular(tablet ? 16.0 : 16.r),
+            child: Obx(() {
+              return Row(
+                children: [
+                  _tabButton(
+                    label: "Overview".tr,
+                    index: 0,
+                    selectedIndex: controller.tabIndex.value,
+                    onTap: () => controller.changeTab(0),
+                    tablet: tablet,
+                  ),
+                  _tabButton(
+                    label: "History".tr,
+                    index: 1,
+                    selectedIndex: controller.tabIndex.value,
+                    onTap: () => controller.changeTab(1),
+                    tablet: tablet,
+                  ),
+                ],
+              );
+            }),
+          ),
+          SizedBox(height: tablet ? 16.0 : 10.0),
+          Obx(() => widgets[controller.tabIndex.value]),
+        ],
+      ),
+    );
+
+    if (tablet) {
+      body = Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: body,
+        ),
+      );
+    }
 
     return background(
       child: Scaffold(
@@ -28,6 +78,7 @@ class saving extends StatelessWidget {
           titleSpacing: -10,
           title: Text(
             "Savings".tr,
+            style: tablet ? const TextStyle(fontSize: 18.0) : null,
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
@@ -39,44 +90,12 @@ class saving extends StatelessWidget {
           backgroundColor: Colors.white.withOpacity(0.2),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.r),
+            borderRadius: BorderRadius.circular(tablet ? 14.0 : 15.r),
             side: BorderSide(color: Colors.white.withOpacity(0.3)),
           ),
-          child: Icon(Icons.add, color: Colors.black, size: 30.sp),
+          child: Icon(Icons.add, color: Colors.black, size: tablet ? 24.0 : 30.sp),
         ),
-
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            children: [
-              _GlassCard(
-                padding: EdgeInsets.all(4.r),
-                borderRadius: BorderRadius.circular(16.r),
-                child: Obx(() {
-                  return Row(
-                    children: [
-                      _tabButton(
-                        label: "Overview".tr,
-                        index: 0,
-                        selectedIndex: controller.tabIndex.value,
-                        onTap: () => controller.changeTab(0),
-                      ),
-                      _tabButton(
-                        label: "History".tr,
-                        index: 1,
-                        selectedIndex: controller.tabIndex.value,
-                        onTap: () => controller.changeTab(1),
-                      ),
-                    ],
-                  );
-                }),
-              ),
-              const SizedBox(height: 10),
-
-              Obx(() => widgets[controller.tabIndex.value]),
-            ],
-          ),
-        ),
+        body: body,
       ),
     );
   }
@@ -87,6 +106,7 @@ Widget _tabButton({
   required int index,
   required int selectedIndex,
   required VoidCallback onTap,
+  required bool tablet,
 }) {
   final isSelected = selectedIndex == index;
 
@@ -95,10 +115,10 @@ Widget _tabButton({
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(vertical: 12.h),
+        padding: EdgeInsets.symmetric(vertical: tablet ? 12.0 : 12.h),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(tablet ? 12.0 : 12.r),
           boxShadow: isSelected ? [
             BoxShadow(
               color: AppColors.primary.withOpacity(0.3),
@@ -113,7 +133,7 @@ Widget _tabButton({
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.black54,
             fontWeight: FontWeight.bold,
-            fontSize: 14.sp,
+            fontSize: tablet ? 14.0 : 14.sp,
           ),
         ),
       ),
@@ -127,6 +147,7 @@ class _GlassCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final BorderRadius? borderRadius;
   final Color? borderColor;
+  final bool tablet;
 
   const _GlassCard({
     required this.child,
@@ -134,6 +155,7 @@ class _GlassCard extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.borderColor,
+    this.tablet = false,
   });
 
   @override
@@ -142,7 +164,7 @@ class _GlassCard extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
-        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
+        borderRadius: borderRadius ?? BorderRadius.circular(tablet ? 16.0 : 20.r),
         border: Border.all(color: borderColor ?? Colors.grey.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
@@ -153,11 +175,11 @@ class _GlassCard extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
+        borderRadius: borderRadius ?? BorderRadius.circular(tablet ? 16.0 : 20.r),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Padding(
-            padding: padding ?? EdgeInsets.all(16.r),
+            padding: padding ?? EdgeInsets.all(tablet ? 16.0 : 16.r),
             child: child,
           ),
         ),
@@ -166,7 +188,7 @@ class _GlassCard extends StatelessWidget {
   }
 }
 
-Widget allMonthSavingsList() {
+Widget allMonthSavingsList(BuildContext context, bool tablet) {
   final controller = Get.find<savingController>();
 
   String formatMonth(String mk) {
@@ -188,20 +210,24 @@ Widget allMonthSavingsList() {
         final progressColor = Color.lerp(Colors.orange, Colors.green, progress)!;
 
         return _GlassCard(
-          margin: EdgeInsets.only(bottom: 16.h),
-          padding: EdgeInsets.symmetric(vertical: 16.r, horizontal: 20.r),
+          tablet: tablet,
+          margin: EdgeInsets.only(bottom: tablet ? 16.0 : 16.h),
+          padding: EdgeInsets.symmetric(
+            vertical: tablet ? 16.0 : 16.r, 
+            horizontal: tablet ? 20.0 : 20.r
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 numberTranslation.formatMonthYearBnFromString(formatMonth(m.monthKey)),
                 style: TextStyle(
-                  fontSize: 16.sp,
+                  fontSize: tablet ? 16.0 : 16.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.black.withOpacity(0.6),
                 ),
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: tablet ? 12.0 : 12.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -209,7 +235,7 @@ Widget allMonthSavingsList() {
                    Text(
                     "Monthly Saving".tr,
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: tablet ? 14.0 : 14.sp,
                       color: Colors.black54,
                       fontWeight: FontWeight.w500,
                     ),
@@ -219,22 +245,22 @@ Widget allMonthSavingsList() {
                     style: TextStyle(
                       fontWeight: FontWeight.w900,
                       color: isPositive ? AppColors.primary : Colors.orange,
-                      fontSize: 22.sp,
+                      fontSize: tablet ? 24.0 : 22.sp,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: tablet ? 10.0 : 10.h),
               ClipRRect(
-                borderRadius: BorderRadius.circular(10.r),
+                borderRadius: BorderRadius.circular(tablet ? 6.0 : 10.r),
                 child: LinearProgressIndicator(
                   value: progress,
-                  minHeight: 8.h,
+                  minHeight: tablet ? 6.0 : 8.h,
                   backgroundColor: Colors.grey.withOpacity(0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(progressColor),
                 ),
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: tablet ? 12.0 : 12.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -242,11 +268,13 @@ Widget allMonthSavingsList() {
                     label: "Income".tr,
                     amount: m.income,
                     color: Colors.green,
+                    tablet: tablet,
                   ),
                    _Stat(
                     label: "Expense".tr,
                     amount: m.expense,
                     color: Colors.red,
+                    tablet: tablet,
                   ),
                 ],
               )
@@ -277,8 +305,8 @@ Widget allMonthSavingsList() {
       if (months.isEmpty) {
         return Center(
             child: Padding(
-              padding: EdgeInsets.only(top: 100.h),
-              child: Text("No monthly data found".tr, style: TextStyle(color: Colors.black54)),
+              padding: EdgeInsets.only(top: tablet ? 100.0 : 100.h),
+              child: Text("No monthly data found".tr, style: const TextStyle(color: Colors.black54)),
             ));
       }
 
@@ -291,11 +319,13 @@ class _Stat extends StatelessWidget {
   final String label;
   final double amount;
   final Color color;
+  final bool tablet;
 
   const _Stat({
     required this.label,
     required this.amount,
     required this.color,
+    this.tablet = false,
   });
 
   @override
@@ -303,29 +333,29 @@ class _Stat extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 8.r,
-          height: 8.r,
+          width: tablet ? 8.0 : 8.r,
+          height: tablet ? 8.0 : 8.r,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
           ),
         ),
-        SizedBox(width: 6.w),
+        SizedBox(width: tablet ? 6.0 : 6.w),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: tablet ? 12.0 : 12.sp,
             color: Colors.black54,
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: tablet ? 8.0 : 8.w),
         Text(
           "${numberTranslation.toBnDigits(amount.toStringAsFixed(0))} ৳",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black87,
-            fontSize: 13.sp,
+            fontSize: tablet ? 14.0 : 13.sp,
           ),
         ),
       ],

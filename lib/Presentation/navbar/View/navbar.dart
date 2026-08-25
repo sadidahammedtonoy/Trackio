@@ -9,6 +9,9 @@ import '../../Features/Transcations/View/transactions.dart';
 import '../../Features/debts/View/debts.dart';
 import '../Controller/Controller.dart';
 
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
+
 class Navbar extends StatelessWidget {
   Navbar({super.key});
 
@@ -77,6 +80,74 @@ class _CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tablet = _isTablet(context);
+
+    if (tablet) {
+      // ── iPad: compact centered pill ────────────────────────────────
+      return Container(
+        height: 80,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(bottom: 16),
+        child: SizedBox(
+          width: 420, // fixed width — pill floats centered
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(18),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(5),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F9FB),
+                borderRadius: BorderRadius.circular(35),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavBarItem(
+                    icon: HugeIcons.strokeRoundedDashboardCircle,
+                    label: 'Home'.tr,
+                    isSelected: selectedIndex == 0,
+                    onTap: () => onTap(0),
+                    isTablet: true,
+                  ),
+                  _NavBarItem(
+                    icon: HugeIcons.strokeRoundedTransaction,
+                    label: 'History'.tr,
+                    isSelected: selectedIndex == 1,
+                    onTap: () => onTap(1),
+                    isTablet: true,
+                  ),
+                  _NavBarItem(
+                    icon: HugeIcons.strokeRoundedCreditCardPos,
+                    label: 'Debts'.tr,
+                    isSelected: selectedIndex == 2,
+                    onTap: () => onTap(2),
+                    isTablet: true,
+                  ),
+                  _NavBarItem(
+                    icon: HugeIcons.strokeRoundedMoreHorizontalCircle01,
+                    label: 'More'.tr,
+                    isSelected: selectedIndex == 3,
+                    onTap: () => onTap(3),
+                    isTablet: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // ── Phone: original layout (untouched) ───────────────────────────
     return Container(
       height: 115.h,
       padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 35.h),
@@ -93,10 +164,10 @@ class _CustomBottomNavBar extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.all(6.r), // White border thickness
+          padding: EdgeInsets.all(6.r),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FB), // Inner light grey section
+              color: const Color(0xFFF8F9FB),
               borderRadius: BorderRadius.circular(44.r),
             ),
             child: Row(
@@ -136,20 +207,30 @@ class _CustomBottomNavBar extends StatelessWidget {
 }
 
 class _NavBarItem extends StatelessWidget {
-  final dynamic icon; // Use dynamic for HugeIcons
+  final dynamic icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool isTablet;
 
   const _NavBarItem({
     required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.isTablet = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
+
+    final double iconSize = tablet ? 18.0 : 20.sp;
+    final double fontSize = tablet ? 10.0 : 10.sp;
+    final double margin   = tablet ? 4.0  : 5.r;
+    final double radius   = tablet ? 30.0 : 38.r;
+    final double gap      = tablet ? 2.0  : 2.h;
+
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -157,25 +238,25 @@ class _NavBarItem extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
-          margin: EdgeInsets.all(5.r), // Gap from the grey border
+          margin: EdgeInsets.all(margin),
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFF1A1A1C) : Colors.transparent,
-            borderRadius: BorderRadius.circular(38.r),
+            borderRadius: BorderRadius.circular(radius),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               HugeIcon(
                 icon: icon,
-                size: 20.sp,
+                size: iconSize,
                 color: isSelected ? Colors.white : Colors.black54,
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: gap),
               Text(
                 label,
                 style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black54,
-                  fontSize: 10.sp,
+                  fontSize: fontSize,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 ),
                 maxLines: 1,

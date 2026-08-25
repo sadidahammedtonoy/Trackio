@@ -15,6 +15,8 @@ import 'package:collection/collection.dart';
 import '../Controller/Controller.dart';
 import '../Model/savingHistoryModel.dart';
 
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
 
 class AllSavingsListWidget extends StatefulWidget {
   const AllSavingsListWidget({
@@ -98,7 +100,6 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
       return res ?? false;
   }
 
-
   void _toast(BuildContext context, String msg) {
     AppSnackbar.show(msg);
   }
@@ -124,9 +125,10 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
   @override
   Widget build(BuildContext context) {
     final uid = widget.uid ?? FirebaseAuth.instance.currentUser?.uid;
+    final tablet = _isTablet(context);
 
     if (uid == null) {
-      return _ErrorBox(message: "Please login to view savings.".tr);
+      return _ErrorBox(message: "Please login to view savings.".tr, tablet: tablet);
     }
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -137,7 +139,7 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
         }
 
         if (snap.hasError && _cache.isEmpty) {
-          return _ErrorBox(message: _friendlyError(snap.error!));
+          return _ErrorBox(message: _friendlyError(snap.error!), tablet: tablet);
         }
 
         if (snap.hasData) {
@@ -164,8 +166,8 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
 
         return Column(
           children: [
-             _TotalSavingsHeader(),
-             SizedBox(height: 10.h),
+             _TotalSavingsHeader(tablet: tablet),
+             SizedBox(height: tablet ? 10.0 : 10.h),
             ListView.builder(
               shrinkWrap: widget.shrinkWrap,
               physics: widget.physics,
@@ -181,6 +183,7 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
                   onDelete: (item) => _handleDelete(context: context, uid: uid, item: item),
                   onEdit: (item) => Get.find<savingController>().openEditSavingSheet(context, item),
                   enableSwipeActions: widget.enableSwipeActions,
+                  tablet: tablet,
                 );
               },
             ),
@@ -192,9 +195,13 @@ class _AllSavingsListWidgetState extends State<AllSavingsListWidget> {
 }
 
 class _TotalSavingsHeader extends StatelessWidget {
+  final bool tablet;
+  const _TotalSavingsHeader({this.tablet = false});
+
   @override
   Widget build(BuildContext context) {
     return _GlassCard(
+      tablet: tablet,
       child: StreamBuilder<String>(
         stream: Get.find<savingController>().streamTotalSavingsText(),
         builder: (context, snapshot) {
@@ -202,11 +209,11 @@ class _TotalSavingsHeader extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(width: double.infinity),
+              const SizedBox(width: double.infinity),
               Text(
                 "Total Savings in History".tr,
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: tablet ? 13.0 : 13.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.black54,
                 ),
@@ -214,7 +221,7 @@ class _TotalSavingsHeader extends StatelessWidget {
               Text(
                 "৳${numberTranslation.toBnDigits(totalText)}",
                 style: TextStyle(
-                  fontSize: 24.sp,
+                  fontSize: tablet ? 24.0 : 24.sp,
                   fontWeight: FontWeight.w900,
                   color: AppColors.primary,
                 ),
@@ -233,6 +240,7 @@ class _DateGroup extends StatelessWidget {
   final bool enableSwipeActions;
   final Function(SavingItem) onEdit;
   final Future<bool> Function(SavingItem) onDelete;
+  final bool tablet;
 
   const _DateGroup({
     required this.date,
@@ -240,6 +248,7 @@ class _DateGroup extends StatelessWidget {
     required this.onDelete,
     required this.onEdit,
     required this.enableSwipeActions,
+    this.tablet = false,
   });
 
   String _formatDate(DateTime date) {
@@ -265,7 +274,10 @@ class _DateGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: tablet ? 8.0 : 8.w, 
+            vertical: tablet ? 12.0 : 12.h
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -273,7 +285,7 @@ class _DateGroup extends StatelessWidget {
                 _formatDate(date),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
+                  fontSize: tablet ? 16.0 : 16.sp,
                   color: Colors.black87,
                 ),
               ),
@@ -281,7 +293,7 @@ class _DateGroup extends StatelessWidget {
                 "৳${numberTranslation.toBnDigits(dailyTotal.toStringAsFixed(0))}",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
+                  fontSize: tablet ? 14.0 : 14.sp,
                   color: Colors.green,
                 ),
               ),
@@ -289,15 +301,21 @@ class _DateGroup extends StatelessWidget {
           ),
         ),
         _GlassCard(
+          tablet: tablet,
           padding: EdgeInsets.zero,
           child: ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: items.length,
-            separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.withOpacity(0.1), indent: 16.w, endIndent: 16.w),
+            separatorBuilder: (context, index) => Divider(
+              height: 1, 
+              color: Colors.grey.withOpacity(0.1), 
+              indent: tablet ? 16.0 : 16.w, 
+              endIndent: tablet ? 16.0 : 16.w
+            ),
             itemBuilder: (context, index) {
               final item = items[index];
-              final historyItem = _TimelineSavingItem(item: item);
+              final historyItem = _TimelineSavingItem(item: item, tablet: tablet);
 
                if (!enableSwipeActions) return historyItem;
 
@@ -308,16 +326,16 @@ class _DateGroup extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.blue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20.r)
+                      borderRadius: BorderRadius.circular(tablet ? 16.0 : 20.r)
                     ),
                      child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.edit_outlined, color: Colors.blue),
-                        SizedBox(width: 8.w),
+                        const Icon(Icons.edit_outlined, color: Colors.blue),
+                        SizedBox(width: tablet ? 8.0 : 8.w),
                         Text(
                           "Edit".tr,
-                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w700),
+                          style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -327,17 +345,17 @@ class _DateGroup extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.red.withOpacity(0.1),
-                       borderRadius: BorderRadius.circular(20.r)
+                       borderRadius: BorderRadius.circular(tablet ? 16.0 : 20.r)
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
                           "Delete".tr,
-                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
+                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
                         ),
-                        SizedBox(width: 8.w),
-                        Icon(Icons.delete_outline, color: Colors.red),
+                        SizedBox(width: tablet ? 8.0 : 8.w),
+                        const Icon(Icons.delete_outline, color: Colors.red),
                       ],
                     ),
                   ),
@@ -357,19 +375,23 @@ class _DateGroup extends StatelessWidget {
             },
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: tablet ? 20.0 : 20.h),
       ],
     );
   }
 }
 class _TimelineSavingItem extends StatelessWidget {
   final SavingItem item;
-  const _TimelineSavingItem({required this.item});
+  final bool tablet;
+  const _TimelineSavingItem({required this.item, this.tablet = false});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: tablet ? 16.0 : 16.w, 
+        vertical: tablet ? 12.0 : 12.h
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -379,31 +401,35 @@ class _TimelineSavingItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.source.isEmpty ? "Saving".tr : item.source.tr,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp, color: Colors.black87),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    fontSize: tablet ? 15.0 : 15.sp, 
+                    color: Colors.black87
+                  ),
                 ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: tablet ? 8.0 : 8.w),
               Text(
                 "+৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 15.sp,
+                  fontSize: tablet ? 15.0 : 15.sp,
                   color: Colors.green,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 4.h),
+          SizedBox(height: tablet ? 4.0 : 4.h),
           Text(
             item.wallet.tr,
-            style: TextStyle(color: Colors.black54, fontSize: 11.sp),
+            style: TextStyle(color: Colors.black54, fontSize: tablet ? 12.0 : 11.sp),
           ),
           if (item.note != null && item.note!.isNotEmpty) ...[
-            SizedBox(height: 6.h),
+            SizedBox(height: tablet ? 6.0 : 6.h),
             Text(
               item.note!,
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: tablet ? 13.0 : 12.sp,
                 color: Colors.black.withOpacity(0.6),
                 fontStyle: FontStyle.italic,
               ),
@@ -417,17 +443,19 @@ class _TimelineSavingItem extends StatelessWidget {
 
 class _ErrorBox extends StatelessWidget {
   final String message;
-  const _ErrorBox({required this.message});
+  final bool tablet;
+  const _ErrorBox({required this.message, this.tablet = false});
 
   @override
   Widget build(BuildContext context) {
     return _GlassCard(
-      padding: EdgeInsets.all(14.r),
+      tablet: tablet,
+      padding: EdgeInsets.all(tablet ? 14.0 : 14.r),
       borderColor: Colors.red.withOpacity(0.3),
       child: Row(
         children: [
           const Icon(Icons.error_outline, color: Colors.red),
-          SizedBox(width: 10.w),
+          SizedBox(width: tablet ? 10.0 : 10.w),
           Expanded(
             child: Text(
               message,
@@ -446,6 +474,7 @@ class _GlassCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final BorderRadius? borderRadius;
   final Color? borderColor;
+  final bool tablet;
 
   const _GlassCard({
     required this.child,
@@ -453,6 +482,7 @@ class _GlassCard extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.borderColor,
+    this.tablet = false,
   });
 
   @override
@@ -461,7 +491,7 @@ class _GlassCard extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
-        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
+        borderRadius: borderRadius ?? BorderRadius.circular(tablet ? 16.0 : 20.r),
         border: Border.all(color: borderColor ?? Colors.grey.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
@@ -472,11 +502,11 @@ class _GlassCard extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: borderRadius ?? BorderRadius.circular(20.r),
+        borderRadius: borderRadius ?? BorderRadius.circular(tablet ? 16.0 : 20.r),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Padding(
-            padding: padding ?? EdgeInsets.all(16.r),
+            padding: padding ?? EdgeInsets.all(tablet ? 16.0 : 16.r),
             child: child,
           ),
         ),

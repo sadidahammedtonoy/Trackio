@@ -29,10 +29,10 @@ class loginController extends GetxController {
       Get.offAllNamed(routes.navbar_screen);
     } on FirebaseAuthException catch (e) {
       AppLoader.hide();
-      AppSnackbar.show(e.message ?? "Login Failed");
+      AppSnackbar.show(e.message ?? "Login Failed".tr);
     } catch (e) {
       AppLoader.hide();
-      AppSnackbar.show("An unexpected error occurred.");
+      AppSnackbar.show("An unexpected error occurred.".tr);
     }
   }
 
@@ -65,7 +65,7 @@ class loginController extends GetxController {
       Get.offAllNamed(routes.navbar_screen);
     } catch (e) {
       AppLoader.hide();
-      AppSnackbar.show("Google Sign-In Failed: ${e.toString()}");
+      AppSnackbar.show("Google Sign-In Failed: ".tr + e.toString());
     }
   }
 
@@ -91,7 +91,7 @@ class loginController extends GetxController {
       Get.offAllNamed(routes.navbar_screen);
     } catch (e) {
       AppLoader.hide();
-      AppSnackbar.show("Apple Sign-In Failed: ${e.toString()}");
+      AppSnackbar.show("Apple Sign-In Failed: ".tr + e.toString());
     }
   }
 
@@ -104,7 +104,7 @@ class loginController extends GetxController {
       Get.offAllNamed(routes.navbar_screen);
     } catch (e) {
       AppLoader.hide();
-      AppSnackbar.show("Guest login failed.");
+      AppSnackbar.show("Guest login failed.".tr);
     }
   }
 }

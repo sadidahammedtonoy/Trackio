@@ -16,6 +16,12 @@ import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
+/// Returns true if the current device is a tablet / iPad
+bool _isTablet(BuildContext context) {
+  final size = MediaQuery.of(context).size;
+  return size.shortestSide >= 600;
+}
+
 class DashboardPage extends StatelessWidget {
   DashboardPage({super.key});
   final DashboardController controller = Get.put(DashboardController());
@@ -31,6 +37,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTab = _isTablet(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -39,7 +46,7 @@ class DashboardPage extends StatelessWidget {
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 20.sp,
+            fontSize: isTab ? 18.0 : 20.sp,
           ),
         ),
         centerTitle: false,
@@ -50,7 +57,7 @@ class DashboardPage extends StatelessWidget {
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedChartBubble01,
               color: Colors.black,
-              size: 24.sp,
+              size: isTab ? 22.0 : 24.sp,
             ),
           ),
           IconButton(
@@ -58,7 +65,7 @@ class DashboardPage extends StatelessWidget {
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedAddCircle,
               color: Colors.black,
-              size: 24.sp,
+              size: isTab ? 22.0 : 24.sp,
             ),
           ),
         ],
@@ -72,56 +79,121 @@ class DashboardPage extends StatelessWidget {
         final expense = data["expense"] ?? 0.0;
         final highestSpendCategory = getHighestSpendCategory();
 
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.only(bottom: 115.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                child: _NewHeader(
-                  controller: controller,
-                  expense: expense,
-                  highestSpendCategory: highestSpendCategory,
-                ),
-              ),
-              _BudgetsSection(controller: controller),
-              SizedBox(height: 15.h),
-              if (controller.todayTransactions.isNotEmpty) ...[
-                _sectionHeader("Today Transactions".tr),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  child: Column(
-                    children: [
-                      ...controller.todayTransactions.map(
-                        (t) => Padding(
-                          padding: EdgeInsets.only(bottom: 10.h),
-                          child: _TransactionTile(
-                            item: t,
-                            onDelete: () => controller.deleteTransaction(t),
+        return Builder(builder: (context) {
+          final tablet = _isTablet(context);
+          final hPad = tablet ? 24.0 : 16.w;
+
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.only(bottom: 115.h),
+            child: tablet
+                // ── iPad layout: two-column grid ──────────────────────────
+                ? Padding(
+                    padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _NewHeader(
+                          controller: controller,
+                          expense: expense,
+                          highestSpendCategory: highestSpendCategory,
+                          isTablet: true,
+                        ),
+                        const SizedBox(height: 20),
+                        _BudgetsSection(controller: controller, isTablet: true),
+                        const SizedBox(height: 15),
+                        if (controller.todayTransactions.isNotEmpty) ...[
+                          _sectionHeader("Today Transactions".tr, isTablet: true),
+                          const SizedBox(height: 8),
+                          // Tablet: 2-column grid with fixed item height
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: (controller.todayTransactions.length / 2).ceil(),
+                            separatorBuilder: (_, __) => const SizedBox(height: 10),
+                            itemBuilder: (ctx, rowIdx) {
+                              final left = controller.todayTransactions[rowIdx * 2];
+                              final hasRight = (rowIdx * 2 + 1) < controller.todayTransactions.length;
+                              final right = hasRight ? controller.todayTransactions[rowIdx * 2 + 1] : null;
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: _TransactionTile(
+                                      item: left,
+                                      onDelete: () => controller.deleteTransaction(left),
+                                      isTablet: true,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: right != null
+                                        ? _TransactionTile(
+                                            item: right,
+                                            onDelete: () => controller.deleteTransaction(right),
+                                            isTablet: true,
+                                          )
+                                        : const SizedBox.shrink(),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
+                        ],
+                      ],
+                    ),
+                  )
+                // ── Phone layout: original single-column ─────────────────
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                        child: _NewHeader(
+                          controller: controller,
+                          expense: expense,
+                          highestSpendCategory: highestSpendCategory,
                         ),
                       ),
+                      _BudgetsSection(controller: controller),
+                      SizedBox(height: 15.h),
+                      if (controller.todayTransactions.isNotEmpty) ...[
+                        _sectionHeader("Today Transactions".tr),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          child: Column(
+                            children: [
+                              ...controller.todayTransactions.map(
+                                (t) => Padding(
+                                  padding: EdgeInsets.only(bottom: 10.h),
+                                  child: _TransactionTile(
+                                    item: t,
+                                    onDelete: () => controller.deleteTransaction(t),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                ),
-              ],
-            ],
-          ),
-        );
+          );
+        });
       }),
     );
   }
 
-  Widget _sectionHeader(String title) {
+  Widget _sectionHeader(String title, {bool isTablet = false}) {
+    final tablet = isTablet || _isTablet(Get.context!);
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: tablet ? 0 : 18.w,
+        vertical: tablet ? 4 : 4.h,
+      ),
       child: Text(
         title,
         style: TextStyle(
-          fontSize: 16.sp,
+          fontSize: tablet ? 14.0 : 16.sp,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
@@ -132,10 +204,12 @@ class DashboardPage extends StatelessWidget {
 
 class _BudgetsSection extends StatelessWidget {
   final DashboardController controller;
-  const _BudgetsSection({required this.controller});
+  final bool isTablet;
+  const _BudgetsSection({required this.controller, this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
     return Obx(() {
       if (controller.budgets.isEmpty) {
         return const SizedBox.shrink();
@@ -143,6 +217,37 @@ class _BudgetsSection extends StatelessWidget {
 
       final totalBudget = controller.totalBudget.value;
       final totalSpent = controller.totalSpent.value;
+
+      // On tablet, show a wrap grid instead of a horizontal list
+      if (tablet) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _TotalBudgetCard(
+              totalBudget: totalBudget,
+              totalSpent: totalSpent,
+            ),
+            if (controller.budgets.length > 1 || (controller.budgets.length == 1 && controller.budgets.first.groupName != "Total")) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: controller.budgets.map((budget) {
+                  return SizedBox(
+                    width: (MediaQuery.of(context).size.width - 48 - 12) / 2,
+                    child: _BudgetCategoryCard(
+                      name: budget.groupName.tr,
+                      spent: budget.spent,
+                      total: budget.budget,
+                      isTablet: true,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ],
+        );
+      }
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,52 +291,21 @@ class _TotalBudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final remaining = totalBudget - totalSpent;
-    final percentage = totalBudget > 0 ? (totalSpent / totalBudget) : 0.0;
-    final color = percentage > 1.0 ? Colors.red : (percentage >= 0.8 ? Colors.orange : AppColors.primary);
+    final tablet = _isTablet(context);
+    // suppress unused variable warnings from commented-out code
+    final _ = totalBudget - totalSpent;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           "Monthly Budget".tr,
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.8)),
+          style: TextStyle(
+            fontSize: tablet ? 14.0 : 16.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.black.withOpacity(0.8),
+          ),
         ),
-        // SizedBox(height: 12.h),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   crossAxisAlignment: CrossAxisAlignment.end,
-        //   children: [
-        //     Text(
-        //       "৳${numberTranslation.toBnDigits(totalSpent.toStringAsFixed(0))}",
-        //       style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.black),
-        //     ),
-        //     Column(
-        //       crossAxisAlignment: CrossAxisAlignment.end,
-        //       children: [
-        //         Text(
-        //           "৳${numberTranslation.toBnDigits(remaining.toStringAsFixed(0))}",
-        //           style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.black),
-        //         ),
-        //         SizedBox(height: 2.h),
-        //         Text(
-        //           "of ৳${numberTranslation.toBnDigits(totalBudget.toStringAsFixed(0))}",
-        //           style: TextStyle(fontSize: 12.sp, color: Colors.black54, fontWeight: FontWeight.w500),
-        //         ),
-        //       ],
-        //     ),
-        //   ],
-        // ),
-        // SizedBox(height: 8.h),
-        // ClipRRect(
-        //   borderRadius: BorderRadius.circular(10.r),
-        //   child: LinearProgressIndicator(
-        //     value: percentage > 1.0 ? 1.0 : percentage,
-        //     minHeight: 8.h,
-        //     backgroundColor: Colors.grey.withOpacity(0.2),
-        //     valueColor: AlwaysStoppedAnimation<Color>(color),
-        //   ),
-        // ),
       ],
     );
   }
@@ -241,45 +315,59 @@ class _BudgetCategoryCard extends StatelessWidget {
   final String name;
   final double spent;
   final double total;
+  final bool isTablet;
 
   const _BudgetCategoryCard({
     required this.name,
     required this.spent,
     required this.total,
+    this.isTablet = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
     final percentage = total > 0 ? (spent / total) : 0.0;
     final color = percentage > 1.0 ? Colors.red : (percentage >= 0.8 ? Colors.orange : AppColors.primary);
 
+    final double nameFontSize = tablet ? 15 : 14.sp;
+    final double totalFontSize = tablet ? 13 : 14.sp;
+    final double spentFontSize = tablet ? 16 : 15.sp;
+    final double pctFontSize = tablet ? 12 : 11.sp;
+    final double cardPadding = tablet ? 10 : 10.r;
+    final double cardRadius = tablet ? 16 : 16.r;
+
     return Container(
-      width: 140.w,
-      margin: EdgeInsets.only(right: 12.w),
-      padding: EdgeInsets.all(10.r),
+      width: tablet ? null : 140.w,
+      // No fixed height on tablet — let content determine size
+      height: tablet ? null : null,
+      margin: EdgeInsets.only(right: tablet ? 0 : 12.w),
+      padding: EdgeInsets.all(cardPadding),
       decoration: BoxDecoration(
         color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(cardRadius),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: TextStyle(fontSize: nameFontSize, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
-          const Spacer(),
+          SizedBox(height: tablet ? 4 : 0),
+          if (!tablet) const Spacer(),
 
           Text(
             "৳${numberTranslation.toBnDigits(total.toStringAsFixed(0))}",
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 14.sp, color: Colors.black45),
+            style: TextStyle(fontSize: totalFontSize, color: Colors.black45),
           ),
+          const SizedBox(height: 2),
 
           FittedBox(
             fit: BoxFit.scaleDown,
@@ -288,14 +376,14 @@ class _BudgetCategoryCard extends StatelessWidget {
               children: [
                 Text(
                   "৳${numberTranslation.toBnDigits(spent.toStringAsFixed(0))}",
-                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: color),
+                  style: TextStyle(fontSize: spentFontSize, fontWeight: FontWeight.w700, color: color),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(left: 4.w, bottom: 1.h),
+                  padding: EdgeInsets.only(left: tablet ? 4 : 4.w, bottom: tablet ? 1 : 1.h),
                   child: Text(
                     "(${(percentage * 100).toStringAsFixed(0)}%)",
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: pctFontSize,
                       color: color.withOpacity(0.8),
                       fontWeight: FontWeight.w600,
                     ),
@@ -315,26 +403,112 @@ class _NewHeader extends StatelessWidget {
   final DashboardController controller;
   final double expense;
   final String highestSpendCategory;
+  final bool isTablet;
 
   const _NewHeader({
     required this.controller,
     required this.expense,
     required this.highestSpendCategory,
+    this.isTablet = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
+    final labelFontSize = tablet ? 16.0 : 16.sp;
+    final amountFontSize = tablet ? 30.0 : 32.sp;
+    final chartHeight = tablet ? 200.0 : 150.h;
+    final infoIconSize = tablet ? 24.0 : 24.sp;
+    final cardPad = tablet ? 20.0 : 16.r;
+    final gap = tablet ? 16.0 : 16.h;
+
+    if (tablet) {
+      // iPad: chart on left, info cards on right side-by-side
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left: total + chart
+              Expanded(
+                flex: 3,
+                child: _GlassCard(
+                  padding: EdgeInsets.all(cardPad),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Total spent".tr,
+                        style: TextStyle(
+                          fontSize: labelFontSize,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "৳${numberTranslation.toBnDigits(expense.toStringAsFixed(0))}",
+                        style: TextStyle(
+                          fontSize: amountFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: chartHeight,
+                        child: _WeeklyChart(controller: controller, isTablet: true),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Right: Today & Highest stacked — IntrinsicHeight keeps both cards same height
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _InfoCard(
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedCalendarLove01,
+                        size: 28,
+                        color: AppColors.primary,
+                      ),
+                      label: "Today spend".tr,
+                      value: "৳${numberTranslation.toBnDigits(controller.todayExpense.value.toStringAsFixed(0))}",
+                      isTablet: true,
+                    ),
+                    const SizedBox(height: 16),
+                    _InfoCard(
+                      icon: Icon(Icons.local_fire_department_outlined, color: Colors.redAccent, size: 28),
+                      label: "Highest spend".tr,
+                      value: highestSpendCategory.tr,
+                      isTablet: true,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    // Phone layout
     return Column(
       children: [
         _GlassCard(
-          padding: EdgeInsets.all(16.r),
+          padding: EdgeInsets.all(cardPad),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "Total spent".tr,
                 style: TextStyle(
-                  fontSize: 16.sp,
+                  fontSize: labelFontSize,
                   fontWeight: FontWeight.w500,
                   color: Colors.black54,
                 ),
@@ -343,27 +517,27 @@ class _NewHeader extends StatelessWidget {
                Text(
                 "৳${numberTranslation.toBnDigits(expense.toStringAsFixed(0))}",
                 style: TextStyle(
-                  fontSize: 32.sp,
+                  fontSize: amountFontSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
               ),
               SizedBox(height: 16.h),
               SizedBox(
-                height: 150.h,
+                height: chartHeight,
                 child: _WeeklyChart(controller: controller),
               ),
             ],
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: gap),
         Row(
           children: [
             Expanded(
               child: _InfoCard(
                 icon: HugeIcon(
                   icon: HugeIcons.strokeRoundedCalendarLove01,
-                  size: 24.sp,
+                  size: infoIconSize,
                   color: AppColors.primary,
                 ),
                 label: "Today spend".tr,
@@ -373,7 +547,7 @@ class _NewHeader extends StatelessWidget {
             SizedBox(width: 16.w),
             Expanded(
               child: _InfoCard(
-                icon: Icon(Icons.local_fire_department_outlined, color: Colors.redAccent, size: 24.sp),
+                icon: Icon(Icons.local_fire_department_outlined, color: Colors.redAccent, size: infoIconSize),
                 label: "Highest spend".tr,
                 value: highestSpendCategory.tr,
               ),
@@ -389,38 +563,51 @@ class _InfoCard extends StatelessWidget {
   final Widget icon;
   final String label;
   final String value;
+  final bool isTablet;
 
   const _InfoCard({
     required this.icon,
     required this.label,
     required this.value,
+    this.isTablet = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
+
+    // On tablet use fixed logical pixel sizes — NOT ScreenUtil scaled
+    final double pad    = tablet ? 16.0 : 16.r;
+    final double gap1   = tablet ? 10.0 : 8.h;
+    final double gap2   = tablet ? 6.0  : 4.h;
+    final double lFSize = tablet ? 15.0 : 14.sp;
+    final double vFSize = tablet ? 20.0 : 18.sp;
+
     return _GlassCard(
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(pad),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           icon,
-          SizedBox(height: 8.h),
+          SizedBox(height: gap1),
           Text(
             label,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: lFSize,
               color: Colors.black54,
             ),
           ),
-          SizedBox(height: 4.h),
+          SizedBox(height: gap2),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: vFSize,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
             overflow: TextOverflow.ellipsis,
+            maxLines: 2,
           ),
         ],
       ),
@@ -473,15 +660,24 @@ class _GlassCard extends StatelessWidget {
 
 class _WeeklyChart extends StatelessWidget {
   final DashboardController controller;
-  const _WeeklyChart({required this.controller});
+  final bool isTablet;
+  const _WeeklyChart({required this.controller, this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
     final amounts = controller.weeklyAmounts;
     if (amounts.isEmpty) return const SizedBox.shrink();
 
     final maxVal = amounts.reduce((a, b) => a > b ? a : b);
     final maxY = maxVal == 0 ? 100.0 : maxVal * 1.3;
+
+    // Clamp bar width: on iPad 35.w becomes absurdly wide; cap it
+    final screenWidth = MediaQuery.of(context).size.width;
+    final barWidth = tablet
+        ? (screenWidth * 0.3 / amounts.length).clamp(16.0, 36.0)
+        : 35.w.clamp(10.0, 40.0);
+    final labelFontSize = tablet ? 13.0 : 12.sp;
 
     return BarChart(
       BarChartData(
@@ -497,7 +693,7 @@ class _WeeklyChart extends StatelessWidget {
                 TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12.sp,
+                  fontSize: labelFontSize,
                 ),
               );
             },
@@ -519,7 +715,7 @@ class _WeeklyChart extends StatelessWidget {
                   child: Text(
                     controller.labels[index][0],
                     style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: labelFontSize,
                         color: isToday ? Colors.red.shade300 : Colors.black54,
                         fontWeight: isToday ? FontWeight.bold : FontWeight.normal),
                   ),
@@ -544,8 +740,8 @@ class _WeeklyChart extends StatelessWidget {
               BarChartRodData(
                 toY: amount,
                 color: isToday ? Colors.red.shade300 : Colors.black87,
-                width: 35.w,
-                borderRadius: BorderRadius.circular(6.r),
+                width: barWidth,
+                borderRadius: BorderRadius.circular(tablet ? 6 : 6.r),
                 backDrawRodData: BackgroundBarChartRodData(
                   show: true,
                   toY: maxY,
@@ -562,9 +758,10 @@ class _WeeklyChart extends StatelessWidget {
 }
 
 class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({required this.item, required this.onDelete});
+  const _TransactionTile({required this.item, required this.onDelete, this.isTablet = false});
   final TranItem item;
   final Future<void> Function() onDelete;
+  final bool isTablet;
 
   Color _typeColor(String type) {
     if (type == "Expense") return Colors.red;
@@ -576,7 +773,18 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
     final typeColor = _typeColor(item.type);
+
+    // Compact sizes for tablet grid cells
+    final double avatarSize  = tablet ? 32.0 : 44.r;
+    final double avatarFont  = tablet ? 13.0 : 18.sp;
+    final double hGap        = tablet ? 8.0  : 14.w;
+    final double catFont     = tablet ? 13.0 : 15.sp;
+    final double walletFont  = tablet ? 11.0 : 12.sp;
+    final double amtFont     = tablet ? 13.0 : 15.sp;
+    final double dateFont    = tablet ? 9.0  : 10.sp;
+    final double cardPad     = tablet ? 8.0  : 12.r;
 
     return Dismissible(
       key: ValueKey(item.id),
@@ -600,12 +808,12 @@ class _TransactionTile extends StatelessWidget {
       child: GestureDetector(
         onLongPress: () => _showDetailsDialog(context),
         child: _GlassCard(
-          padding: EdgeInsets.all(12.r),
+          padding: EdgeInsets.all(cardPad),
           child: Row(
             children: [
               Container(
-                width: 44.r,
-                height: 44.r,
+                width: avatarSize,
+                height: avatarSize,
                 decoration: BoxDecoration(
                   color: typeColor.withAlpha(26),
                   shape: BoxShape.circle,
@@ -615,58 +823,67 @@ class _TransactionTile extends StatelessWidget {
                     item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
                     style: TextStyle(
                       color: typeColor,
-                      fontSize: 18.sp,
+                      fontSize: avatarFont,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-              SizedBox(width: 14.w),
+              SizedBox(width: hGap),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       item.category.isEmpty ? "Uncategorized".tr : item.category.tr,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 15.sp,
+                        fontSize: catFont,
                         color: Colors.black87,
                       ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       item.wallet.tr,
                       style: TextStyle(
                         color: Colors.black54,
-                        fontSize: 12.sp,
+                        fontSize: walletFont,
                       ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
+                      fontSize: amtFont,
                       color: typeColor,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: 2.h),
                   Text(
-                    "${numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date))}, ${numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date))}",
+                    tablet
+                        ? DateFormat('dd MMM').format(item.date)
+                        : "${numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date))}, ${numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date))}",
                     style: TextStyle(
                       color: Colors.black45,
-                      fontSize: 10.sp,
+                      fontSize: dateFont,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
                 ],
               ),
+              SizedBox(width: tablet ? 8.0 : 4.0),
             ],
           ),
         ),
@@ -675,18 +892,19 @@ class _TransactionTile extends StatelessWidget {
   }
 
   Widget _buildActionBg(dynamic icon, String text, Color color, Alignment alignment) {
+    final tablet = isTablet;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.symmetric(horizontal: tablet ? 16.0 : 20.w),
       alignment: alignment,
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(tablet ? 14.0 : 14.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: alignment == Alignment.centerLeft
-            ? [HugeIcon(icon: icon, color: color, size: 22.sp), SizedBox(width: 8.w), Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold))]
-            : [Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold)), SizedBox(width: 8.w), HugeIcon(icon: icon, color: color, size: 22.sp)],
+            ? [HugeIcon(icon: icon, color: color, size: tablet ? 18.0 : 22.sp), SizedBox(width: tablet ? 6.0 : 8.w), Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: tablet ? 12.0 : null))]
+            : [Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: tablet ? 12.0 : null)), SizedBox(width: tablet ? 6.0 : 8.w), HugeIcon(icon: icon, color: color, size: tablet ? 18.0 : 22.sp)],
       ),
     );
   }

@@ -10,121 +10,140 @@ import 'package:sadid/Presentation/Share/Background.dart';
 import '../Controller/Controller.dart';
 import 'package:hugeicons/hugeicons.dart'; // Import HugeIcons
 
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
+
 class categories extends StatelessWidget {
   categories({super.key});
   final controller = Get.find<caregoriesController>();
 
   @override
   Widget build(BuildContext context) {
+    final tablet = _isTablet(context);
+
+    Widget body = Obx(() {
+      if (controller.isLoading.value) {
+        return _buildSkeletonLoader(tablet);
+      }
+
+      final list = controller.categories;
+  
+      if (list.isEmpty) {
+        return Center(
+          child: Text("No categories yet".tr, style: TextStyle(fontSize: tablet ? 16.0 : 14.0)),
+        );
+      }
+  
+      return ListView.separated(
+        padding: EdgeInsets.all(tablet ? 24.0 : 16.0),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => SizedBox(height: tablet ? 14.0 : 10.0),
+        itemBuilder: (context, index) {
+          final item = list[index];
+          final id = item["id"].toString();
+          final name = (item["name"] ?? "").toString();
+          final createdAtText = _formatCreatedAt(item["createdAt"]);
+  
+          return Dismissible(
+            key: ValueKey(id),
+  
+            // ✅ BOTH swipe directions allowed
+            direction: DismissDirection.horizontal,
+  
+            // Background for LEFT ➜ RIGHT (Edit)
+            background: _swipeBg(
+              color: const Color(0xFF1976D2),
+              icon: Icons.edit,
+              text: "Edit".tr,
+              alignLeft: true,
+              tablet: tablet,
+            ),
+  
+            // Background for RIGHT ➜ LEFT (Delete)
+            secondaryBackground: _swipeBg(
+              color: const Color(0xFFD32F2F),
+              icon: Icons.delete,
+              text: "Delete".tr,
+              alignLeft: false,
+              tablet: tablet,
+            ),
+  
+            // ✅ Decide what happens before dismiss
+            confirmDismiss: (direction) async {
+              if (direction == DismissDirection.startToEnd) {
+                // Left ➜ Right = EDIT (do not dismiss)
+                _openEditDialog(categoryId: id, currentName: name, tablet: tablet);
+                return false;
+              } else if (direction == DismissDirection.endToStart) {
+                // Right ➜ Left = DELETE (confirm)
+                final ok = await _confirmDelete(name, tablet: tablet);
+                if (ok == true) {
+                  await controller.deleteCategory(id);
+                  return true; // remove from list animation
+                }
+                return false;
+              }
+              return false;
+            },
+  
+            child: _categoryTile(
+              name: name,
+              createdAtText: createdAtText,
+              tablet: tablet,
+            ),
+          );
+        },
+      );
+    });
+
+    if (tablet) {
+      body = Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: body,
+        ),
+      );
+    }
+
     return background(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Categories".tr),
+          title: Text("Categories".tr, style: tablet ? const TextStyle(fontSize: 18.0) : null),
           titleSpacing: -10,
         ),
         floatingActionButton: FloatingActionButton(
-          shape: CircleBorder(),
+          shape: const CircleBorder(),
           backgroundColor: Colors.white,
-          onPressed: () => _openAddDialog(),
-          child: Icon(Icons.add, color: AppColors.primary,),
+          onPressed: () => _openAddDialog(tablet: tablet),
+          child: Icon(Icons.add, color: AppColors.primary, size: tablet ? 28.0 : 24.0),
         ),
-        body: Obx(() {
-          if (controller.isLoading.value) {
-            return _buildSkeletonLoader();
-          }
-
-          final list = controller.categories;
-      
-          if (list.isEmpty) {
-            return Center(
-              child: Text("No categories yet".tr),
-            );
-          }
-      
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: list.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final item = list[index];
-              final id = item["id"].toString();
-              final name = (item["name"] ?? "").toString();
-              final createdAtText = _formatCreatedAt(item["createdAt"]);
-      
-              return Dismissible(
-                key: ValueKey(id),
-      
-                // ✅ BOTH swipe directions allowed
-                direction: DismissDirection.horizontal,
-      
-                // Background for LEFT ➜ RIGHT (Edit)
-                background: _swipeBg(
-                  color: const Color(0xFF1976D2),
-                  icon: Icons.edit,
-                  text: "Edit".tr,
-                  alignLeft: true,
-                ),
-      
-                // Background for RIGHT ➜ LEFT (Delete)
-                secondaryBackground: _swipeBg(
-                  color: const Color(0xFFD32F2F),
-                  icon: Icons.delete,
-                  text: "Delete".tr,
-                  alignLeft: false,
-                ),
-      
-                // ✅ Decide what happens before dismiss
-                confirmDismiss: (direction) async {
-                  if (direction == DismissDirection.startToEnd) {
-                    // Left ➜ Right = EDIT (do not dismiss)
-                    _openEditDialog(categoryId: id, currentName: name);
-                    return false;
-                  } else if (direction == DismissDirection.endToStart) {
-                    // Right ➜ Left = DELETE (confirm)
-                    final ok = await _confirmDelete(name);
-                    if (ok == true) {
-                      await controller.deleteCategory(id);
-                      return true; // remove from list animation
-                    }
-                    return false;
-                  }
-                  return false;
-                },
-      
-                child: _categoryTile(
-                  name: name,
-                  createdAtText: createdAtText,
-                ),
-              );
-            },
-          );
-        }),
+        body: body,
       ),
     );
   }
 
   // ---------- UI widgets ----------
 
-  Widget _buildSkeletonLoader() {
+  Widget _buildSkeletonLoader(bool tablet) {
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(tablet ? 24.0 : 16.0),
       itemCount: 8, // Display 8 skeleton items
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, index) => _skeletonTile(),
+      separatorBuilder: (_, __) => SizedBox(height: tablet ? 14.0 : 10.0),
+      itemBuilder: (context, index) => _skeletonTile(tablet),
     );
   }
 
-  Widget _skeletonTile() {
-    // A simple greyed-out version of the category tile
+  Widget _skeletonTile(bool tablet) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(tablet ? 16.0 : 14.0),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 2, sigmaY: 3),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: tablet ? 18.0 : 14.0, vertical: tablet ? 16.0 : 12.0),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(tablet ? 16.0 : 14.0),
             border: Border.all(
               color: Colors.grey.withOpacity(0.20),
             ),
@@ -132,25 +151,25 @@ class categories extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                radius: 18,
+                radius: tablet ? 22.0 : 18.0,
                 backgroundColor: Colors.grey.withOpacity(0.3),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: tablet ? 16.0 : 12.0),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      height: 16,
+                      height: tablet ? 18.0 : 16.0,
                       width: 120,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: tablet ? 10.0 : 8.0),
                     Container(
-                      height: 12,
+                      height: tablet ? 14.0 : 12.0,
                       width: 80,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.3),
@@ -170,16 +189,17 @@ class categories extends StatelessWidget {
   Widget _categoryTile({
     required String name,
     required String createdAtText,
+    required bool tablet,
   }) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(tablet ? 16.0 : 14.0),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 2, sigmaY: 3),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: tablet ? 18.0 : 14.0, vertical: tablet ? 16.0 : 12.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(14),
+            color: Colors.white.withOpacity(0.2), // Used 0.2 for better visibility like glass card
+            borderRadius: BorderRadius.circular(tablet ? 16.0 : 14.0),
             border: Border.all(
               color: Colors.grey.withOpacity(0.20),
             ),
@@ -187,29 +207,32 @@ class categories extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                radius: 18,
-                backgroundColor: Color(0xFFF2F4F7),
-                child: HugeIcon(icon: HugeIcons.strokeRoundedFavourite, // Updated icon
-                    color: Colors.black87, size: 18), 
+                radius: tablet ? 22.0 : 18.0,
+                backgroundColor: const Color(0xFFF2F4F7),
+                child: HugeIcon(
+                  icon: HugeIcons.strokeRoundedFavourite, 
+                  color: Colors.black87, 
+                  size: tablet ? 22.0 : 18.0
+                ), 
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: tablet ? 16.0 : 12.0),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       name.tr,
-                      style: const TextStyle(
-                        fontSize: 15.5,
+                      style: TextStyle(
+                        fontSize: tablet ? 16.5 : 15.5,
                         fontWeight: FontWeight.w600,
                         color: Colors.black, // Important for dark background
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: tablet ? 6.0 : 4.0),
                     Text(
                       createdAtText,
-                      style: const TextStyle(
-                        fontSize: 12.5,
+                      style: TextStyle(
+                        fontSize: tablet ? 13.5 : 12.5,
                         color: Colors.black,
                       ),
                     ),
@@ -228,24 +251,26 @@ class categories extends StatelessWidget {
     required IconData icon,
     required String text,
     required bool alignLeft,
+    required bool tablet,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
+      padding: EdgeInsets.symmetric(horizontal: tablet ? 24.0 : 18.0),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(tablet ? 16.0 : 14.0),
       ),
       alignment: alignLeft ? Alignment.centerLeft : Alignment.centerRight,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Colors.white),
-          const SizedBox(width: 8),
+          Icon(icon, color: Colors.white, size: tablet ? 26.0 : 24.0),
+          SizedBox(width: tablet ? 10.0 : 8.0),
           Text(
             text,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,
+              fontSize: tablet ? 15.0 : 14.0,
             ),
           ),
         ],
@@ -255,7 +280,7 @@ class categories extends StatelessWidget {
 
   // ---------- dialogs ----------
 
-  void _openAddDialog() {
+  void _openAddDialog({required bool tablet}) {
     final tc = TextEditingController();
 
     if (Platform.isIOS) {
@@ -270,7 +295,7 @@ class categories extends StatelessWidget {
                 controller: tc,
                 autofocus: true,
                 placeholder: "Category name".tr,
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(tablet ? 14.0 : 12.0),
               ),
             ],
           ),
@@ -296,16 +321,19 @@ class categories extends StatelessWidget {
       Get.dialog(
         AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(tablet ? 20.0 : 16.0),
           ),
           title: Text("Add Category".tr),
-          content: TextField(
-            controller: tc,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: "Category name".tr,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+          content: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: tablet ? 400.0 : double.infinity),
+            child: TextField(
+              controller: tc,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: "Category name".tr,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -327,9 +355,11 @@ class categories extends StatelessWidget {
       );
     }
   }
+  
   void _openEditDialog({
     required String categoryId,
     required String currentName,
+    required bool tablet,
   }) {
     final tc = TextEditingController(text: currentName);
 
@@ -372,11 +402,14 @@ class categories extends StatelessWidget {
         AlertDialog(
           backgroundColor: Colors.white,
           title: Text("Edit Category".tr),
-          content: TextField(
-            controller: tc,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: "Category name".tr,
+          content: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: tablet ? 400.0 : double.infinity),
+            child: TextField(
+              controller: tc,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: "Category name".tr,
+              ),
             ),
           ),
           shape: RoundedRectangleBorder(
@@ -412,7 +445,7 @@ class categories extends StatelessWidget {
   }
 
 
-  Future<bool?> _confirmDelete(String name) {
+  Future<bool?> _confirmDelete(String name, {required bool tablet}) {
     if (GetPlatform.isIOS) {
       /// 🍎 iOS Style
       return Get.dialog<bool>(
@@ -443,8 +476,11 @@ class categories extends StatelessWidget {
         AlertDialog(
           backgroundColor: Colors.white,
           title: Text("Delete Category?".tr),
-          content: Text(
-            '${"Are you sure you want to delete".tr} "$name"?',
+          content: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: tablet ? 400.0 : double.infinity),
+            child: Text(
+              '${"Are you sure you want to delete".tr} "$name"?',
+            ),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -474,7 +510,6 @@ class categories extends StatelessWidget {
 
   // ---------- date formatter (simple) ----------
   String _formatCreatedAt(dynamic createdAt) {
-    // Firestore serverTimestamp can be null briefly.
     if (createdAt == null) {
       return Get.locale?.languageCode == 'bn'
           ? "এইমাত্র"
@@ -483,7 +518,6 @@ class categories extends StatelessWidget {
 
     if (createdAt is Timestamp) {
       final dt = createdAt.toDate();
-
       final isBn = Get.locale?.languageCode == 'bn';
 
       const enMonths = [

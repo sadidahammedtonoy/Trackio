@@ -1,17 +1,20 @@
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart'; // Added for CupertinoAlertDialog
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hugeicons/hugeicons.dart'; // Ensure HugeIcons is imported
+import 'package:hugeicons/hugeicons.dart';
 import 'package:sadid/App/routes.dart';
 import 'package:sadid/App/AppColors.dart';
 import '../../../../Core/snakbar.dart';
 import '../../permanentAccount/View/permanentAccount.dart';
 import '../Controller/Controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter/foundation.dart'; // Required for defaultTargetPlatform
+import 'package:flutter/foundation.dart';
+
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
 
 class setting_page extends StatelessWidget {
   setting_page({super.key});
@@ -19,34 +22,49 @@ class setting_page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tablet = _isTablet(context);
+
+    Widget content = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: tablet ? 24.0 : 16.w,
+        vertical: tablet ? 12.0 : 10.h,
+      ),
+      child: Column(
+        children: [
+          _buildProfileSection(context, tablet),
+          SizedBox(height: tablet ? 16.0 : 20.h),
+          _buildGeneralSection(tablet),
+          SizedBox(height: tablet ? 16.0 : 20.h),
+          _buildSecuritySection(tablet),
+          SizedBox(height: tablet ? 16.0 : 20.h),
+          _buildAccountSection(tablet),
+          SizedBox(height: tablet ? 60.0 : 115.h),
+        ],
+      ),
+    );
+
+    // On tablet, center content in a max-width container
+    if (tablet) {
+      content = Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: content,
+        ),
+      );
+    }
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-              child: Column(
-                children: [
-                   _buildProfileSection(context), // Pass context here
-                  SizedBox(height: 20.h),
-                  _buildGeneralSection(),
-                  SizedBox(height: 20.h),
-                  _buildSecuritySection(),
-                  SizedBox(height: 20.h),
-                  _buildAccountSection(),
-                  SizedBox(height: 115.h), // Adjusted padding
-                ],
-              ),
-            ),
-          ),
+          SliverToBoxAdapter(child: content),
         ],
       ),
     );
   }
 
-
-  Widget _buildProfileSection(BuildContext context) {
+  Widget _buildProfileSection(BuildContext context, bool tablet) {
     return _GlassCard(
+      tablet: tablet,
       child: GetBuilder<settingController>(
         builder: (controller) {
           return Column(
@@ -56,16 +74,16 @@ class setting_page extends StatelessWidget {
                 "Manage Profile".tr,
                 style: TextStyle(
                   color: Colors.black54,
-                  fontSize: 14.sp,
+                  fontSize: tablet ? 13.0 : 14.sp,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
                 ),
               ),
-              SizedBox(height: 15.h),
+              SizedBox(height: tablet ? 12.0 : 15.h),
               Row(
                 children: [
-                  _buildAvatar(),
-                  SizedBox(width: 15.w),
+                  _buildAvatar(tablet),
+                  SizedBox(width: tablet ? 12.0 : 15.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +95,7 @@ class setting_page extends StatelessWidget {
                               snapshot.data ?? "User",
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 20.sp,
+                                fontSize: tablet ? 16.0 : 20.sp,
                                 fontWeight: FontWeight.bold,
                               ),
                             );
@@ -87,16 +105,19 @@ class setting_page extends StatelessWidget {
                           controller.getUserEmail() ?? "",
                           style: TextStyle(
                             color: Colors.black45,
-                            fontSize: 14.sp,
+                            fontSize: tablet ? 12.0 : 14.sp,
                           ),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
-                    onPressed: () => _showEditNameDialog(context), // Pass context
-                    icon: HugeIcon(icon: HugeIcons.strokeRoundedEditUser02, // Corrected icon name
-                        color: AppColors.primary, size: 28.sp),
+                    onPressed: () => _showEditNameDialog(context),
+                    icon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedEditUser02,
+                      color: AppColors.primary,
+                      size: tablet ? 22.0 : 28.sp,
+                    ),
                   ),
                 ],
               ),
@@ -107,7 +128,7 @@ class setting_page extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(bool tablet) {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
@@ -128,14 +149,14 @@ class setting_page extends StatelessWidget {
         return GestureDetector(
           onTap: () => controller.showImageSourceDialog(),
           child: Container(
-            padding: EdgeInsets.all(3.r),
+            padding: EdgeInsets.all(tablet ? 2.0 : 3.r),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
                   color: AppColors.primary.withOpacity(0.2), width: 2),
             ),
             child: CircleAvatar(
-              radius: 35.r,
+              radius: tablet ? 28.0 : 35.r,
               backgroundImage: NetworkImage(imageUrl),
             ),
           ),
@@ -144,128 +165,146 @@ class setting_page extends StatelessWidget {
     );
   }
 
-  Widget _buildGeneralSection() {
+  Widget _buildGeneralSection(bool tablet) {
     return _GlassCard(
+      tablet: tablet,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader("General".tr),
+          _buildSectionHeader("General".tr, tablet),
           _SettingItem(
-            icon: Icon(Icons.palette_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.palette_outlined),
             title: "Theme".tr,
             onTap: () => Get.toNamed(routes.backgroundSelection_screen),
             iconColor: Colors.blueAccent,
+            tablet: tablet,
           ),
           _SettingItem(
-            icon: Icon(Icons.savings_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.savings_outlined),
             title: "Savings".tr,
             onTap: () => Get.toNamed(routes.saving_screen),
             iconColor: AppColors.yellow,
+            tablet: tablet,
           ),
           _SettingItem(
             icon: HugeIcon(icon: HugeIcons.strokeRoundedLeaf01),
             title: "Budgets".tr,
             onTap: () => Get.toNamed(routes.budgets_screen),
             iconColor: AppColors.yellow,
+            tablet: tablet,
           ),
           _SettingItem(
-            icon: Icon(Icons.category_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.category_outlined),
             title: "Categories".tr,
             onTap: () => Get.toNamed(routes.categories_screen),
             iconColor: AppColors.purple,
+            tablet: tablet,
           ),
           _SettingItem(
-            icon: Icon(Icons.language_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.language_outlined),
             title: "Language".tr,
-            onTap: () => _showLanguageSelector(),
+            onTap: () => _showLanguageSelector(tablet),
             iconColor: AppColors.sky,
             showDivider: false,
+            tablet: tablet,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSecuritySection() {
+  Widget _buildSecuritySection(bool tablet) {
     return _GlassCard(
+      tablet: tablet,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader("Security & Support".tr),
+          _buildSectionHeader("Security & Support".tr, tablet),
           _SettingItem(
-            icon: Icon(Icons.privacy_tip_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.privacy_tip_outlined),
             title: "Privacy Policy".tr,
             onTap: () => Get.toNamed(routes.PrivacyPolicyPage_screen),
             iconColor: AppColors.green,
+            tablet: tablet,
           ),
           _SettingItem(
-            icon: Icon(Icons.description_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.description_outlined),
             title: "Terms & Conditions".tr,
             onTap: () => Get.toNamed(routes.TermsConditionsPage_screen),
             iconColor: Colors.amber,
+            tablet: tablet,
           ),
           _SettingItem(
-            icon: Icon(Icons.support_agent_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.support_agent_outlined),
             title: "Help & Support".tr,
             onTap: () => Get.toNamed(routes.HelpSupportPage_screen),
             iconColor: Colors.orangeAccent,
+            tablet: tablet,
           ),
           _SettingItem(
-            icon: Icon(Icons.lock_reset_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.lock_reset_outlined),
             title: "Change Password".tr,
             onTap: () => Get.toNamed(routes.changePassword_screen),
             iconColor: AppColors.red,
             showDivider: false,
             visible: controller.isEmailPasswordUser(),
+            tablet: tablet,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAccountSection() {
+  Widget _buildAccountSection(bool tablet) {
     return _GlassCard(
+      tablet: tablet,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // Corrected FromStart to start
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader("Account".tr),
+          _buildSectionHeader("Account".tr, tablet),
           _SettingItem(
-            icon: Icon(Icons.verified_outlined), // Wrapped IconData in Icon widget
+            icon: Icon(Icons.verified_outlined),
             title: "Make permanent account".tr,
             onTap: () => Get.dialog(MakePermanentDialog()),
             iconColor: Colors.green,
             textColor: Colors.green,
             visible: controller.isGuestUser(),
+            tablet: tablet,
           ),
           _SettingItem(
-            icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02), // Updated logout icon
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02),
             title: "Log Out".tr,
             onTap: () => controller.showLogoutDialog(
                 onConfirm: () => controller.logout()),
             iconColor: Colors.redAccent,
             textColor: Colors.redAccent,
+            tablet: tablet,
           ),
           _SettingItem(
-            icon: HugeIcon(icon: HugeIcons.strokeRoundedAccountSetting03), // Updated delete icon
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedAccountSetting03),
             title: "Delete Account".tr,
             onTap: () => controller.confirmDeleteAccount(),
             iconColor: Colors.red,
             textColor: Colors.red,
             showDivider: false,
+            tablet: tablet,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, bool tablet) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 15.h, left: 4.w),
+      padding: EdgeInsets.only(
+        bottom: tablet ? 10.0 : 15.h,
+        left: tablet ? 4.0 : 4.w,
+      ),
       child: Text(
         title,
         style: TextStyle(
           color: Colors.black54,
-          fontSize: 14.sp,
+          fontSize: tablet ? 12.0 : 14.sp,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
@@ -291,7 +330,6 @@ class setting_page extends StatelessWidget {
       }
     }
 
-    // Platform-specific dialog
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       Get.dialog(
         CupertinoAlertDialog(
@@ -315,15 +353,14 @@ class setting_page extends StatelessWidget {
           ],
         ),
       );
-    } else { // Android and other platforms
+    } else {
       Get.dialog(
         AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.r),
           ),
-          title:
-              Text("Update Name".tr, style: const TextStyle(color: Colors.black)),
+          title: Text("Update Name".tr, style: const TextStyle(color: Colors.black)),
           content: TextField(
             controller: controller.nameC,
             style: const TextStyle(color: Colors.black),
@@ -339,8 +376,7 @@ class setting_page extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Get.back(),
-              child:
-                  Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
+              child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
             ),
             ElevatedButton(
               onPressed: controller.changeName,
@@ -349,8 +385,7 @@ class setting_page extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r)),
               ),
-              child:
-                  Text("Update".tr, style: const TextStyle(color: Colors.white)),
+              child: Text("Update".tr, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -358,7 +393,7 @@ class setting_page extends StatelessWidget {
     }
   }
 
-  void _showLanguageSelector() {
+  void _showLanguageSelector(bool tablet) {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.only(bottom: 20),
@@ -374,17 +409,17 @@ class setting_page extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Container(
-                  height: 4.h,
-                  width: 40.w,
+                  height: 4,
+                  width: 40,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10.r),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(24.r),
+              padding: EdgeInsets.all(tablet ? 20.0 : 24.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -392,31 +427,38 @@ class setting_page extends StatelessWidget {
                     "Choose Language".tr,
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20.sp,
+                      fontSize: tablet ? 16.0 : 20.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: tablet ? 6.0 : 8.h),
                   Text(
                     "Select your preferred language".tr,
-                    style: TextStyle(color: Colors.black54, fontSize: 14.sp),
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: tablet ? 13.0 : 14.sp,
+                    ),
                   ),
                 ],
               ),
             ),
             const Divider(height: 1),
             _SettingItem(
-              icon: Icon(Icons.language), // Wrapped IconData in Icon widget
+              icon: Icon(Icons.language),
               title: "বাংলা",
               onTap: () {
                 controller.changeLanguageInstant(const Locale('bn', 'BD'));
                 Get.back();
               },
               iconColor: AppColors.primary,
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: tablet ? 20.0 : 24.w,
+                vertical: tablet ? 12.0 : 16.h,
+              ),
+              tablet: tablet,
             ),
             _SettingItem(
-              icon: Icon(Icons.language), // Wrapped IconData in Icon widget
+              icon: Icon(Icons.language),
               title: "English",
               onTap: () {
                 controller.changeLanguageInstant(const Locale('en', 'US'));
@@ -424,7 +466,11 @@ class setting_page extends StatelessWidget {
               },
               iconColor: AppColors.primary,
               showDivider: false,
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: tablet ? 20.0 : 24.w,
+                vertical: tablet ? 12.0 : 16.h,
+              ),
+              tablet: tablet,
             ),
           ],
         ),
@@ -436,20 +482,20 @@ class setting_page extends StatelessWidget {
 class _GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? margin;
+  final bool tablet;
 
-  const _GlassCard({required this.child, this.margin});
+  const _GlassCard({required this.child, this.margin, this.tablet = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2), // Frosted white opacity
-        borderRadius: BorderRadius.circular(24.r),
-        // border: Border.all(color: Colors.white.withOpacity(0.5)),
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(tablet ? 18.0 : 24.r),
         border: Border.all(color: Colors.grey.withOpacity(0.5)),
         boxShadow: [
-           BoxShadow(
+          BoxShadow(
             color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
@@ -457,11 +503,11 @@ class _GlassCard extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24.r),
+        borderRadius: BorderRadius.circular(tablet ? 18.0 : 24.r),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Padding(
-            padding: EdgeInsets.all(20.r),
+            padding: EdgeInsets.all(tablet ? 16.0 : 20.r),
             child: child,
           ),
         ),
@@ -471,7 +517,7 @@ class _GlassCard extends StatelessWidget {
 }
 
 class _SettingItem extends StatelessWidget {
-  final Widget icon; // Changed from IconData to Widget
+  final Widget icon;
   final String title;
   final VoidCallback onTap;
   final Color iconColor;
@@ -479,6 +525,7 @@ class _SettingItem extends StatelessWidget {
   final bool showDivider;
   final bool visible;
   final EdgeInsetsGeometry? padding;
+  final bool tablet;
 
   const _SettingItem({
     required this.icon,
@@ -489,6 +536,7 @@ class _SettingItem extends StatelessWidget {
     this.showDivider = true,
     this.visible = true,
     this.padding,
+    this.tablet = false,
   });
 
   @override
@@ -498,41 +546,52 @@ class _SettingItem extends StatelessWidget {
       children: [
         InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(tablet ? 10.0 : 12.r),
           child: Padding(
-            padding: padding ?? EdgeInsets.symmetric(vertical: 12.h),
+            padding: padding ??
+                EdgeInsets.symmetric(vertical: tablet ? 10.0 : 12.h),
             child: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(8.r),
+                  padding: EdgeInsets.all(tablet ? 6.0 : 8.r),
                   decoration: BoxDecoration(
                     color: iconColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10.r),
+                    borderRadius: BorderRadius.circular(tablet ? 8.0 : 10.r),
                   ),
-                  child: icon, // Directly use the icon widget
+                  child: IconTheme(
+                    data: IconThemeData(
+                      size: tablet ? 18.0 : 22.0,
+                      color: iconColor,
+                    ),
+                    child: icon,
+                  ),
                 ),
-                SizedBox(width: 15.w),
+                SizedBox(width: tablet ? 12.0 : 15.w),
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 16.sp,
+                      fontSize: tablet ? 14.0 : 16.sp,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded,
-                    color: Colors.black12, size: 24.sp),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.black12,
+                  size: tablet ? 20.0 : 24.sp,
+                ),
               ],
             ),
           ),
         ),
         if (showDivider)
           Divider(
-              color: Colors.black.withOpacity(0.05),
-              height: 1.h,
-              indent: 45.w),
+            color: Colors.black.withOpacity(0.05),
+            height: 1,
+            indent: tablet ? 40.0 : 45.w,
+          ),
       ],
     );
   }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Controller/Controller.dart';
 
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
+
 class CalculatorDialog extends StatelessWidget {
   CalculatorDialog({super.key});
 
@@ -9,14 +12,19 @@ class CalculatorDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tablet = _isTablet(context);
+
     return Dialog(
       backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: tablet ? 24 : 16, 
+        vertical: tablet ? 32 : 24
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(tablet ? 20 : 16)),
       child: SizedBox(
-        width: 420,
+        width: tablet ? 480 : 420, // slightly larger on tablet
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.all(tablet ? 18 : 14),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -25,21 +33,23 @@ class CalculatorDialog extends StatelessWidget {
                 children: [
                   Text(
                     "Calculator".tr,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: tablet ? 18 : 16, fontWeight: FontWeight.w700),
                   ),
                   const Spacer(),
                   IconButton(
                     onPressed: () => Get.back(),
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close, size: tablet ? 26 : 24),
                   ),
                 ],
               ),
+
+              SizedBox(height: tablet ? 4 : 0),
 
               // Display
               Obx(
                 () => Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(14),
+                  padding: EdgeInsets.all(tablet ? 18 : 14),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
@@ -50,17 +60,17 @@ class CalculatorDialog extends StatelessWidget {
                       Text(
                         c.expr.value.isEmpty ? "0" : c.expr.value,
                         textAlign: TextAlign.right,
-                        style: const TextStyle(
-                          fontSize: 20,
+                        style: TextStyle(
+                          fontSize: tablet ? 24 : 20,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: tablet ? 12 : 8),
                       Text(
                         c.result.value,
                         textAlign: TextAlign.right,
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: tablet ? 32 : 28,
                           fontWeight: FontWeight.w800,
                           color: c.result.value == 'Error'
                               ? Colors.red
@@ -72,11 +82,11 @@ class CalculatorDialog extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: tablet ? 16 : 12),
 
               // Buttons grid
-              _grid(),
-              const SizedBox(height: 10),
+              _grid(tablet: tablet),
+              SizedBox(height: tablet ? 12 : 10),
             ],
           ),
         ),
@@ -84,7 +94,7 @@ class CalculatorDialog extends StatelessWidget {
     );
   }
 
-  Widget _grid() {
+  Widget _grid({required bool tablet}) {
     final buttons = <_CalcBtn>[
       _CalcBtn("AC", onTap: c.clearAll, isTop: true),
       _CalcBtn("⌫", onTap: c.backspace, isTop: true),
@@ -118,38 +128,38 @@ class CalculatorDialog extends StatelessWidget {
     // Manual layout: 4 columns, last row has "=" spanning 3 cells
     return Column(
       children: [
-        _row(buttons.sublist(0, 4)),
-        _row(buttons.sublist(4, 8)),
-        _row(buttons.sublist(8, 12)),
-        _row(buttons.sublist(12, 16)),
-        _row(buttons.sublist(16, 20)),
-        const SizedBox(height: 8),
+        _row(buttons.sublist(0, 4), tablet),
+        _row(buttons.sublist(4, 8), tablet),
+        _row(buttons.sublist(8, 12), tablet),
+        _row(buttons.sublist(12, 16), tablet),
+        _row(buttons.sublist(16, 20), tablet),
+        SizedBox(height: tablet ? 10 : 8),
         Row(
           children: [
-            Expanded(child: _btn(buttons[20])),
-            const SizedBox(width: 8),
-            Expanded(flex: 3, child: _btn(buttons[21], equalWide: true)),
+            Expanded(child: _btn(buttons[20], tablet: tablet)),
+            SizedBox(width: tablet ? 10 : 8),
+            Expanded(flex: 3, child: _btn(buttons[21], equalWide: true, tablet: tablet)),
           ],
         ),
       ],
     );
   }
 
-  Widget _row(List<_CalcBtn> rowBtns) {
+  Widget _row(List<_CalcBtn> rowBtns, bool tablet) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: tablet ? 10 : 8),
       child: Row(
         children: [
           for (int i = 0; i < rowBtns.length; i++) ...[
-            Expanded(child: _btn(rowBtns[i])),
-            if (i != rowBtns.length - 1) const SizedBox(width: 8),
+            Expanded(child: _btn(rowBtns[i], tablet: tablet)),
+            if (i != rowBtns.length - 1) SizedBox(width: tablet ? 10 : 8),
           ],
         ],
       ),
     );
   }
 
-  Widget _btn(_CalcBtn b, {bool equalWide = false}) {
+  Widget _btn(_CalcBtn b, {bool equalWide = false, required bool tablet}) {
     final bg = b.isEqual
         ? Colors.blue
         : b.isOp
@@ -161,7 +171,7 @@ class CalculatorDialog extends StatelessWidget {
     final fg = b.isEqual ? Colors.white : Colors.black;
 
     return SizedBox(
-      height: equalWide ? 52 : 48,
+      height: tablet ? (equalWide ? 58 : 54) : (equalWide ? 52 : 48),
       child: InkWell(
         onTap: b.onTap,
         borderRadius: BorderRadius.circular(12),
@@ -175,7 +185,7 @@ class CalculatorDialog extends StatelessWidget {
           child: Text(
             b.label,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: tablet ? 20 : 18,
               fontWeight: b.isEqual ? FontWeight.w800 : FontWeight.w700,
               color: fg,
             ),
