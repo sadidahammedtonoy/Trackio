@@ -52,6 +52,23 @@ class DashboardPage extends StatelessWidget {
         centerTitle: false,
         elevation: 0,
         actions: [
+          // AI Chat button
+          Padding(
+            padding: EdgeInsets.only(right: isTab ? 2.0 : 2.w),
+            child: GestureDetector(
+              onTap: () => Get.toNamed(routes.ai_chat_screen),
+              child: Container(
+                width: isTab ? 34.0 : 34.r,
+                height: isTab ? 34.0 : 34.r,
+                margin: EdgeInsets.symmetric(vertical: isTab ? 10.0 : 10.h),
+                child: Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Colors.black,
+                  size: isTab ? 18.0 : 18.sp,
+                ),
+              ),
+            ),
+          ),
           IconButton(
             onPressed: () => Get.toNamed(routes.visual_representation_screen),
             icon: HugeIcon(

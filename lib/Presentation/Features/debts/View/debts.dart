@@ -854,7 +854,7 @@ class _TransactionTile extends StatelessWidget {
         child: Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.symmetric(
-            horizontal: tablet ? 160 : 20,
+            horizontal: tablet ? 160 : 16,
             vertical: 24,
           ),
           child: Container(
@@ -876,8 +876,8 @@ class _TransactionTile extends StatelessWidget {
                 // Gradient Header
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: tablet ? 28.0 : 22.0,
-                    vertical: tablet ? 24.0 : 20.0,
+                    horizontal: tablet ? 24.0 : 16.0,
+                    vertical: tablet ? 22.0 : 18.0,
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -892,39 +892,48 @@ class _TransactionTile extends StatelessWidget {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: EdgeInsets.all(tablet ? 8 : 7),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.25),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(typeIcon, color: Colors.white, size: tablet ? 18 : 16),
                           ),
-                          const SizedBox(width: 10),
-                          Text(
-                            "${item.type.tr} ${'Transaction'.tr}",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: tablet ? 16.0 : 15.0,
-                              letterSpacing: 0.5,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "${item.type.tr} ${'Transaction'.tr}",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: tablet ? 16.0 : 14.5,
+                                letterSpacing: 0.3,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Spacer(),
-                          if (item.marked)
+                          if (item.marked) ...[
+                            const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.25),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.check_circle, color: Colors.white, size: 14),
+                                  const Icon(Icons.check_circle, color: Colors.white, size: 13),
                                   const SizedBox(width: 4),
-                                  Text('Completed'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                                  Text(
+                                    'Completed'.tr,
+                                    style: const TextStyle(color: Colors.white, fontSize: 11.5),
+                                  ),
                                 ],
                               ),
                             ),
+                          ],
                         ],
                       ),
                       SizedBox(height: tablet ? 14 : 12),

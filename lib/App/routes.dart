@@ -14,6 +14,7 @@ import '../Presentation/Features/caregories/View/categories.dart';
 import '../Presentation/Features/helpSupport/View/helpSupport.dart';
 import '../Presentation/Features/permanentAccount/View/permanentAccount.dart';
 import '../Presentation/Features/saving/View/saving.dart';
+import '../Presentation/Features/AI Feature test/View/ai_chat_page.dart';
 import '../Presentation/Splash/View/splash.dart';
 import '../Presentation/navbar/View/navbar.dart';
 import 'Binding.dart';
@@ -36,6 +37,7 @@ class routes {
   static const String MakePermanentDialog_screen = '/MakePermanentDialog';
   static const String backgroundSelection_screen = '/backgroundSelection';
   static const String visual_representation_screen = '/visual_representation';
+  static const String ai_chat_screen = '/ai_chat';
 
 
   static final pages = [
@@ -56,5 +58,6 @@ class routes {
     GetPage( name: MakePermanentDialog_screen, binding: InitialBinding(), page: () => MakePermanentDialog()),
     GetPage( name: backgroundSelection_screen, binding: InitialBinding(), page: () => backgroundSelection()),
     GetPage( name: visual_representation_screen, binding: InitialBinding(), page: () => VisualRepresentationPage()),
+    GetPage( name: ai_chat_screen, binding: InitialBinding(), page: () => AiChatPage()),
   ];
 }
