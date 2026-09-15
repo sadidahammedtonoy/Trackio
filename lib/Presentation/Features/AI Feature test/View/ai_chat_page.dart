@@ -135,11 +135,16 @@ class _ChatList extends StatelessWidget {
 
   const _ChatList({required this.controller, required this.isTab});
 
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final msgs = controller.messages;
       return ListView.builder(
+        reverse: true,
         controller: controller.scrollController,
         padding: EdgeInsets.symmetric(
           horizontal: isTab ? 24.0 : 16.w,
@@ -147,15 +152,99 @@ class _ChatList extends StatelessWidget {
         ),
         itemCount: msgs.length,
         itemBuilder: (_, i) {
-          final msg = msgs[i];
-          return _MessageBubble(
+          final chronologicalIndex = msgs.length - 1 - i;
+          final msg = msgs[chronologicalIndex];
+
+          final bool showDateHeader = chronologicalIndex == 0 ||
+              !_isSameDay(
+                msg.timestamp,
+                msgs[chronologicalIndex - 1].timestamp,
+              );
+
+          final bubble = _MessageBubble(
             message: msg,
             controller: controller,
             isTab: isTab,
           );
+
+          if (showDateHeader) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _ChatDateDivider(date: msg.timestamp, isTab: isTab),
+                bubble,
+              ],
+            );
+          }
+
+          return bubble;
         },
       );
     });
+  }
+}
+
+// ─── Chat Date Divider ────────────────────────────────────────────────────────
+
+class _ChatDateDivider extends StatelessWidget {
+  final DateTime date;
+  final bool isTab;
+
+  const _ChatDateDivider({required this.date, required this.isTab});
+
+  static String formatDate(DateTime dt) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final target = DateTime(dt.year, dt.month, dt.day);
+
+    if (target == today) {
+      return 'Today'.tr;
+    } else if (target == yesterday) {
+      return 'Yesterday'.tr;
+    } else {
+      return DateFormat('dd MMM, yyyy').format(dt);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        margin: EdgeInsets.only(
+          top: isTab ? 10.0 : 8.h,
+          bottom: isTab ? 14.0 : 12.h,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: isTab ? 14.0 : 12.w,
+          vertical: isTab ? 5.0 : 4.h,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white.withAlpha(190),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.black.withAlpha(15),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(8),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Text(
+          formatDate(date),
+          style: TextStyle(
+            color: Colors.black54,
+            fontSize: isTab ? 11.0 : 10.5.sp,
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -1378,6 +1467,21 @@ class _ChatHistoryDrawerState extends State<_ChatHistoryDrawer> {
                   );
                 }
 
+                String sessionDateCategory(DateTime date) {
+                  final now = DateTime.now();
+                  final today = DateTime(now.year, now.month, now.day);
+                  final yesterday = today.subtract(const Duration(days: 1));
+                  final target = DateTime(date.year, date.month, date.day);
+
+                  if (target == today) {
+                    return 'Today'.tr;
+                  } else if (target == yesterday) {
+                    return 'Yesterday'.tr;
+                  } else {
+                    return DateFormat('dd MMM, yyyy').format(date);
+                  }
+                }
+
                 return ListView.separated(
                   padding: EdgeInsets.symmetric(
                     horizontal: isTab ? 20.0 : 16.w,
@@ -1392,7 +1496,13 @@ class _ChatHistoryDrawerState extends State<_ChatHistoryDrawer> {
                         widget.controller.currentSession.value?.id ==
                             session.id;
 
-                    return _SessionTile(
+                    final currentCategory =
+                        sessionDateCategory(session.updatedAt);
+                    final isFirstInCategory = index == 0 ||
+                        sessionDateCategory(displayed[index - 1].updatedAt) !=
+                            currentCategory;
+
+                    final tile = _SessionTile(
                       session: session,
                       index: index,
                       isSelected: isSelected,
@@ -1412,6 +1522,35 @@ class _ChatHistoryDrawerState extends State<_ChatHistoryDrawer> {
                         session,
                       ),
                     );
+
+                    if (isFirstInCategory) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: index == 0 ? 2.h : (isTab ? 14.0 : 12.h),
+                              bottom: isTab ? 8.0 : 6.h,
+                              left: 4.w,
+                            ),
+                            child: Text(
+                              currentCategory.toUpperCase(),
+                              style: TextStyle(
+                                color: Colors.black45,
+                                fontSize: isTab ? 11.0 : 10.5.sp,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
+                          tile,
+                        ],
+                      );
+                    }
+
+                    return tile;
                   },
                 );
               }),

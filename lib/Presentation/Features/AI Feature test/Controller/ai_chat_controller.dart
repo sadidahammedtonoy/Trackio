@@ -87,7 +87,6 @@ class ChatMessage {
     );
   }
 }
-
 class AiChatController extends GetxController {
   String _apiKey = '';
 
@@ -115,7 +114,7 @@ class AiChatController extends GetxController {
     } catch (e) {
       debugPrint('Error fetching API key from Firestore: $e');
     }
-    return '';
+    return _apiKey;
   }
 
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
@@ -374,7 +373,7 @@ class AiChatController extends GetxController {
     messages.clear();
     _chat = _model?.startChat();
     _addWelcomeMessage();
-    _scrollToBottom();
+    _scrollToBottom(animate: false);
   }
 
   Future<void> _cleanUpEmptySessionIfUnused(String sessionId) async {
@@ -452,7 +451,7 @@ class AiChatController extends GetxController {
       _addWelcomeMessage();
     } finally {
       isLoadingMessages.value = false;
-      _scrollToBottom();
+      _scrollToBottom(animate: false);
     }
   }
 
@@ -843,14 +842,18 @@ class AiChatController extends GetxController {
     return '❌ Something went wrong. Please try again.';
   }
 
-  void _scrollToBottom() {
+  void _scrollToBottom({bool animate = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (scrollController.hasClients) {
-        scrollController.animateTo(
-          scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        if (animate) {
+          scrollController.animateTo(
+            0.0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        } else {
+          scrollController.jumpTo(0.0);
+        }
       }
     });
   }
@@ -863,6 +866,7 @@ class AiChatController extends GetxController {
       _chat = _model?.startChat();
       _addWelcomeMessage();
       showSuggestions.value = true;
+      _scrollToBottom(animate: false);
     }
   }
 
