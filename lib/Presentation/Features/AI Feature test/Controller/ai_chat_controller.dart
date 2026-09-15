@@ -89,14 +89,34 @@ class ChatMessage {
 }
 
 class AiChatController extends GetxController {
-  static const String _apiKey = 'AIzaSyDSWN8285QsApatN94v5kzMsvobZgt4Lvs';
+  String _apiKey = '';
 
   // gemini-3.6-flash — confirmed available for this API key
   static const String _modelName = 'gemini-3.6-flash';
 
-  late GenerativeModel _model;
-  late ChatSession _chat;
+  GenerativeModel? _model;
+  ChatSession? _chat;
   String _cachedFinancialContext = '';
+
+  Future<String> _fetchApiKey() async {
+    if (_apiKey.isNotEmpty) return _apiKey;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('API Key')
+          .doc('Google Gemini')
+          .get();
+      if (doc.exists && doc.data() != null) {
+        final key = doc.data()!['Key'] as String?;
+        if (key != null && key.trim().isNotEmpty) {
+          _apiKey = key.trim();
+          return _apiKey;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching API key from Firestore: $e');
+    }
+    return '';
+  }
 
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final RxBool isTyping = false.obs;
@@ -211,7 +231,11 @@ class AiChatController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _initializeModel();
+    _fetchApiKey().then((key) {
+      if (key.isNotEmpty) {
+        _initializeModel();
+      }
+    });
     _initSessions();
     _preloadFinancialContext();
   }
@@ -220,7 +244,9 @@ class AiChatController extends GetxController {
     _fetchFinancialContext().then((ctx) {
       if (ctx.isNotEmpty) {
         _cachedFinancialContext = ctx;
-        _initializeModel(customContext: ctx);
+        if (_apiKey.isNotEmpty) {
+          _initializeModel(customContext: ctx);
+        }
       }
     }).catchError((e) {
       debugPrint('Preload financial context error: $e');
@@ -228,6 +254,7 @@ class AiChatController extends GetxController {
   }
 
   void _initializeModel({String? customContext}) {
+    if (_apiKey.isEmpty) return;
     final contextToUse = (customContext != null && customContext.isNotEmpty)
         ? customContext
         : _cachedFinancialContext;
@@ -242,7 +269,7 @@ class AiChatController extends GetxController {
       ),
       systemInstruction: Content.system(sysPrompt),
     );
-    _chat = _model.startChat();
+    _chat = _model?.startChat();
   }
 
   // ─── Firebase Sessions Management ──────────────────────────────────────────
@@ -345,7 +372,7 @@ class AiChatController extends GetxController {
     );
     isCurrentSessionPersisted.value = false;
     messages.clear();
-    _chat = _model.startChat();
+    _chat = _model?.startChat();
     _addWelcomeMessage();
     _scrollToBottom();
   }
@@ -419,7 +446,7 @@ class AiChatController extends GetxController {
         messages.value = loaded;
       }
 
-      _chat = _model.startChat();
+      _chat = _model?.startChat();
     } catch (e) {
       debugPrint('Error loading session messages: $e');
       _addWelcomeMessage();
@@ -666,6 +693,15 @@ class AiChatController extends GetxController {
 
     // Otherwise, query Gemini AI
     try {
+      if (_apiKey.isEmpty) {
+        await _fetchApiKey();
+      }
+      if (_apiKey.isEmpty) {
+        throw Exception(
+          'API Key could not be loaded from Firebase Firestore (API Key/Google Gemini).',
+        );
+      }
+
       final financialContext = await _getOrFetchFinancialContext();
       final sysPrompt = _buildSystemInstruction(financialContext);
 
@@ -680,9 +716,9 @@ class AiChatController extends GetxController {
       );
 
       final history = _buildHistoryForGemini();
-      _chat = _model.startChat(history: history);
+      _chat = _model!.startChat(history: history);
 
-      final response = await _chat.sendMessage(Content.text(trimmed));
+      final response = await _chat!.sendMessage(Content.text(trimmed));
       final responseText =
           response.text ?? "Sorry, I couldn't generate a response.";
 
@@ -792,6 +828,9 @@ class AiChatController extends GetxController {
 
   String _parseError(String msg) {
     final lower = msg.toLowerCase();
+    if (lower.contains('api key') || lower.contains('firestore')) {
+      return '🔑 API key could not be loaded from Firebase. Please ensure collection "API Key", document "Google Gemini", and field "Key" are configured.';
+    }
     if (lower.contains('socket') ||
         lower.contains('network') ||
         lower.contains('connection') ||
@@ -821,7 +860,7 @@ class AiChatController extends GetxController {
       deleteSession(currentSession.value!.id);
     } else {
       messages.clear();
-      _chat = _model.startChat();
+      _chat = _model?.startChat();
       _addWelcomeMessage();
       showSuggestions.value = true;
     }
