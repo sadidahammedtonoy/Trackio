@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (_, __) => GetMaterialApp(
+        title: 'Trackio',
         debugShowCheckedModeBanner: false,
         translations: AppTranslation(),
         locale: Locale('en', 'US'),

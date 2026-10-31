@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Trackio - Personal Finance Tracker">
+
+  <!-- Status Bar & Theme Color (Matches default Mint Green Minimalist Leaves top color) -->
+  <meta name="theme-color" content="#C9DCD7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Trackio">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Trackio</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body {
+      margin: 0px;
+      padding: 0px;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #C9DCD7;
+      background-image: url('assets/assets/Mint%20Green%20Minimalist%20Watercolor%20Leaves%20Background%20Instagram%20Story.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      user-select: none;
+      touch-action: none;
+    }
+  </style>
+
+  <!-- Prevent Flutter from stripping viewport-fit=cover on iOS Safari -->
+  <script>
+    (function() {
+      const ensureViewportFit = function() {
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+          let content = viewport.getAttribute('content') || '';
+          if (!content.includes('viewport-fit=cover')) {
+            viewport.setAttribute('content', content + (content ? ', ' : '') + 'viewport-fit=cover');
+          }
+        }
+      };
+      const observer = new MutationObserver(ensureViewportFit);
+      observer.observe(document.head, { childList: true, subtree: true, attributes: true });
+      window.addEventListener('DOMContentLoaded', ensureViewportFit);
+    })();
+  </script>
+</head>
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
