@@ -250,40 +250,6 @@ class login extends StatelessWidget {
             ),
           ),
         ),
-        // Apple Sign-In Button (Visible only on iOS)
-        if (Get.theme.platform == TargetPlatform.iOS) ...[
-          SizedBox(height: tablet ? 12 : 8),
-          GestureDetector(
-            onTap: () => controller.signInWithApple(),
-            child: Card(
-              elevation: 3,
-              color: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              child: Padding(
-                padding: EdgeInsets.all(tablet ? 14.0 : 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    HugeIcon(
-                      icon: HugeIcons.strokeRoundedApple, 
-                      color: Colors.black, 
-                      size: tablet ? 28.0 : 24.0
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      "Continue with Apple".tr,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontSize: tablet ? 15 : 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
         SizedBox(height: tablet ? 40 : 20),
       ],
     );

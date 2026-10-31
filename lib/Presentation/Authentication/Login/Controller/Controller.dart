@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -39,15 +40,13 @@ class loginController extends GetxController {
   Future<void> signInWithGoogle() async {
     AppLoader.show();
     try {
-      // If the app is crashing on Google Sign-In, it's often due to a
-      // configuration issue. Please ensure the following:
-      // 1. You have a `google-services.json` file in your `android/app` directory.
-      // 2. The SHA-1 fingerprint of your app is registered in your Firebase project settings.
-      //    For release builds, you'll need to add the release SHA-1 as well.
-      // 3. If you are authenticating with Firebase, you may need to provide the
-      //    web client ID to the GoogleSignIn constructor to get an idToken.
-      //    final GoogleSignIn _googleSignIn = GoogleSignIn(serverClientId: 'YOUR_WEB_CLIENT_ID');
-      //    You can find this ID in your google-services.json file (client_type: 3).
+      if (kIsWeb) {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        AppLoader.hide();
+        Get.offAllNamed(routes.navbar_screen);
+        return;
+      }
 
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
@@ -63,6 +62,12 @@ class loginController extends GetxController {
       await FirebaseAuth.instance.signInWithCredential(credential);
       AppLoader.hide();
       Get.offAllNamed(routes.navbar_screen);
+    } on FirebaseAuthException catch (e) {
+      AppLoader.hide();
+      if (e.code == 'popup-closed-by-user' || e.code == 'cancelled-popup-request') {
+        return;
+      }
+      AppSnackbar.show("Google Sign-In Failed: ".tr + (e.message ?? e.code));
     } catch (e) {
       AppLoader.hide();
       AppSnackbar.show("Google Sign-In Failed: ".tr + e.toString());

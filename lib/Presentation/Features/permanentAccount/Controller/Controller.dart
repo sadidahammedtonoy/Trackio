@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -125,6 +126,17 @@ class MakePermanentController extends GetxController {
 
     _startLoading();
     try {
+      if (kIsWeb) {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        final result = await user.linkWithPopup(googleProvider);
+        isGuest.value = false;
+        displayEmail.value = result.user?.email ?? '';
+        AppSnackbar.show("Google connected! Account is now permanent.".tr);
+        Get.back();
+        Get.offAllNamed(routes.navbar_screen);
+        return;
+      }
+
       final googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         // user cancelled
@@ -149,6 +161,9 @@ class MakePermanentController extends GetxController {
       Get.back();
       Get.offAllNamed(routes.navbar_screen);
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'popup-closed-by-user' || e.code == 'cancelled-popup-request') {
+        return;
+      }
       if (e.code == 'credential-already-in-use') {
         AppSnackbar.show("This Google account is already linked to another user.".tr);
       } else if (e.code == 'account-exists-with-different-credential') {
