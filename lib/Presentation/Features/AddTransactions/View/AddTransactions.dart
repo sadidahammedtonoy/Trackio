@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -422,7 +423,7 @@ class addTranscations extends StatelessWidget {
   }
 
   void _showDatePicker(BuildContext context) {
-    if (Platform.isIOS) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
       DateTime temp = controller.selectedDate.value;
       showCupertinoModalPopup(
         context: context,
@@ -467,6 +468,19 @@ class addTranscations extends StatelessWidget {
         initialDate: controller.selectedDate.value,
         firstDate: DateTime(2000),
         lastDate: DateTime(2100),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: AppColors.primary,
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+              dialogBackgroundColor: Colors.white,
+            ),
+            child: child!,
+          );
+        },
       ).then((picked) {
         if (picked != null) controller.selectedDate.value = picked;
       });

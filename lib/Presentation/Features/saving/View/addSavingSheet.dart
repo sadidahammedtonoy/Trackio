@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +22,7 @@ class AddSavingSheet extends StatelessWidget {
   const AddSavingSheet({super.key, required this.controller});
 
   Future<void> _pickDate(BuildContext context) async {
-    if (Platform.isIOS) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
       DateTime temp = controller.selectedDate.value;
 
       await showCupertinoModalPopup(
