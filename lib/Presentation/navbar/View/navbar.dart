@@ -7,6 +7,7 @@ import '../../Features/Dashboard/View/dashboard.dart';
 import '../../Features/Setting/View/setting.dart';
 import '../../Features/Transcations/View/transactions.dart';
 import '../../Features/debts/View/debts.dart';
+import '../../Features/budgets/Controller/controller.dart';
 import '../Controller/Controller.dart';
 
 bool _isTablet(BuildContext context) =>
@@ -30,6 +31,7 @@ class Navbar extends StatelessWidget {
       child: Scaffold(
         extendBody: true,
         body: SafeArea(
+          top: false,
           bottom: false,
           child: Obx(
             () => AnimatedSwitcher(
@@ -61,6 +63,14 @@ class Navbar extends StatelessWidget {
             selectedIndex: nav.currentIndex.value,
             onTap: (index) {
               nav.currentIndex.value = index;
+              if (index == 0 && Get.isRegistered<BudgetsController>()) {
+                final bc = Get.find<BudgetsController>();
+                final now = DateTime.now();
+                if (bc.selectedMonth.value.year != now.year ||
+                    bc.selectedMonth.value.month != now.month) {
+                  bc.selectedMonth.value = DateTime(now.year, now.month, 1);
+                }
+              }
             },
           ),
         ),

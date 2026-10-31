@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Features/Background/Controller/Controller.dart';
+import 'web_bg_helper.dart';
 
 class background extends StatelessWidget {
   final Widget child;
@@ -14,7 +16,14 @@ class background extends StatelessWidget {
         try {
           final data = snapshot.data;
 
-          // Default white background if no data or error
+          if (kIsWeb) {
+            updateWebBackgroundSync(
+              isColor: data?['isColor'] as bool?,
+              source: data?['source'] as String?,
+            );
+          }
+
+          // Default fallback
           if (data == null || data['source'] == null || data['isColor'] == null) {
             return Stack(
               children: [
@@ -44,6 +53,7 @@ class background extends StatelessWidget {
                 child: Image.asset(
                   imagePath,
                   fit: BoxFit.cover,
+                  width: double.infinity,
                   height: double.infinity,
                 ),
               ),
