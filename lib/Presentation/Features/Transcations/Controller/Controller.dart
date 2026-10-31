@@ -101,7 +101,7 @@ class transactionsController extends GetxController {
       final streams = monthsSnap.docs.map((monthDoc) =>
         monthsRef.doc(monthDoc.id).collection('items').snapshots().map((itemSnap) =>
           itemSnap.docs.map((d) => TranItem.fromDoc(d, monthKey: monthDoc.id)).toList()
-        )
+        ).startWith(<TranItem>[])
       ).toList();
       return CombineLatestStream.list(streams).map((lists) => lists.expand((list) => list).toList());
     });

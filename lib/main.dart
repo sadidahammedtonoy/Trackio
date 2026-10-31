@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,11 @@ Future<void> main() async {
   // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Enable offline persistence across web (IndexedDB) and mobile (SQLite)
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
   );
 
 

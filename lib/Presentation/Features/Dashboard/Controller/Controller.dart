@@ -15,10 +15,30 @@ class DashboardController extends GetxController {
 
   final BudgetsController budgetsController = Get.put(BudgetsController());
 
-  // Observables for budget data
-  RxList<BudgetModel> get budgets => budgetsController.budgets;
-  RxDouble get totalBudget => budgetsController.totalBudget;
-  RxDouble get totalSpent => budgetsController.totalSpent;
+  // Observables for budget data - Only show present month's budgets on Dashboard
+  RxList<BudgetModel> get budgets {
+    final _ = budgetsController.budgets.length; // register Rx dependency
+    if (budgetsController.isShowingPreviousMonths.value) {
+      return <BudgetModel>[].obs;
+    }
+    final nowMonthStr = DateFormat('yyyy-MM').format(DateTime.now());
+    final currentList = budgetsController.budgets
+        .where((b) => b.month == nowMonthStr)
+        .toList();
+    return currentList.obs;
+  }
+
+  RxDouble get totalBudget {
+    final list = budgets;
+    final sum = list.fold(0.0, (prev, b) => prev + b.budget);
+    return sum.obs;
+  }
+
+  RxDouble get totalSpent {
+    final list = budgets;
+    final sum = list.fold(0.0, (prev, b) => prev + b.spent);
+    return sum.obs;
+  }
 
   // Observables
   final RxMap<String, double> monthSummary = {"expense": 0.0, "income": 0.0}.obs;
@@ -72,7 +92,7 @@ class DashboardController extends GetxController {
       final itemStreams = monthsSnap.docs.map((m) {
         return monthsRef.doc(m.id).collection('items').snapshots().map((s) {
           return s.docs.map((d) => TranItem.fromDoc(d, monthKey: m.id)).toList();
-        });
+        }).startWith(<TranItem>[]);
       }).toList();
 
       return CombineLatestStream.list<List<TranItem>>(itemStreams)
