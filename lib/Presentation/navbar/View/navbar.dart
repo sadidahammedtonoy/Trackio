@@ -1,6 +1,7 @@
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:sadid/Presentation/Share/Background.dart';
 import '../../Features/Dashboard/View/dashboard.dart';
 import '../../Features/Setting/View/setting.dart';
@@ -8,14 +9,16 @@ import '../../Features/Transcations/View/transactions.dart';
 import '../../Features/debts/View/debts.dart';
 import '../Controller/Controller.dart';
 
-class navbar extends StatelessWidget {
-  navbar({super.key});
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
 
-  final navbar_controller nav = Get.find<navbar_controller>();
+class Navbar extends StatelessWidget {
+  Navbar({super.key});
 
-  // Replace with your real pages
+  final navbar_controller nav = Get.put(navbar_controller());
+
   final pages = [
-    dashboardPage(),
+    DashboardPage(),
     transcations_page(),
     deptsPage(),
     setting_page(),
@@ -25,128 +28,242 @@ class navbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return background(
       child: Scaffold(
+        extendBody: true,
         body: SafeArea(
+          bottom: false,
           child: Obx(
             () => AnimatedSwitcher(
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 400),
               transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-              child: pages[nav.currentIndex.value],
-              layoutBuilder: (currentChild, previousChildren) {
-                return Stack(
-                  children: <Widget>[...previousChildren, ?currentChild],
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.02, 0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    )),
+                    child: child,
+                  ),
                 );
               },
+              child: Container(
+                key: ValueKey<int>(nav.currentIndex.value),
+                child: pages[nav.currentIndex.value],
+              ),
             ),
           ),
         ),
+        bottomNavigationBar: Obx(
+          () => _CustomBottomNavBar(
+            selectedIndex: nav.currentIndex.value,
+            onTap: (index) {
+              nav.currentIndex.value = index;
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-        // bottomNavigationBar: Container(
-        //   padding: EdgeInsets.only(
-        //     top: 1,
-        //   ),
-        //   decoration: BoxDecoration(
-        //     borderRadius: BorderRadius.circular(30),
-        //     color: Colors.cyan,
-        //     border: Border.all(
-        //       color: Colors.cyan,
-        //       width: 1,
-        //     ),
-        //     boxShadow: [
-        //       BoxShadow(
-        //         color: Colors.cyan.withOpacity(0.2),
-        //         blurRadius: 8,
-        //         offset: const Offset(5, 4),
-        //       ),
-        //     ],
-        //   ),
-        //   child: ClipRRect(
-        //     borderRadius: BorderRadius.only(
-        //       topLeft: Radius.circular(30),
-        //       topRight: Radius.circular(30),
-        //     ),
-        //     child: BottomNavigationBar(
-        //       currentIndex: nav.currentIndex.value,
-        //       onTap: nav.changeTab,
-        //       type: BottomNavigationBarType.fixed,
-        //       showUnselectedLabels: true,
-        //       backgroundColor: Colors.white,
-        //       selectedItemColor: Colors.cyan,
-        //
-        //       items: [
-        //         BottomNavigationBarItem(
-        //           icon: Icon(Icons.dashboard_outlined),
-        //           activeIcon: Icon(Icons.dashboard),
-        //           label: "Dashboard".tr,
-        //         ),
-        //         BottomNavigationBarItem(
-        //           icon: Icon(Icons.receipt_long_outlined),
-        //           activeIcon: Icon(Icons.receipt_long),
-        //           label: "Transactions".tr,
-        //         ),
-        //         BottomNavigationBarItem(
-        //           icon: Icon(Icons.balance_outlined),
-        //           activeIcon: Icon(Icons.balance_rounded),
-        //           label: "Debts".tr,
-        //         ),
-        //         BottomNavigationBarItem(
-        //           icon: Icon(Icons.settings_outlined),
-        //           activeIcon: Icon(Icons.settings),
-        //           label: "Settings".tr,
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
-        bottomNavigationBar: AnimatedNotchBottomBar(
-          notchBottomBarController: nav.notchController,
-          color: Color(0xFFFFFFFD),
-          // color: Color(0xFFEEEEEE),
-          showLabel: true,
-          notchColor: Colors.cyan,
-          bottomBarItems: [
-            BottomBarItem(
-              inActiveItem: const Icon(
-                Icons.dashboard_outlined,
-                color: Colors.grey,
-              ),
-              activeItem: const Icon(Icons.dashboard, color: Colors.white),
-              itemLabel: "Dashboard".tr,
+class _CustomBottomNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  const _CustomBottomNavBar({
+    required this.selectedIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tablet = _isTablet(context);
+
+    if (tablet) {
+      // ── iPad: compact centered pill ────────────────────────────────
+      return Container(
+        height: 80,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(bottom: 16),
+        child: SizedBox(
+          width: 420, // fixed width — pill floats centered
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(18),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-            BottomBarItem(
-              inActiveItem: const Icon(
-                Icons.receipt_long_outlined,
-                color: Colors.grey,
+            padding: const EdgeInsets.all(5),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F9FB),
+                borderRadius: BorderRadius.circular(35),
               ),
-              activeItem: const Icon(Icons.receipt_long, color: Colors.white),
-              itemLabel: "Transactions".tr,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavBarItem(
+                    icon: HugeIcons.strokeRoundedDashboardCircle,
+                    label: 'Home'.tr,
+                    isSelected: selectedIndex == 0,
+                    onTap: () => onTap(0),
+                    isTablet: true,
+                  ),
+                  _NavBarItem(
+                    icon: HugeIcons.strokeRoundedTransaction,
+                    label: 'History'.tr,
+                    isSelected: selectedIndex == 1,
+                    onTap: () => onTap(1),
+                    isTablet: true,
+                  ),
+                  _NavBarItem(
+                    icon: HugeIcons.strokeRoundedCreditCardPos,
+                    label: 'Debts'.tr,
+                    isSelected: selectedIndex == 2,
+                    onTap: () => onTap(2),
+                    isTablet: true,
+                  ),
+                  _NavBarItem(
+                    icon: HugeIcons.strokeRoundedMoreHorizontalCircle01,
+                    label: 'More'.tr,
+                    isSelected: selectedIndex == 3,
+                    onTap: () => onTap(3),
+                    isTablet: true,
+                  ),
+                ],
+              ),
             ),
-            BottomBarItem(
-              inActiveItem: const Icon(
-                Icons.balance_outlined,
-                color: Colors.grey,
-              ),
-              activeItem: const Icon(
-                Icons.balance_rounded,
-                color: Colors.white,
-              ),
-              itemLabel: "Debts".tr,
-            ),
-            BottomBarItem(
-              inActiveItem: const Icon(
-                Icons.settings_outlined,
-                color: Colors.grey,
-              ),
-              activeItem: const Icon(Icons.settings, color: Colors.white),
-              itemLabel: "Settings".tr,
-            ),
+          ),
+        ),
+      );
+    }
+
+    // ── Phone: original layout (untouched) ───────────────────────────
+    return Container(
+      height: 115.h,
+      padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 35.h),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(50.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(15),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            )
           ],
-          onTap: (index) {
-            nav.currentIndex.value = index;
-          },
-          kIconSize: 24.0,
-          kBottomRadius: 30.0,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(6.r),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F9FB),
+              borderRadius: BorderRadius.circular(44.r),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavBarItem(
+                  icon: HugeIcons.strokeRoundedDashboardCircle,
+                  label: 'Home'.tr,
+                  isSelected: selectedIndex == 0,
+                  onTap: () => onTap(0),
+                ),
+                _NavBarItem(
+                  icon: HugeIcons.strokeRoundedTransaction,
+                  label: 'History'.tr,
+                  isSelected: selectedIndex == 1,
+                  onTap: () => onTap(1),
+                ),
+                _NavBarItem(
+                  icon: HugeIcons.strokeRoundedCreditCardPos,
+                  label: 'Debts'.tr,
+                  isSelected: selectedIndex == 2,
+                  onTap: () => onTap(2),
+                ),
+                _NavBarItem(
+                  icon: HugeIcons.strokeRoundedMoreHorizontalCircle01,
+                  label: 'More'.tr,
+                  isSelected: selectedIndex == 3,
+                  onTap: () => onTap(3),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavBarItem extends StatelessWidget {
+  final dynamic icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final bool isTablet;
+
+  const _NavBarItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    this.isTablet = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
+
+    final double iconSize = tablet ? 18.0 : 20.sp;
+    final double fontSize = tablet ? 10.0 : 10.sp;
+    final double margin   = tablet ? 4.0  : 5.r;
+    final double radius   = tablet ? 30.0 : 38.r;
+    final double gap      = tablet ? 2.0  : 2.h;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.translucent,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          margin: EdgeInsets.all(margin),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF1A1A1C) : Colors.transparent,
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HugeIcon(
+                icon: icon,
+                size: iconSize,
+                color: isSelected ? Colors.white : Colors.black54,
+              ),
+              SizedBox(height: gap),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black54,
+                  fontSize: fontSize,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );

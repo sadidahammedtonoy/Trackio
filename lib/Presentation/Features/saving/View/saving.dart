@@ -11,271 +11,91 @@ import '../Controller/Controller.dart';
 import '../Model/savingModel.dart';
 import 'history.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:ui';
+
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
+
 class saving extends StatelessWidget {
   final controller = Get.put(savingController());
   saving({super.key});
 
-  Future<double?> _showAddDialog() async {
-    final c = TextEditingController();
-
-    final result = await Get.dialog<double>(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Add to Overall Saving".tr),
-        content: TextField(
-          controller: c,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: "Enter amount".tr,
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: null),
-            child: Text("Cancel".tr, style: TextStyle(color: Colors.black)),
-          ),
-          TextButton(
-            onPressed: () {
-              final amount = double.tryParse(c.text.trim());
-              Get.back(result: amount);
-            },
-            child: Text("Add".tr, style: TextStyle(color: Colors.green)),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-
-    return result;
-  }
-
-  Future<bool> _showResetDialog() async {
-    final result = await Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Remove Overall Saving".tr),
-        content: Text("This will set Overall Saving to 0. Continue?".tr),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text("Cancel".tr, style: TextStyle(color: Colors.black)),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: Text("Remove".tr, style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-
-    return result ?? false;
-  }
-
-  Widget _card({ required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Overall Saving".tr,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-              ),
-              Text(
-                "Total History".tr,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          child,
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final widgets = [allMonthSavingsList(), AllSavingsListWidget()];
+    final tablet = _isTablet(context);
+    final widgets = [allMonthSavingsList(context, tablet), const AllSavingsListWidget()];
+
+    Widget body = SingleChildScrollView(
+      padding: EdgeInsets.all(tablet ? 16.0 : 12.0),
+      child: Column(
+        children: [
+          _GlassCard(
+            tablet: tablet,
+            padding: EdgeInsets.all(tablet ? 6.0 : 4.r),
+            borderRadius: BorderRadius.circular(tablet ? 16.0 : 16.r),
+            child: Obx(() {
+              return Row(
+                children: [
+                  _tabButton(
+                    label: "Overview".tr,
+                    index: 0,
+                    selectedIndex: controller.tabIndex.value,
+                    onTap: () => controller.changeTab(0),
+                    tablet: tablet,
+                  ),
+                  _tabButton(
+                    label: "History".tr,
+                    index: 1,
+                    selectedIndex: controller.tabIndex.value,
+                    onTap: () => controller.changeTab(1),
+                    tablet: tablet,
+                  ),
+                ],
+              );
+            }),
+          ),
+          SizedBox(height: tablet ? 16.0 : 10.0),
+          Obx(() => widgets[controller.tabIndex.value]),
+        ],
+      ),
+    );
+
+    if (tablet) {
+      body = Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: body,
+        ),
+      );
+    }
 
     return background(
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text("Savings".tr),
+          elevation: 0,
           titleSpacing: -10,
-          actions: [
-            IconButton(
-              onPressed: () => controller.openAddSavingSheet(context),
-              icon: Icon(
-                Icons.add_circle_outline_rounded,
-                color: Colors.black54,
-              ),
-            ),
-          ],
-        ),
-        floatingActionButton: GestureDetector(
-          onTap: () {
-            Get.dialog(CalculatorDialog(), barrierDismissible: true);
-          },
-          child: SizedBox(
-            width: 50,
-            height: 50,
-            child: Lottie.asset(
-              assets_path.calculator,
-              fit: BoxFit.contain,
-              repeat: false,
-            ),
+          title: Text(
+            "Savings".tr,
+            style: tablet ? const TextStyle(fontSize: 18.0) : null,
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
+            onPressed: () => Get.back(),
           ),
         ),
-      
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            children: [
-              // ✅ 2) Overall Saving (stored separately)
-              _card(
-                child: StreamBuilder<double>(
-                  stream: controller.streamOverallSaving(),
-                  builder: (context, snap) {
-                    final overall = snap.data ?? 0.0;
-      
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "৳${numberTranslation.toBnDigits(overall.toStringAsFixed(1))}",
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-      
-                            StreamBuilder<String>(
-                              stream: controller.streamTotalSavingsText(),
-                              builder: (context, snapshot) {
-                                final totalText = snapshot.data ?? "0";
-      
-                                return Text(
-                                  "৳${numberTranslation.toBnDigits(totalText)}", // or just totalText
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  final amount = await _showAddDialog();
-                                  if (amount == null) return;
-                                  if (amount <= 0) return;
-      
-                                  await controller.addToOverallSaving(amount);
-                                },
-                                child: Text("Add".tr),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  side: const BorderSide(color: Colors.red),
-                                ),
-                                onPressed: () async {
-                                  final confirm = await _showResetDialog();
-                                  if (!confirm) return;
-      
-                                  await controller.resetOverallSaving();
-                                },
-                                child: Text("Remove".tr),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          "Remove means Overall Saving will be set to 0.".tr,
-                          style: TextStyle(color: Colors.black45, fontSize: 12),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Obx(() {
-                  return Row(
-                    children: [
-                      _tabButton(
-                        label: "Overview".tr,
-                        index: 0,
-                        selectedIndex: controller.tabIndex.value,
-                        onTap: () => controller.changeTab(0),
-                      ),
-                      _tabButton(
-                        label: "History".tr,
-                        index: 1,
-                        selectedIndex: controller.tabIndex.value,
-                        onTap: () => controller.changeTab(1),
-                      ),
-                    ],
-                  );
-                }),
-              ),
-              const SizedBox(height: 10),
-      
-              Obx(() => widgets[controller.tabIndex.value]),
-            ],
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => controller.openAddSavingSheet(context),
+          backgroundColor: Colors.white.withOpacity(0.2),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(tablet ? 14.0 : 15.r),
+            side: BorderSide(color: Colors.white.withOpacity(0.3)),
           ),
+          child: Icon(Icons.add, color: Colors.black, size: tablet ? 24.0 : 30.sp),
         ),
+        body: body,
       ),
     );
   }
@@ -286,6 +106,7 @@ Widget _tabButton({
   required int index,
   required int selectedIndex,
   required VoidCallback onTap,
+  required bool tablet,
 }) {
   final isSelected = selectedIndex == index;
 
@@ -294,17 +115,25 @@ Widget _tabButton({
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: tablet ? 12.0 : 12.h),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(tablet ? 12.0 : 12.r),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
         ),
         alignment: Alignment.center,
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.black54,
+            fontWeight: FontWeight.bold,
+            fontSize: tablet ? 14.0 : 14.sp,
           ),
         ),
       ),
@@ -312,7 +141,54 @@ Widget _tabButton({
   );
 }
 
-Widget allMonthSavingsList() {
+class _GlassCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final BorderRadius? borderRadius;
+  final Color? borderColor;
+  final bool tablet;
+
+  const _GlassCard({
+    required this.child,
+    this.margin,
+    this.padding,
+    this.borderRadius,
+    this.borderColor,
+    this.tablet = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: borderRadius ?? BorderRadius.circular(tablet ? 16.0 : 20.r),
+        border: Border.all(color: borderColor ?? Colors.grey.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius ?? BorderRadius.circular(tablet ? 16.0 : 20.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Padding(
+            padding: padding ?? EdgeInsets.all(tablet ? 16.0 : 16.r),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget allMonthSavingsList(BuildContext context, bool tablet) {
   final controller = Get.find<savingController>();
 
   String formatMonth(String mk) {
@@ -321,7 +197,7 @@ Widget allMonthSavingsList() {
     final year = int.tryParse(parts[0]) ?? 0;
     final month = int.tryParse(parts[1]) ?? 1;
     final dt = DateTime(year, month, 1);
-    return DateFormat('MMM yyyy').format(dt);
+    return DateFormat('MMMM yyyy').format(dt);
   }
 
   Widget buildList(List<MonthSaving> months) {
@@ -330,92 +206,78 @@ Widget allMonthSavingsList() {
       children: months.map((m) {
         final saving = m.saving;
         final isPositive = saving >= 0;
+        final progress = (m.income > 0) ? (saving / m.income).clamp(0.0, 1.0) : 0.0;
+        final progressColor = Color.lerp(Colors.orange, Colors.green, progress)!;
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 25),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.black12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 12,
-                offset: const Offset(10,10)
-              ),
-              BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 12,
-                  offset: const Offset(-10,-10)
-              )
-            ]
+        return _GlassCard(
+          tablet: tablet,
+          margin: EdgeInsets.only(bottom: tablet ? 16.0 : 16.h),
+          padding: EdgeInsets.symmetric(
+            vertical: tablet ? 16.0 : 16.r, 
+            horizontal: tablet ? 20.0 : 20.r
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Text(numberTranslation.formatMonthYearBnFromString(formatMonth(m.monthKey),), style: TextStyle(fontSize: 25.sp, fontWeight: FontWeight.w600),)),
-              Divider(),
-              const SizedBox(height: 10),
+              Text(
+                numberTranslation.formatMonthYearBnFromString(formatMonth(m.monthKey)),
+                style: TextStyle(
+                  fontSize: tablet ? 16.0 : 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black.withOpacity(0.6),
+                ),
+              ),
+              SizedBox(height: tablet ? 12.0 : 12.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                   Text(
+                    "Monthly Saving".tr,
+                    style: TextStyle(
+                      fontSize: tablet ? 14.0 : 14.sp,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    "${isPositive ? '+' : ''}${numberTranslation.toBnDigits(saving.toStringAsFixed(0))} ৳",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: isPositive ? AppColors.primary : Colors.orange,
+                      fontSize: tablet ? 24.0 : 22.sp,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: tablet ? 10.0 : 10.h),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(tablet ? 6.0 : 10.r),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: tablet ? 6.0 : 8.h,
+                  backgroundColor: Colors.grey.withOpacity(0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                ),
+              ),
+              SizedBox(height: tablet ? 12.0 : 12.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 3,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle
-                          ),
-                          child: Icon(Icons.trending_up_outlined, color: Colors.white, size: 15,)),
-                      Text("Income".tr, style: TextStyle(),),
-                      Text(
-                        "${numberTranslation.toBnDigits(m.income.toStringAsFixed(0))} ৳",
-                        style: TextStyle(fontWeight: FontWeight.w800, color: Colors.green, fontSize: 18.sp),
-                      ),
-                    ],
+                   _Stat(
+                    label: "Income".tr,
+                    amount: m.income,
+                    color: Colors.green,
+                    tablet: tablet,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 3,
-                    children: [
-                      Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              shape: BoxShape.circle
-                          ),
-                          child: Icon(Icons.trending_down, color: Colors.white, size: 15,)),
-                      Text("Expense".tr, style: TextStyle(),),
-                      Text(
-                        "${numberTranslation.toBnDigits(m.expense.toStringAsFixed(0))} ৳",
-                        style: TextStyle(fontWeight: FontWeight.w800, color: Colors.redAccent, fontSize: 18.sp),
-                      ),
-                    ],
+                   _Stat(
+                    label: "Expense".tr,
+                    amount: m.expense,
+                    color: Colors.red,
+                    tablet: tablet,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 3,
-                    children: [
-                      Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle
-                          ),
-                          child: Icon(Icons.access_time_rounded, color: Colors.white, size: 15,)),
-                      Text("Total Balance".tr, style: TextStyle(),),
-                      Text(
-                        "${isPositive ? '+' : ''} ${numberTranslation.toBnDigits(saving.toStringAsFixed(0))} ৳",
-                        style: TextStyle(fontWeight: FontWeight.w800, color: isPositive ? Colors.green : Colors.redAccent, fontSize: 18.sp),
-                      ),
-                    ],
-                  )
                 ],
-              ),
+              )
             ],
           ),
         );
@@ -426,15 +288,12 @@ Widget allMonthSavingsList() {
   return StreamBuilder<List<MonthSaving>>(
     stream: controller.streamAllMonthSavings(),
     builder: (context, snap) {
-      // ✅ Save new data into cache (silent updates)
       if (snap.hasData) {
         controller.cachedMonths.assignAll(snap.data!);
       }
 
-      // ✅ Use cached data when waiting (no flicker)
       final months = controller.cachedMonths;
 
-      // ✅ Show loader only on very first load (no cache yet)
       if (snap.connectionState == ConnectionState.waiting && months.isEmpty) {
         return const Center(child: CircularProgressIndicator.adaptive());
       }
@@ -444,10 +303,62 @@ Widget allMonthSavingsList() {
       }
 
       if (months.isEmpty) {
-        return Center(child: Text("No monthly data found".tr));
+        return Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: tablet ? 100.0 : 100.h),
+              child: Text("No monthly data found".tr, style: const TextStyle(color: Colors.black54)),
+            ));
       }
 
       return Obx(() => buildList(controller.cachedMonths));
     },
   );
+}
+
+class _Stat extends StatelessWidget {
+  final String label;
+  final double amount;
+  final Color color;
+  final bool tablet;
+
+  const _Stat({
+    required this.label,
+    required this.amount,
+    required this.color,
+    this.tablet = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: tablet ? 8.0 : 8.r,
+          height: tablet ? 8.0 : 8.r,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        SizedBox(width: tablet ? 6.0 : 6.w),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: tablet ? 12.0 : 12.sp,
+            color: Colors.black54,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(width: tablet ? 8.0 : 8.w),
+        Text(
+          "${numberTranslation.toBnDigits(amount.toStringAsFixed(0))} ৳",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+            fontSize: tablet ? 14.0 : 13.sp,
+          ),
+        ),
+      ],
+    );
+  }
 }

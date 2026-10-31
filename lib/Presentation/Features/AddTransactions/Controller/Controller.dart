@@ -5,8 +5,12 @@ import 'package:get/get.dart';
 import 'package:sadid/Core/loading.dart';
 import 'package:sadid/Core/snakbar.dart';
 import 'package:sadid/Presentation/Features/AddTransactions/Model/addTransactionModel.dart';
+import '../../Transcations/Controller/Controller.dart'; // Import the transactionsController
 
 class addTranscationsController extends GetxController {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final wallets = ["Cash", "Mobile Banking", "Bank", "Others"];
   final selectedWallet = "Cash".obs;
   final types = ["Expense", "Income", "Lent", "Borrow"];
@@ -15,91 +19,59 @@ class addTranscationsController extends GetxController {
   final categories = <Map<String, dynamic>>[].obs;
   final selectedCategoryId = RxnString();
 
+  String get _uid => _auth.currentUser?.uid ?? "";
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchCategories();
+  }
+
   Future<void> fetchCategories() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    final snap = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('categories')
-        .get();
-
+    if (_uid.isEmpty) return;
+    final snap = await _firestore.collection('users').doc(_uid).collection('categories').get();
     categories.value = snap.docs.map((d) => {"id": d.id, ...d.data()}).toList();
-
-    // Safety: reset invalid selection
-    if (selectedCategoryId.value != null) {
-      final exists = categories.any((e) => e["id"] == selectedCategoryId.value);
-      if (!exists) selectedCategoryId.value = null;
-    }
   }
 
   Future<String?> addMonthlyTransaction({required addTranModel model}) async {
+    if (_uid.isEmpty) return null;
     AppLoader.show(message: "Adding transaction...".tr);
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        AppSnackbar.show("User not logged in".tr);
-        throw Exception("User not logged in");
-      }
+      final monthKey = "${model.date.year}-${model.date.month.toString().padLeft(2, '0')}";
+      final amount = double.tryParse(model.amount) ?? 0.0;
 
-      final monthKey =
-          "${model.date.year}-${model.date.month.toString().padLeft(2, '0')}";
+      // 1. Ensure the month document exists (used for aggregation logic)
+      final monthRef = _firestore.collection('users').doc(_uid).collection('monthly_transactions').doc(monthKey);
+      await monthRef.set({"updatedAt": FieldValue.serverTimestamp()}, SetOptions(merge: true));
 
-      final monthRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('monthly_transactions')
-          .doc(monthKey);
+      // 2. Add item to 'items' sub-collection (Matches debts.dart logic)
+      final docRef = monthRef.collection('items').doc();
+      final tranData = {
+        'type': model.type,
+        'date': Timestamp.fromDate(model.date),
+        'amount': amount,
+        'wallet': model.wallet,
+        'category': model.category,
+        'note': model.note.trim(),
+        'marked': model.type == "Lent" || model.type == "Borrow" ? false : true,
+        'monthKey': monthKey, // Redundant but helpful for simple queries
+      };
 
-      await monthRef.set({
-        "monthKey": monthKey,
-        "updatedAt": FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      await docRef.set(tranData);
 
-      final ref = monthRef.collection('items').doc();
-      if (model.type == "Lent" || model.type == "Borrow") {
-        await ref.set({
-          "type": model.type,
-          "date": Timestamp.fromDate(model.date),
-          "amount": model.amount,
-          "wallet": model.wallet,
-          "category": model.category,
-          "note": (model.note).trim(),
-          "monthKey": monthKey,
-          "createdAt": FieldValue.serverTimestamp(),
-          "marked": false,
-        });
-      } else {
-        await ref.set({
-          "type": model.type,
-          "date": Timestamp.fromDate(model.date),
-          "amount": model.amount,
-          "wallet": model.wallet,
-          "category": model.category,
-          "note": (model.note).trim(),
-          "monthKey": monthKey,
-          "createdAt": FieldValue.serverTimestamp(),
-        });
-      }
+      // Refresh transactionsController after successful addition
+      Get.find<transactionsController>().refresh();
 
       AppLoader.hide();
       Get.back();
       AppSnackbar.show("Transaction added successfully".tr);
-
-      return ref.id;
+      return docRef.id;
     } catch (e) {
       AppLoader.hide();
       AppSnackbar.show("Fail to add Transaction".tr);
+      debugPrint("❌ Add Transaction Error: $e");
       return null;
     }
-  }
-
-  @override
-  void onInit() {
-    // TODO: implement onInit
-    super.onInit();
-    fetchCategories();
   }
 }

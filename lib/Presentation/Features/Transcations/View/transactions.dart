@@ -1,777 +1,813 @@
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:sadid/App/AppColors.dart';
-import 'package:sadid/App/routes.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:intl/intl.dart';
+import '../../../../App/AppColors.dart';
 import '../../../../Core/numberTranslation.dart';
+import '../../../Share/GlassWidgets.dart';
 import '../../editTransactions/Controller/Controller.dart';
 import '../../editTransactions/View/editTransactions.dart';
 import '../Controller/Controller.dart';
 import '../Model/tranModel.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
+
+// --- Main Page Widget ---
 class transcations_page extends StatelessWidget {
-  final controller = Get.put(transactionsController());
-
   transcations_page({super.key});
 
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+  final controller = Get.put(transactionsController());
+
+  @override
+  Widget build(BuildContext context) {
+    final tablet = _isTablet(context);
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: _buildAppBar(tablet),
+      body: Obx(() => Stack(
+        children: [
+          Column(
+            children: [
+              if (controller.isSearchVisible.value) _SearchBar(isTablet: tablet),
+              Expanded(child: _TransactionList(isTablet: tablet)),
+            ],
+          ),
+          if (controller.showScrollToTop.value) _ScrollToTopButton(isTablet: tablet),
+        ],
+      )),
+    );
   }
 
-  DateTime _dayKey(DateTime d) => DateTime(d.year, d.month, d.day);
-
-  double _sectionTotal(List<TranItem> list) {
-    return list.fold(0.0, (sum, t) {
-      if (t.type == "Lent" || t.type == "Borrow") {
-        return sum;
-      }
-
-      if (t.type == "Expense") {
-        return sum - t.amount;
-      }
-
-      return sum + t.amount;
-    });
+  AppBar _buildAppBar(bool tablet) {
+    return AppBar(
+      elevation: 0,
+      title: Obx(() {
+        final selected = controller.selectedMonthKey.value;
+        final title = selected == null
+            ? "All Transactions".tr
+            : numberTranslation.formatMonthYearBnFromKey(selected);
+        return Text(
+          title,
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: tablet ? 16.0 : 20.sp,
+          ),
+        );
+      }),
+      actions: [
+        Obx(() => IconButton(
+          icon: controller.isSearchVisible.value
+              ? const Icon(Icons.close, color: Colors.black)
+              : HugeIcon(
+                  icon: HugeIcons.strokeRoundedSearch02,
+                  color: Colors.black,
+                  size: tablet ? 20.0 : 24.sp,
+                ),
+          onPressed: () => controller.toggleSearch(),
+        )),
+        IconButton(
+          icon: HugeIcon(
+            icon: HugeIcons.strokeRoundedSortByDown01,
+            color: Colors.black,
+            size: tablet ? 20.0 : 24.sp,
+          ),
+          onPressed: () => _showMonthFilterSheet(Get.context!),
+        ),
+      ],
+    );
   }
+}
+
+// --- Body Components ---
+class _TransactionList extends StatelessWidget {
+  final bool isTablet;
+  final transactionsController controller = Get.find();
+
+  _TransactionList({this.isTablet = false});
 
   Map<DateTime, List<TranItem>> _groupByDate(List<TranItem> items) {
     final map = <DateTime, List<TranItem>>{};
-    for (final t in items) {
-      final key = _dayKey(t.date);
-      map.putIfAbsent(key, () => <TranItem>[]).add(t);
+    for (final item in items) {
+      final dayKey = DateTime(item.date.year, item.date.month, item.date.day);
+      map.putIfAbsent(dayKey, () => []).add(item);
     }
     return map;
   }
 
-  Map<String, double> _calculateCategoryTotals(List<TranItem> items) {
+  @override
+  Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
+    return Obx(() {
+      final items = controller.filteredItems;
+
+      if (items.isEmpty) {
+        final message = controller.searchQuery.isNotEmpty ||
+                controller.selectedCategoryFilter.value != null
+            ? "No results found".tr
+            : "No transactions yet".tr;
+        return Center(child: Text(message));
+      }
+
+      final grouped = _groupByDate(items);
+      final sortedDays = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
+
+      final hPad = tablet ? 20.0 : 16.w;
+      final vPad = tablet ? 8.0 : 8.h;
+      final bottomPad = tablet ? 90.0 : 100.h;
+
+      return Column(
+        children: [
+          _CategorySummary(items: items, isTablet: tablet),
+          Expanded(
+            child: ListView.separated(
+              controller: controller.scrollController,
+              padding: EdgeInsets.fromLTRB(hPad, vPad, hPad, bottomPad),
+              itemCount: sortedDays.length,
+              separatorBuilder: (_, __) =>
+                  SizedBox(height: tablet ? 16.0 : 20.h),
+              itemBuilder: (context, index) {
+                final day = sortedDays[index];
+                final dayItems = grouped[day]!;
+                return _DaySection(
+                  day: day,
+                  items: dayItems,
+                  isTablet: tablet,
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class _CategorySummary extends StatelessWidget {
+  final List<TranItem> items;
+  final bool isTablet;
+  final transactionsController controller = Get.find();
+
+  _CategorySummary({required this.items, this.isTablet = false});
+
+  Map<String, double> _calculateCategoryTotals() {
     final totals = <String, double>{};
     for (final t in items) {
-      String key;
-      if (t.type == "Lent" || t.type == "Borrow") {
-        key = t.type;
-      } else {
-        key = t.category.isEmpty ? "Uncategorized" : t.category;
-      }
-      totals[key] = (totals[key] ?? 0.0) + t.amount;
+      String key = (t.type == "Lent" || t.type == "Borrow")
+          ? t.type
+          : (t.category.isEmpty ? "Uncategorized" : t.category);
+      totals[key] = (totals[key] ?? 0) + t.amount;
     }
     return totals;
   }
 
-  Widget _buildSummary(List<TranItem> items) {
+  @override
+  Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
     if (items.isEmpty) return const SizedBox.shrink();
-    final totals = _calculateCategoryTotals(items);
+    final totals = _calculateCategoryTotals();
 
     return Container(
-      height: 40.h,
-      margin: EdgeInsets.only(bottom: 10.h, top: 8.h),
+      height: tablet ? 48.0 : 48.h,
+      margin: EdgeInsets.symmetric(vertical: tablet ? 6.0 : 12.h),
       child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: tablet ? 20.0 : 16.w),
         scrollDirection: Axis.horizontal,
         itemCount: totals.length,
-        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        separatorBuilder: (_, __) =>
+            SizedBox(width: tablet ? 8.0 : 10.w),
         itemBuilder: (context, index) {
           final entry = totals.entries.elementAt(index);
-          return Obx(() {
-            final isSelected = controller.selectedCategoryFilter.value == entry.key;
-            return GestureDetector(
-              onTap: () => controller.toggleCategoryFilter(entry.key),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(horizontal: 14.w),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : AppColors.primary.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: isSelected ? AppColors.primary : AppColors.primary.withOpacity(0.15),
-                  ),
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "${entry.key.tr}: ",
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w500,
-                          color: isSelected ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                      Text(
-                        "৳${numberTranslation.toBnDigits(entry.value.toStringAsFixed(0))}",
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isSelected ? Colors.white : AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          });
+          return Obx(() => GlassChip(
+                isSelected: controller.selectedCategoryFilter.value == entry.key,
+                label:
+                    "${entry.key.tr}: ৳${numberTranslation.toBnDigits(entry.value.toStringAsFixed(0))}",
+                onTap: () => controller.toggleCategoryFilter(entry.key),
+                isTablet: tablet,
+              ));
         },
       ),
     );
   }
+}
+
+class _DaySection extends StatelessWidget {
+  final DateTime day;
+  final List<TranItem> items;
+  final bool isTablet;
+
+  const _DaySection({
+    required this.day,
+    required this.items,
+    this.isTablet = false,
+  });
+
+  String _titleForDay(DateTime day) {
+    final now = DateTime.now();
+    if (day.year == now.year &&
+        day.month == now.month &&
+        day.day == now.day) return "Today".tr;
+    final yesterday = now.subtract(const Duration(days: 1));
+    if (day.year == yesterday.year &&
+        day.month == yesterday.month &&
+        day.day == yesterday.day) return "Yesterday".tr;
+    return numberTranslation
+        .formatDateBnFromString(DateFormat('dd MMM yyyy').format(day));
+  }
+
+  double _sectionTotal(List<TranItem> list) {
+    return list.fold(0.0, (sum, t) {
+      if (t.type == "Lent" || t.type == "Borrow") return sum;
+      return sum + (t.type == "Expense" ? -t.amount : t.amount);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    controller.setMonthFromDate(DateTime.now());
+    final tablet = isTablet || _isTablet(context);
+    final total = _sectionTotal(items);
+    final isPositive = total >= 0;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Obx(() {
-          final selected = controller.selectedMonthKey.value;
-          if (selected == null) return Text("All Transactions".tr);
-          
-          final formattedDate = numberTranslation.formatMonthYearBnFromKey(selected);
-          return Row(
+    final double headerFont = tablet ? 13.0 : 14.sp;
+    final double headerBottom = tablet ? 10.0 : 12.h;
+    final double tileGap = tablet ? 8.0 : 10.h;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Day header row
+        Padding(
+          padding: EdgeInsets.only(bottom: headerBottom, left: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Month".tr),
-              const Text(": "),
-              Text(formattedDate),
+              Text(
+                _titleForDay(day),
+                style: TextStyle(
+                  fontSize: headerFont,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54,
+                ),
+              ),
+              Text(
+                "${isPositive ? '+' : ''}${numberTranslation.toBnDigits(total.toStringAsFixed(0))}",
+                style: TextStyle(
+                  fontSize: headerFont,
+                  fontWeight: FontWeight.bold,
+                  color: isPositive ? Colors.green : Colors.red,
+                ),
+              ),
             ],
-          );
-        }),
-        actions: [
-          Obx(() => IconButton(
-            icon: Icon(
-              controller.isSearchVisible.value ? Icons.close : Icons.search,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              controller.toggleSearch();
-            },
-          )),
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.black),
-            onPressed: () {
-              _showMonthFilterSheet(context);
-            },
           ),
-        ],
-      ),
-      body: Obx(() {
-        return Stack(
+        ),
+
+        // Tablet: 2-column grid, Phone: single-column list
+        if (tablet)
+          _tabletGrid(items, tileGap)
+        else
+          ...items.map((item) => Padding(
+                padding: EdgeInsets.only(bottom: tileGap),
+                child: _TransactionTile(item: item),
+              )),
+      ],
+    );
+  }
+
+  Widget _tabletGrid(List<TranItem> items, double gap) {
+    final rows = <Widget>[];
+    for (int i = 0; i < items.length; i += 2) {
+      final left = items[i];
+      final right = (i + 1) < items.length ? items[i + 1] : null;
+      rows.add(
+        Row(
           children: [
-            Column(
+            Expanded(
+              child: _TransactionTile(item: left, isTablet: true),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              child: right != null
+                  ? _TransactionTile(item: right, isTablet: true)
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      );
+      if (i + 2 < items.length) rows.add(SizedBox(height: gap));
+    }
+    return Column(children: rows);
+  }
+}
+
+// --- Reusable Widgets ---
+
+class _SearchBar extends StatelessWidget {
+  final bool isTablet;
+  final transactionsController controller = Get.find();
+
+  _SearchBar({this.isTablet = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: tablet ? 20.0 : 16.w,
+        vertical: tablet ? 6.0 : 8.h,
+      ),
+      child: GlassTextField(
+        key: Key(controller.searchQuery.value),
+        controller: TextEditingController(text: controller.searchQuery.value)
+          ..selection = TextSelection.fromPosition(
+              TextPosition(offset: controller.searchQuery.value.length)),
+        label: "",
+        hint: "Search Category, remark, wallet or amount...".tr,
+        icon: Icons.search_rounded,
+        onChanged: (val) => controller.searchQuery.value = val,
+        isTablet: tablet,
+      ),
+    );
+  }
+}
+
+class _ScrollToTopButton extends StatelessWidget {
+  final bool isTablet;
+  final transactionsController controller = Get.find();
+
+  _ScrollToTopButton({this.isTablet = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
+    return Positioned(
+      bottom: tablet ? 16.0 : 20.h,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: GestureDetector(
+          onTap: controller.scrollToTop,
+          child: GlassCard(
+            padding: EdgeInsets.symmetric(
+              horizontal: tablet ? 14.0 : 16.w,
+              vertical: tablet ? 6.0 : 8.h,
+            ),
+            borderRadius: BorderRadius.circular(tablet ? 30.0 : 30.r),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (controller.isSearchVisible.value)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: TextFormField(
-                      autofocus: true,
-                      textInputAction: TextInputAction.search,
-                      decoration: InputDecoration(
-                        hintText: "Search Category or Remark...".tr,
-                        prefixIcon: const Icon(Icons.search, size: 20),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppColors.primary),
-                        ),
-                      ),
-                      onChanged: (val) => controller.setSearchQuery(val),
-                    ),
-                  ),
-                // ✅ List area
-                Expanded(
-                  child: StreamBuilder<List<TranItem>>(
-                    stream: controller.streamTxnForUI(),
-                    initialData: controller.cachedTxnForUI(), // ✅ show instantly
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(child: Text("Error: ${snapshot.error}"));
-                      }
-
-                      // We use cachedTxnForUI to handle searching and category filtering
-                      final items = controller.cachedTxnForUI();
-
-                      if (items.isEmpty && controller.searchQuery.isEmpty && controller.selectedCategoryFilter.value == null) {
-                         // If everything is empty (no filters, no search, no data)
-                         // But if we have live data from stream, use it.
-                         final live = snapshot.data ?? const <TranItem>[];
-                         if (live.isEmpty) return Center(child: Text("No transactions found".tr));
-                      }
-
-                      if (items.isEmpty) {
-                         return Center(child: Text("No matching transactions found".tr));
-                      }
-
-                      final isMonthSelected = controller.selectedMonthKey.value != null;
-
-                      final now = DateTime.now();
-                      final grouped = _groupByDate(items);
-                      final days = grouped.keys.toList()
-                        ..sort((a, b) => b.compareTo(a));
-
-                      String titleForDay(DateTime day) {
-                        if (_isSameDay(day, now)) return "Today Transactions".tr;
-                        if (_isSameDay(
-                          day,
-                          now.subtract(const Duration(days: 1)),
-                        )) {
-                          return "Yesterday Transactions".tr;
-                        }
-                        return numberTranslation.formatDateBnFromString(
-                          DateFormat('dd MMM yyyy').format(day),
-                        );
-                      }
-
-                      Widget header(DateTime day, List<TranItem> list) {
-                        final total = _sectionTotal(list);
-                        final isPositive = total >= 0;
-
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                titleForDay(day),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                "${isPositive ? '+' : ''}${numberTranslation.toBnDigits(total.toStringAsFixed(0))}",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: isPositive ? Colors.green : Colors.red,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-
-                      Widget buildTile(TranItem t) => _TransactionTile(
-                        item: t,
-                        onDelete: () async {
-                          await controller.deleteMonthlyTransaction(
-                            monthKey: t.monthKey,
-                            transactionId: t.id,
-                          );
-                        },
-                      );
-
-                      return Column(
-                        children: [
-                          if (isMonthSelected) 
-                             StreamBuilder<List<TranItem>>(
-                               stream: controller.streamTxnForUI(),
-                               builder: (context, snap) {
-                                  // Always calculate summary from ALL items in the current month/view, ignoring category filter
-                                  return _buildSummary(snap.data ?? controller.cachedMonthItems);
-                               }
-                             ),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              controller: controller.scrollController,
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: days.expand((day) {
-                                  final list = grouped[day]!;
-                                  return [
-                                    header(day, list),
-                                    ...list.map(buildTile),
-                                    const SizedBox(height: 14),
-                                  ];
-                                }).toList(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                Icon(Icons.arrow_upward_rounded,
+                    size: tablet ? 14.0 : 16.sp, color: AppColors.primary),
+                SizedBox(width: tablet ? 6.0 : 8.w),
+                Text(
+                  "Scroll to top".tr,
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: tablet ? 11.0 : 12.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
-            if (controller.showScrollToTop.value)
-              Positioned(
-                bottom: 20,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: OutlinedButton.icon(
-                    onPressed: controller.scrollToTop,
-                    label: Text(
-                      "Scroll to top".tr,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    icon: const Icon(Icons.arrow_upward, size: 16, color: Color(0xFF06B6D4)),
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.black.withOpacity(0.7),
-                      side: const BorderSide(color: Color(0xFF06B6D4), width: 1.2),
-                      shape: const StadiumBorder(),
-                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        );
-      }),
-      floatingActionButton: FloatingActionButton(
-        shape: CircleBorder(),
-        onPressed: () {
-          Get.toNamed(routes.addTranscations_screen);
-        },
-        backgroundColor: Colors.white,
-        child: Icon(Icons.add, color: AppColors.primary),
+          ),
+        ),
       ),
     );
   }
 }
 
-Future<bool> showDeleteTransactionDialog() async {
-  if (GetPlatform.isIOS) {
-    // 🍎 iOS style
-    final result = await Get.dialog<bool>(
-      CupertinoAlertDialog(
-        title: Text("Delete Transaction".tr),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text("Are you sure you want to delete this transaction?".tr),
-        ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Get.back(result: false),
-            child: Text("Cancel".tr),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Get.back(result: true),
-            child: Text("Delete".tr),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-    return result ?? false;
-  } else {
-    // 🤖 Android style
-    final result = await Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Delete Transaction".tr),
-        content: Text("Are you sure you want to delete this transaction?".tr),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text("Cancel".tr),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: Text("Delete".tr, style: const TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-    return result ?? false;
-  }
-}
+// --- Transaction Tile ---
 
 class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({required this.item, required this.onDelete});
-
   final TranItem item;
-  final Future<void> Function() onDelete;
+  final bool isTablet;
+  final transactionsController controller = Get.find();
+
+  _TransactionTile({required this.item, this.isTablet = false});
 
   Color _typeColor(String type) {
-    if (type == "Expense") return Colors.red;
-    if (type == "Income") return Colors.green;
-    if (type == "Saving") return Colors.blue;
-    if (type == "Lent") return Colors.orange;
-    return Colors.purple;
+    switch (type) {
+      case "Expense":
+        return Colors.red;
+      case "Income":
+        return Colors.green;
+      case "Saving":
+        return Colors.blue;
+      case "Lent":
+        return Colors.orange;
+      default:
+        return Colors.purple;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final dateText = numberTranslation.formatDateBnFromString(
-      DateFormat('dd MMM yyyy').format(item.date),
-    );
-    final typeColor = _typeColor(item.type);
+    final tablet = isTablet || _isTablet(context);
+    final color = _typeColor(item.type);
+
+    // Tablet: compact fixed sizes (not ScreenUtil scaled)
+    final double avatarSize = tablet ? 32.0 : 44.r;
+    final double avatarFont = tablet ? 13.0 : 18.sp;
+    final double hGap       = tablet ? 8.0  : 14.w;
+    final double catFont    = tablet ? 13.0 : 15.sp;
+    final double walletFont = tablet ? 11.0 : 12.sp;
+    final double amtFont    = tablet ? 13.0 : 15.sp;
+    final double dateFont   = tablet ? 9.0  : 10.sp;
+    final double cardPad    = tablet ? 8.0  : 12.r;
 
     return Dismissible(
       key: ValueKey(item.id),
-
-      // ✅ Only swipe left
-      // direction: DismissDirection.endToStart,
-      // background: const SizedBox.shrink(),
-      // ✅ Allow both swipes
       direction: DismissDirection.horizontal,
-
-      // ✅ Left → Right background (Edit)
-      background: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        alignment: Alignment.centerLeft,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.edit, color: Colors.blue),
-            const SizedBox(width: 8),
-            Text(
-              "Edit".tr,
-              style: const TextStyle(
-                color: Colors.blue,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-
+      background: _buildActionBackground(
+          HugeIcons.strokeRoundedEdit02, "Edit".tr, Colors.blue,
+          Alignment.centerLeft, tablet),
+      secondaryBackground: _buildActionBackground(
+          HugeIcons.strokeRoundedDelete04, "Delete".tr, Colors.red,
+          Alignment.centerRight, tablet),
       confirmDismiss: (direction) async {
-        // ✅ Swipe Left → Right = Edit (DON'T dismiss)
         if (direction == DismissDirection.startToEnd) {
-          print("Edit this");
           Get.find<editTransactionsController>().assignValues(item);
-          Get.to(editTransactions(model: item));
+          Get.to(() => editTransactions(model: item));
           return false;
         }
-
-        // ✅ Swipe Right → Left = Delete (confirm + dismiss)
         if (direction == DismissDirection.endToStart) {
-          final confirm = await showDeleteTransactionDialog();
-          if (!confirm) return false;
-
-          await onDelete();
-          return true;
+          final confirm = await _showDeleteDialog(context);
+          if (confirm) await controller.deleteTransaction(item);
+          return confirm;
         }
-
         return false;
       },
-
-      secondaryBackground: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        alignment: Alignment.centerRight,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              "Delete".tr,
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
-            ),
-            SizedBox(width: 8),
-            Icon(Icons.delete, color: Colors.red),
-          ],
-        ),
-      ),
-
-      // confirmDismiss: (direction) async {
-      //   if (direction != DismissDirection.endToStart) return false;
-      //
-      //   final confirm = await showDeleteTransactionDialog();
-      //   if (!confirm) return false;
-      //
-      //   await onDelete();
-      //
-      //   return true;
-      // },
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: GestureDetector(
-          onLongPress: () {
-            Get.dialog(
-              Dialog(
-                backgroundColor: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 10,
-                    children: [
-                      Row(
-                        spacing: 5,
-                        children: [
-                          Text(
-                            item.type.tr,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 24.sp,
-                              color: typeColor,
-                            ),
-                          ),
-                          Text(
-                            "Transaction".tr,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 22.sp,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          "৳ ${numberTranslation.toBnDigits("${item.amount}")}",
-                          style: TextStyle(
-                            fontSize: 30.sp,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      Divider(),
-
-                      item.type == "Lent" || item.type == "Borrow"
-                          ? Row(
-                              spacing: 5,
-                              children: [
-                                Icon(
-                                  Icons.person,
-                                  color: Colors.black,
-                                  size: 15,
-                                ),
-                                Text(
-                                  "Person Name:".tr,
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  item.category,
-                                  style: TextStyle(fontSize: 16.sp),
-                                ),
-                              ],
-                            )
-                          : Row(
-                              spacing: 5,
-                              children: [
-                                Icon(
-                                  Icons.category,
-                                  color: Colors.black,
-                                  size: 15,
-                                ),
-                                Text(
-                                  "Category:".tr,
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  item.category.isEmpty
-                                      ? "Uncategorized".tr
-                                      : item.category.tr,
-                                  style: TextStyle(fontSize: 16.sp),
-                                ),
-                              ],
-                            ),
-
-                      Row(
-                        spacing: 5,
-                        children: [
-                          Icon(
-                            Icons.account_balance_wallet,
-                            color: Colors.black,
-                            size: 15,
-                          ),
-                          Text(
-                            "Wallet:".tr,
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            item.wallet.tr,
-                            style: TextStyle(fontSize: 16.sp),
-                          ),
-                        ],
-                      ),
-
-                      Row(
-                        spacing: 5,
-                        children: [
-                          Icon(
-                            Icons.date_range_rounded,
-                            color: Colors.black,
-                            size: 15,
-                          ),
-                          Text(
-                            "Date:".tr,
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(dateText, style: TextStyle(fontSize: 16.sp)),
-                        ],
-                      ),
-
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 5,
-                        children: [
-                          Icon(
-                            Icons.edit_note_outlined,
-                            color: Colors.black,
-                            size: 15,
-                          ),
-                          Text(
-                            "Remark:".tr,
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              item.note.isEmpty ? "No Remark".tr : item.note,
-                              style: TextStyle(fontSize: 16.sp),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      ElevatedButton(
-                        onPressed: () => Get.back(),
-                        child: Text(
-                          "Close".tr,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
+      child: GestureDetector(
+        onLongPress: () => _showDetailsDialog(context, item, color),
+        child: GlassCard(
+          padding: EdgeInsets.all(cardPad),
           child: Row(
             children: [
               Container(
+                width: avatarSize,
+                height: avatarSize,
                 decoration: BoxDecoration(
-                  color: typeColor.withOpacity(0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 7.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(18.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 15,
-                          spreadRadius: 1,
-                          offset: const Offset(4, 1), // x, y
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
-                      style: TextStyle(
-                        color: typeColor,
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    color: color.withOpacity(0.1), shape: BoxShape.circle),
+                child: Center(
+                  child: Text(
+                    item.type.isNotEmpty ? item.type[0].toUpperCase() : '?',
+                    style: TextStyle(
+                        color: color,
+                        fontSize: avatarFont,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-              const SizedBox(width: 15),
+              SizedBox(width: hGap),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 5,
-                      children: [
-                        Text(
-                          item.category.isEmpty
-                              ? "Uncategorized".tr
-                              : item.category.tr,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        item.marked
-                            ? Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 15,
-                              )
-                            : SizedBox.shrink(),
-                      ],
+                    Text(
+                      item.category.isEmpty
+                          ? "Uncategorized".tr
+                          : item.category.tr,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: catFont,
+                          color: Colors.black87),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                    Row(
-                      spacing: 3,
-                      children: [
-                        Text(
-                          item.wallet.tr,
-                          style: const TextStyle(
-                            color: Colors.black54,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: 2),
+                    Text(
+                      item.wallet.tr,
+                      style: TextStyle(color: Colors.black54, fontSize: walletFont),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     "৳${numberTranslation.toBnDigits(item.amount.toStringAsFixed(0))}",
                     style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: typeColor,
-                    ),
+                        fontWeight: FontWeight.bold,
+                        fontSize: amtFont,
+                        color: color),
                   ),
+                  SizedBox(height: 2),
                   Text(
-                    dateText,
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    tablet
+                        ? DateFormat('dd MMM, hh:mm a').format(item.date)
+                        : "${numberTranslation.formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date))}, ${numberTranslation.toBnDigits(DateFormat('hh:mm a').format(item.date))}",
+                    style: TextStyle(
+                        color: Colors.black45,
+                        fontSize: dateFont,
+                        fontStyle: FontStyle.italic),
                   ),
                 ],
+              ),
+              SizedBox(width: tablet ? 8.0 : 12.w),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionBackground(
+      dynamic icon, String text, Color color, Alignment alignment, bool tablet) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: tablet ? 16.0 : 20.w),
+      alignment: alignment,
+      decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(tablet ? 14.0 : 14.r)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: alignment == Alignment.centerLeft
+            ? [
+                HugeIcon(icon: icon, color: color, size: tablet ? 18.0 : 22.sp),
+                SizedBox(width: tablet ? 6.0 : 8.w),
+                Text(text,
+                    style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: tablet ? 12.0 : null))
+              ]
+            : [
+                Text(text,
+                    style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: tablet ? 12.0 : null)),
+                SizedBox(width: tablet ? 6.0 : 8.w),
+                HugeIcon(icon: icon, color: color, size: tablet ? 18.0 : 22.sp)
+              ],
+      ),
+    );
+  }
+}
+
+// --- Dialog & Bottom Sheet Functions ---
+
+Future<bool> _showDeleteDialog(BuildContext context) async {
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    return await showCupertinoDialog<bool>(
+          context: context,
+          builder: (ctx) => CupertinoAlertDialog(
+            title: Text('Delete Transaction'.tr),
+            content: Text('Are you sure you want to delete this?'.tr),
+            actions: [
+              CupertinoDialogAction(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text('Cancel'.tr)),
+              CupertinoDialogAction(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  isDestructiveAction: true,
+                  child: Text('Delete'.tr)),
+            ],
+          ),
+        ) ??
+        false;
+  }
+  return await Get.dialog<bool>(
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: AlertDialog(
+            backgroundColor: Colors.white.withOpacity(0.9),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.r)),
+            title: Text("Delete Transaction".tr),
+            content: Text("Are you sure you want to delete this transaction?".tr),
+            actions: [
+              TextButton(
+                  onPressed: () => Get.back(result: false),
+                  child: Text("Cancel".tr,
+                      style: const TextStyle(color: Colors.black54))),
+              TextButton(
+                  onPressed: () => Get.back(result: true),
+                  child: Text("Delete".tr,
+                      style: const TextStyle(color: Colors.red))),
+            ],
+          ),
+        ),
+      ) ??
+      false;
+}
+
+void _showDetailsDialog(BuildContext context, TranItem item, Color typeColor) {
+  final dateText = numberTranslation
+      .formatDateBnFromString(DateFormat('dd MMM yyyy').format(item.date));
+  final timeText = numberTranslation
+      .toBnDigits(DateFormat('hh:mm a').format(item.date));
+  final tablet = _isTablet(context);
+  final isExpense = item.type.toLowerCase() == 'expense';
+  final gradientColors = isExpense
+      ? [const Color(0xFFFF6B6B), const Color(0xFFEE5A24)]
+      : [const Color(0xFF2ECC71), const Color(0xFF27AE60)];
+  final icon = isExpense ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded;
+
+  Get.dialog(
+    BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: tablet ? 160 : 20,
+          vertical: 20,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: typeColor.withValues(alpha: 0.2),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              )
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header Gradient
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: tablet ? 28.0 : 22.0,
+                  vertical: tablet ? 24.0 : 20.0,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: gradientColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.25),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(icon, color: Colors.white, size: tablet ? 18 : 16),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          "${item.type.tr} ${'Transaction'.tr}",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: tablet ? 16.0 : 15.0,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (item.marked)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.25),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.white, size: 14),
+                                const SizedBox(width: 4),
+                                Text('Cleared'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: tablet ? 14 : 12),
+                    Text(
+                      "৳ ${numberTranslation.toBnDigits("${item.amount}")}",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: tablet ? 34.0 : 30.0,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      timeText,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: tablet ? 13.0 : 12.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Detail Rows
+              Padding(
+                padding: EdgeInsets.all(tablet ? 24.0 : 20.0),
+                child: Column(
+                  children: [
+                    _DetailRow(
+                        icon: Icons.category_outlined,
+                        label: "Category:".tr,
+                        value: item.category.isEmpty
+                            ? "Uncategorized".tr
+                            : item.category.tr,
+                        isTablet: tablet),
+                    _DetailRow(
+                        icon: Icons.account_balance_wallet_outlined,
+                        label: "Wallet:".tr,
+                        value: item.wallet.tr,
+                        isTablet: tablet),
+                    _DetailRow(
+                        icon: Icons.calendar_today_outlined,
+                        label: "Date:".tr,
+                        value: dateText,
+                        isTablet: tablet),
+                    _DetailRow(
+                        icon: Icons.notes_outlined,
+                        label: "Remark:".tr,
+                        value: item.note.isEmpty ? "No Remark".tr : item.note,
+                        isTablet: tablet),
+                    SizedBox(height: tablet ? 8 : 4),
+                    // Close Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: tablet ? 50 : 46,
+                      child: OutlinedButton(
+                        onPressed: Get.back,
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          "Close".tr,
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w600,
+                            fontSize: tablet ? 15 : 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
+      ),
+    ),
+  );
+}
+
+class _DetailRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isTablet;
+  const _DetailRow(
+      {required this.icon,
+      required this.label,
+      required this.value,
+      this.isTablet = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final tablet = isTablet || _isTablet(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: tablet ? 5.0 : 6.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: tablet ? 14.0 : 16.sp, color: Colors.black54),
+          SizedBox(width: tablet ? 6.0 : 8.w),
+          Text(label,
+              style: TextStyle(
+                  fontSize: tablet ? 12.0 : 14.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87)),
+          SizedBox(width: tablet ? 4.0 : 6.w),
+          Expanded(
+              child: Text(value,
+                  style: TextStyle(
+                      fontSize: tablet ? 12.0 : 14.sp,
+                      color: Colors.black87))),
+        ],
       ),
     );
   }
@@ -779,219 +815,143 @@ class _TransactionTile extends StatelessWidget {
 
 void _showMonthFilterSheet(BuildContext context) {
   final controller = Get.find<transactionsController>();
-
+  final tablet = _isTablet(context);
   Get.bottomSheet(
     ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      child: Container(
-        padding: const EdgeInsets.only(bottom: 30),
-        decoration: const BoxDecoration(color: Colors.white),
-        child: StreamBuilder<List<String>>(
-          stream: controller.streamMonthKeys(),
-          builder: (context, snap) {
-            final months = snap.data ?? [];
-
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- Drag Handle ---
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD1D5DB),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // --- Title Section ---
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Filter by Month".tr,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(tablet ? 20.0 : 24.r)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          padding: EdgeInsets.only(bottom: tablet ? 24.0 : 30.h),
+          decoration:
+              BoxDecoration(color: Colors.white.withOpacity(0.85)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: EdgeInsets.only(
+                    top: tablet ? 10.0 : 12.h,
+                    bottom: tablet ? 16.0 : 20.h),
+                width: tablet ? 36.0 : 40.w,
+                height: tablet ? 3.0 : 4.h,
+                decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2)),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: tablet ? 24.0 : 24.w),
+                child: Column(
+                  children: [
+                    Text("Filter by Month".tr,
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827),
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
+                            fontSize: tablet ? 16.0 : 20.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            letterSpacing: -0.5)),
+                    SizedBox(height: tablet ? 2.0 : 4.h),
+                    Text(
                         "Select a month to filter your transactions".tr,
                         style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF6B7280),
-                          height: 1.4,
+                            fontSize: tablet ? 12.0 : 13.sp,
+                            color: Colors.black54)),
+                  ],
+                ),
+              ),
+              SizedBox(height: tablet ? 12.0 : 16.h),
+              const Divider(height: 1),
+              SizedBox(height: tablet ? 6.0 : 8.h),
+              Flexible(
+                  child: Obx(() => SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _MonthTile(
+                                label: "All Months".tr,
+                                isSelected:
+                                    controller.selectedMonthKey.value == null,
+                                onTap: () => controller.selectMonth(null),
+                                isTablet: tablet),
+                            ...controller.availableMonthKeys.map((key) =>
+                                _MonthTile(
+                                    label: numberTranslation
+                                        .formatMonthYearBnFromKey(key),
+                                    isSelected:
+                                        controller.selectedMonthKey.value ==
+                                            key,
+                                    onTap: () => controller.selectMonth(key),
+                                    isTablet: tablet)),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // --- Divider ---
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Divider(height: 1, color: Color(0xFFE5E7EB)),
-                ),
-
-                const SizedBox(height: 8),
-
-                // --- "All Months" Option ---
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Obx(
-                    () => _MonthTile(
-                      icon: Icons.sick_outlined,
-                      label: "All Months".tr,
-                      isSelected: controller.selectedMonthKey.value == null,
-                      onTap: () {
-                        controller.selectMonth(null);
-                        Get.back();
-                      },
-                    ),
-                  ),
-                ),
-
-                // --- Month List ---
-                ...months.map(
-                  (m) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Obx(
-                      () => _MonthTile(
-                        icon: Icons.calendar_month_outlined,
-                        label: numberTranslation.formatMonthYearBnFromKey(m),
-                        isSelected: controller.selectedMonthKey.value == m,
-                        onTap: () {
-                          controller.selectMonth(m);
-                          Get.back();
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-              ],
-            );
-          },
+                      ))),
+            ],
+          ),
         ),
       ),
     ),
-    isDismissible: true,
-    enableDrag: true,
+    isScrollControlled: true,
   );
 }
 
-// ─── Reusable Tile Widget ────────────────────────────────────────────────────
-
 class _MonthTile extends StatelessWidget {
-  final IconData icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
-
-  const _MonthTile({
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
+  final bool isTablet;
+  const _MonthTile(
+      {required this.label,
+      required this.isSelected,
+      required this.onTap,
+      this.isTablet = false});
 
   @override
   Widget build(BuildContext context) {
-    // Cyan palette
-    const Color cyanAccent = Color(0xFF06B6D4); // vibrant cyan
-    const Color cyanBg = Color(0xFFECFEFF); // very light cyan bg
-    const Color neutralBg = Color(0xFFF3F4F6); // default grey bg
-    const Color neutralIcon = Color(0xFF6B7280); // default grey icon
-
-    return Material(
-      color: Colors.transparent,
+    final tablet = isTablet || _isTablet(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: tablet ? 16.0 : 16.w,
+          vertical: tablet ? 3.0 : 4.h),
       child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          height: 52,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+        onTap: () {
+          onTap();
+          Get.back();
+        },
+        borderRadius: BorderRadius.circular(tablet ? 12.0 : 14.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+              horizontal: tablet ? 14.0 : 16.w,
+              vertical: tablet ? 10.0 : 12.h),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: isSelected ? cyanBg : Colors.transparent,
+            borderRadius: BorderRadius.circular(tablet ? 12.0 : 14.r),
+            color: isSelected
+                ? AppColors.primary.withOpacity(0.1)
+                : Colors.transparent,
             border: Border.all(
-              color: isSelected
-                  ? cyanAccent.withOpacity(0.35)
-                  : Colors.transparent,
-              width: 1.5,
-            ),
+                color: isSelected
+                    ? AppColors.primary.withOpacity(0.2)
+                    : Colors.transparent),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Icon Container
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: isSelected ? cyanAccent.withOpacity(0.15) : neutralBg,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: isSelected ? cyanAccent : neutralIcon,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 14),
-
-              // Label
               Expanded(
-                child: AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? cyanAccent : const Color(0xFF1F2937),
-                  ),
-                  child: Text(label),
-                ),
+                child: Text(label,
+                    style: TextStyle(
+                        fontSize: tablet ? 13.0 : 15.sp,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? AppColors.primary
+                            : Colors.black87)),
               ),
-
-              // Checkmark or Chevron
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: isSelected
-                    ? Icon(
-                        Icons.check_circle_rounded,
-                        key: const ValueKey("check"),
-                        size: 22,
-                        color: cyanAccent,
-                      )
-                    : Icon(
-                        Icons.chevron_right_rounded,
-                        key: const ValueKey("chevron"),
-                        size: 20,
-                        color: const Color(0xFF9CA3AF),
-                      ),
-              ),
+              if (isSelected)
+                HugeIcon(
+                    icon: HugeIcons.strokeRoundedCheckmarkBadge03,
+                    size: tablet ? 18.0 : 20.sp,
+                    color: AppColors.primary)
+              else
+                Icon(Icons.chevron_right_rounded,
+                    size: tablet ? 16.0 : 18.sp, color: Colors.black26),
             ],
           ),
         ),

@@ -29,9 +29,9 @@ class signupController extends GetxController {
       final email = model.email.trim().toLowerCase();
       final pass = model.password;
 
-      if (name.isEmpty) throw Exception("Name is required");
-      if (email.isEmpty) throw Exception("Email is required");
-      if (pass.isEmpty) throw Exception("Password is required");
+      if (name.isEmpty) throw Exception("Name is required".tr);
+      if (email.isEmpty) throw Exception("Email is required".tr);
+      if (pass.isEmpty) throw Exception("Password is required".tr);
 
       // ✅ Create auth account
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -80,7 +80,7 @@ class signupController extends GetxController {
     } catch (e) {
       AppLoader.hide();
       Get.snackbar(
-        "Error",
+        "Error".tr,
         e.toString().replaceFirst("Exception: ", ""),
         snackPosition: SnackPosition.BOTTOM,
       );

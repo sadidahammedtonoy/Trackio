@@ -1,12 +1,20 @@
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:sadid/App/routes.dart';
+import 'package:sadid/App/AppColors.dart';
 import '../../../../Core/snakbar.dart';
 import '../../permanentAccount/View/permanentAccount.dart';
 import '../Controller/Controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/foundation.dart';
+
+bool _isTablet(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide >= 600;
 
 class setting_page extends StatelessWidget {
   setting_page({super.key});
@@ -14,400 +22,577 @@ class setting_page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tablet = _isTablet(context);
+
+    Widget content = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: tablet ? 24.0 : 16.w,
+        vertical: tablet ? 12.0 : 10.h,
+      ),
+      child: Column(
+        children: [
+          _buildProfileSection(context, tablet),
+          SizedBox(height: tablet ? 16.0 : 20.h),
+          _buildGeneralSection(tablet),
+          SizedBox(height: tablet ? 16.0 : 20.h),
+          _buildSecuritySection(tablet),
+          SizedBox(height: tablet ? 16.0 : 20.h),
+          _buildAccountSection(tablet),
+          SizedBox(height: tablet ? 60.0 : 115.h),
+        ],
+      ),
+    );
+
+    // On tablet, center content in a max-width container
+    if (tablet) {
+      content = Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: content,
+        ),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: Text("Settings".tr)),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: content),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileSection(BuildContext context, bool tablet) {
+    return _GlassCard(
+      tablet: tablet,
+      child: GetBuilder<settingController>(
+        builder: (controller) {
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 15,
             children: [
-              const SizedBox(height: 0),
-              GetBuilder<settingController>(
-                builder: (controller) {
-                  return Row(
-                    spacing: 10,
-                    children: [
-                      StreamBuilder<DocumentSnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          String imageUrl =
-                              "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
-
-                          if (snapshot.hasData && snapshot.data!.exists) {
-                            final data =
-                                snapshot.data!.data() as Map<String, dynamic>;
-                            if (data['photoUrl'] != null &&
-                                data['photoUrl'].toString().isNotEmpty) {
-                              imageUrl = data['photoUrl'];
-                            }
-                          }
-
-                          return GestureDetector(
-                            onTap: () => controller.showImageSourceDialog(),
-                            child: CircleAvatar(
-                              radius: 30,
-                              backgroundImage: NetworkImage(imageUrl),
-                            ),
-                          );
-                        },
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          StreamBuilder<String>(
-                            stream: controller.userNameStream(),
-                            builder: (context, snapshot) {
-                              return Text(
-                                snapshot.data ?? "User",
-                                style: TextStyle(fontSize: 25.sp),
-                              );
-                            },
-                          ),
-                          Text(
-                            controller.getUserEmail() ?? "",
-                            style: TextStyle(fontSize: 16.sp),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              ),
               Text(
                 "Manage Profile".tr,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: tablet ? 13.0 : 14.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
               ),
-              GestureDetector(
-                onTap: () async {
-                  if (controller.isGuestUser()) {
-                    AppSnackbar.show(
-                      "Name change is available for permanent accounts only."
-                          .tr,
-                    );
-                    return;
-                  }
-
-                  final user = FirebaseAuth.instance.currentUser;
-
-                  if (user != null) {
-                    final doc = await FirebaseFirestore.instance
-                        .collection("users")
-                        .doc(user.uid)
-                        .get();
-
-                    if (doc.exists && doc.data() != null) {
-                      controller.nameC.text = doc.data()!['name'] ?? "";
-                    }
-                  }
-
-                  Get.dialog(
-                    barrierDismissible: false,
-                    AlertDialog(
-                      backgroundColor: Colors.white,
-                      title: Text("Your Name".tr),
-                      content: TextField(
-                        controller: controller.nameC,
-                        decoration: InputDecoration(
-                          hintText: "Enter your name".tr,
+              SizedBox(height: tablet ? 12.0 : 15.h),
+              Row(
+                children: [
+                  _buildAvatar(tablet),
+                  SizedBox(width: tablet ? 12.0 : 15.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        StreamBuilder<String>(
+                          stream: controller.userNameStream(),
+                          builder: (context, snapshot) {
+                            return Text(
+                              snapshot.data ?? "User",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: tablet ? 16.0 : 20.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                      actions: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextButton(
-                                onPressed: () => Get.back(),
-                                child: Text(
-                                  "Cancel".tr,
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: controller.changeName,
-                                child: Text(
-                                  "Done".tr,
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          controller.getUserEmail() ?? "",
+                          style: TextStyle(
+                            color: Colors.black45,
+                            fontSize: tablet ? 12.0 : 14.sp,
+                          ),
                         ),
                       ],
                     ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    const Icon(Icons.person_outline, size: 25),
-                    const SizedBox(width: 10),
-                    Text("Your Name".tr, style: TextStyle(fontSize: 18.sp)),
-                    const Spacer(),
-                    const Icon(Icons.arrow_right),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Get.toNamed(routes.backgroundSelection_screen);
-                },
-                child: Row(
-                  children: [
-                    const Icon(Icons.settings_display_sharp, size: 25),
-                    const SizedBox(width: 10),
-                    Text("Theme".tr, style: TextStyle(fontSize: 18.sp)),
-                    const Spacer(),
-                    const Icon(Icons.arrow_right),
-                  ],
-                ),
-              ),
-              Text(
-                "Money Management".tr,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-              ),
-              GestureDetector(
-                onTap: () => Get.toNamed(routes.saving_screen),
-                child: Row(
-                  children: [
-                    Icon(Icons.savings_outlined, size: 25),
-                    SizedBox(width: 10),
-                    Text("Savings".tr, style: TextStyle(fontSize: 18.sp)),
-                    Spacer(),
-                    Icon(Icons.arrow_right),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Get.toNamed(routes.categories_screen),
-                child: Row(
-                  children: [
-                    Icon(Icons.category_outlined, size: 25),
-                    SizedBox(width: 10),
-                    Text("Categories".tr, style: TextStyle(fontSize: 18.sp)),
-                    Spacer(),
-                    Icon(Icons.arrow_right),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 0),
-              Text(
-                "Security".tr,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-              ),
-              GestureDetector(
-                onTap: () => Get.toNamed(routes.PrivacyPolicyPage_screen),
-                child: Row(
-                  children: [
-                    Icon(Icons.privacy_tip_outlined, size: 25),
-                    SizedBox(width: 10),
-                    Text(
-                      "Privacy Policy".tr,
-                      style: TextStyle(fontSize: 18.sp),
-                    ),
-                    Spacer(),
-                    Icon(Icons.arrow_right),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Get.toNamed(routes.TermsConditionsPage_screen),
-                child: Row(
-                  children: [
-                    Icon(Icons.description, size: 25),
-                    SizedBox(width: 10),
-                    Text(
-                      "Terms & Conditions".tr,
-                      style: TextStyle(fontSize: 18.sp),
-                    ),
-                    Spacer(),
-                    Icon(Icons.arrow_right),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Get.toNamed(routes.HelpSupportPage_screen),
-                child: Row(
-                  children: [
-                    Icon(Icons.support_agent_outlined, size: 25),
-                    SizedBox(width: 10),
-                    Text(
-                      "Help & Support".tr,
-                      style: TextStyle(fontSize: 18.sp),
-                    ),
-                    Spacer(),
-                    Icon(Icons.arrow_right),
-                  ],
-                ),
-              ),
-              Visibility(
-                visible: controller.isEmailPasswordUser(),
-                child: GestureDetector(
-                  onTap: () => Get.toNamed(routes.changePassword_screen),
-                  child: Row(
-                    children: [
-                      Icon(Icons.password, size: 25),
-                      SizedBox(width: 10),
-                      Text(
-                        "Change Password".tr,
-                        style: TextStyle(fontSize: 18.sp),
-                      ),
-                      Spacer(),
-                      Icon(Icons.arrow_right),
-                    ],
                   ),
-                ),
-              ),
-              Text(
-                "Language".tr,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Get.bottomSheet(
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(16),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Container(
-                              height: 5,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            "Choose Language".tr,
-                            style: TextStyle(
-                              fontSize: 22.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text("Choose your preferred language for the app".tr),
-                          Divider(),
-                          ListTile(
-                            title: const Text("বাংলা"),
-                            onTap: () {
-                              controller.changeLanguageInstant(
-                                const Locale('bn', 'BD'),
-                              );
-                              Get.back();
-                            },
-                          ),
-                          ListTile(
-                            title: const Text("English"),
-                            onTap: () {
-                              controller.changeLanguageInstant(
-                                const Locale('en', 'US'),
-                              );
-                              Get.back();
-                            },
-                          ),
-                        ],
-                      ),
+                  IconButton(
+                    onPressed: () => _showEditNameDialog(context),
+                    icon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedEditUser02,
+                      color: AppColors.primary,
+                      size: tablet ? 22.0 : 28.sp,
                     ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Icon(Icons.language_outlined, size: 25),
-                    SizedBox(width: 10),
-                    // keep your .tr label
-                    Expanded(
-                      child: Text(
-                        "Language".tr,
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                    Icon(Icons.arrow_right),
-                  ],
-                ),
-              ),
-              Text(
-                "Account".tr,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-              ),
-              Visibility(
-                visible: controller.isGuestUser(),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.dialog(MakePermanentDialog());
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.verified_outlined,
-                        size: 25,
-                        color: Colors.green,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Make permanent account".tr,
-                        style: TextStyle(fontSize: 18.sp, color: Colors.green),
-                      ),
-                    ],
                   ),
-                ),
+                ],
               ),
-              GestureDetector(
-                onTap: () => controller.showLogoutDialog(
-                  onConfirm: () => controller.logout(),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.logout_rounded,
-                      color: Colors.redAccent,
-                      size: 25,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      "Log Out".tr,
-                      style: TextStyle(color: Colors.red, fontSize: 18.sp),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () => controller.confirmDeleteAccount(),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.supervisor_account_rounded,
-                      color: Colors.redAccent,
-                      size: 25,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      "Delete Account".tr,
-                      style: TextStyle(color: Colors.red, fontSize: 18.sp),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 10),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAvatar(bool tablet) {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        String imageUrl =
+            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
+
+        if (snapshot.hasData && snapshot.data!.exists) {
+          final data = snapshot.data!.data() as Map<String, dynamic>;
+          if (data['photoUrl'] != null &&
+              data['photoUrl'].toString().isNotEmpty) {
+            imageUrl = data['photoUrl'];
+          }
+        }
+
+        return GestureDetector(
+          onTap: () => controller.showImageSourceDialog(),
+          child: Container(
+            padding: EdgeInsets.all(tablet ? 2.0 : 3.r),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: AppColors.primary.withOpacity(0.2), width: 2),
+            ),
+            child: CircleAvatar(
+              radius: tablet ? 28.0 : 35.r,
+              backgroundImage: NetworkImage(imageUrl),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGeneralSection(bool tablet) {
+    return _GlassCard(
+      tablet: tablet,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader("General".tr, tablet),
+          _SettingItem(
+            icon: Icon(Icons.palette_outlined),
+            title: "Theme".tr,
+            onTap: () => Get.toNamed(routes.backgroundSelection_screen),
+            iconColor: Colors.blueAccent,
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: Icon(Icons.savings_outlined),
+            title: "Savings".tr,
+            onTap: () => Get.toNamed(routes.saving_screen),
+            iconColor: AppColors.yellow,
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedLeaf01),
+            title: "Budgets".tr,
+            onTap: () => Get.toNamed(routes.budgets_screen),
+            iconColor: AppColors.yellow,
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: Icon(Icons.category_outlined),
+            title: "Categories".tr,
+            onTap: () => Get.toNamed(routes.categories_screen),
+            iconColor: AppColors.purple,
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: Icon(Icons.language_outlined),
+            title: "Language".tr,
+            onTap: () => _showLanguageSelector(tablet),
+            iconColor: AppColors.sky,
+            showDivider: false,
+            tablet: tablet,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSecuritySection(bool tablet) {
+    return _GlassCard(
+      tablet: tablet,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader("Security & Support".tr, tablet),
+          _SettingItem(
+            icon: Icon(Icons.privacy_tip_outlined),
+            title: "Privacy Policy".tr,
+            onTap: () => Get.toNamed(routes.PrivacyPolicyPage_screen),
+            iconColor: AppColors.green,
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: Icon(Icons.description_outlined),
+            title: "Terms & Conditions".tr,
+            onTap: () => Get.toNamed(routes.TermsConditionsPage_screen),
+            iconColor: Colors.amber,
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: Icon(Icons.support_agent_outlined),
+            title: "Help & Support".tr,
+            onTap: () => Get.toNamed(routes.HelpSupportPage_screen),
+            iconColor: Colors.orangeAccent,
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: Icon(Icons.lock_reset_outlined),
+            title: "Change Password".tr,
+            onTap: () => Get.toNamed(routes.changePassword_screen),
+            iconColor: AppColors.red,
+            showDivider: false,
+            visible: controller.isEmailPasswordUser(),
+            tablet: tablet,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountSection(bool tablet) {
+    return _GlassCard(
+      tablet: tablet,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader("Account".tr, tablet),
+          _SettingItem(
+            icon: Icon(Icons.verified_outlined),
+            title: "Make permanent account".tr,
+            onTap: () => Get.dialog(MakePermanentDialog()),
+            iconColor: Colors.green,
+            textColor: Colors.green,
+            visible: controller.isGuestUser(),
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02),
+            title: "Log Out".tr,
+            onTap: () => controller.showLogoutDialog(
+                onConfirm: () => controller.logout()),
+            iconColor: Colors.redAccent,
+            textColor: Colors.redAccent,
+            tablet: tablet,
+          ),
+          _SettingItem(
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedAccountSetting03),
+            title: "Delete Account".tr,
+            onTap: () => controller.confirmDeleteAccount(),
+            iconColor: Colors.red,
+            textColor: Colors.red,
+            showDivider: false,
+            tablet: tablet,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, bool tablet) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: tablet ? 10.0 : 15.h,
+        left: tablet ? 4.0 : 4.w,
+      ),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: Colors.black54,
+          fontSize: tablet ? 12.0 : 14.sp,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  void _showEditNameDialog(BuildContext context) async {
+    if (controller.isGuestUser()) {
+      AppSnackbar.show(
+          "Name change is available for permanent accounts only.".tr);
+      return;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final doc = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.uid)
+          .get();
+      if (doc.exists && doc.data() != null) {
+        controller.nameC.text = doc.data()!['name'] ?? "";
+      }
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      Get.dialog(
+        CupertinoAlertDialog(
+          title: Text("Update Name".tr),
+          content: CupertinoTextField(
+            controller: controller.nameC,
+            placeholder: "Enter your name".tr,
+            autofocus: true,
+            onSubmitted: (value) => controller.changeName(),
+          ),
+          actions: <CupertinoDialogAction>[
+            CupertinoDialogAction(
+              child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
+              onPressed: () => Get.back(),
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text("Update".tr, style: TextStyle(color: AppColors.primary)),
+              onPressed: controller.changeName,
+            ),
+          ],
+        ),
+      );
+    } else {
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
+          ),
+          title: Text("Update Name".tr, style: const TextStyle(color: Colors.black)),
+          content: TextField(
+            controller: controller.nameC,
+            style: const TextStyle(color: Colors.black),
+            decoration: InputDecoration(
+              hintText: "Enter your name".tr,
+              hintStyle: const TextStyle(color: Colors.black38),
+              enabledBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black12)),
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.primary)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text("Cancel".tr, style: const TextStyle(color: Colors.black54)),
+            ),
+            ElevatedButton(
+              onPressed: controller.changeName,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r)),
+              ),
+              child: Text("Update".tr, style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _showLanguageSelector(bool tablet) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.only(bottom: 20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Container(
+                  height: 4,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(tablet ? 20.0 : 24.r),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Choose Language".tr,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: tablet ? 16.0 : 20.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: tablet ? 6.0 : 8.h),
+                  Text(
+                    "Select your preferred language".tr,
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: tablet ? 13.0 : 14.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            _SettingItem(
+              icon: Icon(Icons.language),
+              title: "বাংলা",
+              onTap: () {
+                controller.changeLanguageInstant(const Locale('bn', 'BD'));
+                Get.back();
+              },
+              iconColor: AppColors.primary,
+              padding: EdgeInsets.symmetric(
+                horizontal: tablet ? 20.0 : 24.w,
+                vertical: tablet ? 12.0 : 16.h,
+              ),
+              tablet: tablet,
+            ),
+            _SettingItem(
+              icon: Icon(Icons.language),
+              title: "English",
+              onTap: () {
+                controller.changeLanguageInstant(const Locale('en', 'US'));
+                Get.back();
+              },
+              iconColor: AppColors.primary,
+              showDivider: false,
+              padding: EdgeInsets.symmetric(
+                horizontal: tablet ? 20.0 : 24.w,
+                vertical: tablet ? 12.0 : 16.h,
+              ),
+              tablet: tablet,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+  final bool tablet;
+
+  const _GlassCard({required this.child, this.margin, this.tablet = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(tablet ? 18.0 : 24.r),
+        border: Border.all(color: Colors.grey.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(tablet ? 18.0 : 24.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Padding(
+            padding: EdgeInsets.all(tablet ? 16.0 : 20.r),
+            child: child,
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SettingItem extends StatelessWidget {
+  final Widget icon;
+  final String title;
+  final VoidCallback onTap;
+  final Color iconColor;
+  final Color textColor;
+  final bool showDivider;
+  final bool visible;
+  final EdgeInsetsGeometry? padding;
+  final bool tablet;
+
+  const _SettingItem({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.iconColor = Colors.black87,
+    this.textColor = Colors.black,
+    this.showDivider = true,
+    this.visible = true,
+    this.padding,
+    this.tablet = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) return const SizedBox.shrink();
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(tablet ? 10.0 : 12.r),
+          child: Padding(
+            padding: padding ??
+                EdgeInsets.symmetric(vertical: tablet ? 10.0 : 12.h),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(tablet ? 6.0 : 8.r),
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(tablet ? 8.0 : 10.r),
+                  ),
+                  child: IconTheme(
+                    data: IconThemeData(
+                      size: tablet ? 18.0 : 22.0,
+                      color: iconColor,
+                    ),
+                    child: icon,
+                  ),
+                ),
+                SizedBox(width: tablet ? 12.0 : 15.w),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: tablet ? 14.0 : 16.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.black12,
+                  size: tablet ? 20.0 : 24.sp,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (showDivider)
+          Divider(
+            color: Colors.black.withOpacity(0.05),
+            height: 1,
+            indent: tablet ? 40.0 : 45.w,
+          ),
+      ],
     );
   }
 }

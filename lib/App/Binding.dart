@@ -16,7 +16,6 @@ import '../Presentation/Features/saving/Controller/Controller.dart';
 import '../Presentation/Splash/Controller/Controller.dart';
 import '../Presentation/navbar/Controller/Controller.dart';
 
-
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
@@ -24,7 +23,7 @@ class InitialBinding extends Bindings {
     Get.lazyPut<transactionsController>(() => transactionsController(), fenix: true);
     Get.lazyPut<settingController>(() => settingController(), fenix: true);
     Get.lazyPut<debtsController>(() => debtsController(), fenix: true);
-    Get.lazyPut<dashboardController>(() => dashboardController(), fenix: true);
+    Get.lazyPut<DashboardController>(() => DashboardController(), fenix: true);
     Get.lazyPut<addTranscationsController>(() => addTranscationsController(), fenix: true);
     Get.lazyPut<SplashController>(() => SplashController(), fenix: true);
     Get.lazyPut<loginController>(() => loginController(), fenix: true);
@@ -35,9 +34,6 @@ class InitialBinding extends Bindings {
     Get.lazyPut<signupController>(() => signupController(), fenix: true);
     Get.lazyPut<ForgotPasswordController>(() => ForgotPasswordController(), fenix: true);
     Get.lazyPut<editTransactionsController>(() => editTransactionsController(), fenix: true);
-    Get.lazyPut<editTransactionsController>(() => editTransactionsController(), fenix: true);
     Get.lazyPut<backgroundController>(() => backgroundController(), fenix: true);
-
-
   }
 }

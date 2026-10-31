@@ -7,10 +7,14 @@ import '../Presentation/Documentation/terms.dart';
 import '../Presentation/Features/AddTransactions/View/AddTransactions.dart';
 import '../Presentation/Features/Background/View/Background.dart';
 import '../Presentation/Features/Change Password/View/changePassword.dart';
+import '../Presentation/Features/Dashboard/View/visual_representation.dart';
+import '../Presentation/Features/budgets/View/add_budget.dart';
+import '../Presentation/Features/budgets/View/budgets.dart';
 import '../Presentation/Features/caregories/View/categories.dart';
 import '../Presentation/Features/helpSupport/View/helpSupport.dart';
 import '../Presentation/Features/permanentAccount/View/permanentAccount.dart';
 import '../Presentation/Features/saving/View/saving.dart';
+import '../Presentation/Features/AI Feature test/View/ai_chat_page.dart';
 import '../Presentation/Splash/View/splash.dart';
 import '../Presentation/navbar/View/navbar.dart';
 import 'Binding.dart';
@@ -26,14 +30,18 @@ class routes {
   static const String HelpSupportPage_screen = '/HelpSupportPage';
   static const String categories_screen = '/categories';
   static const String saving_screen = '/saving';
+  static const String budgets_screen = '/budgets';
+  static const String add_budget_screen = '/add_budget';
   static const String signup_screen = '/signup';
   static const String ForgotPasswordScreen_screen = '/ForgotPasswordScreen';
   static const String MakePermanentDialog_screen = '/MakePermanentDialog';
   static const String backgroundSelection_screen = '/backgroundSelection';
+  static const String visual_representation_screen = '/visual_representation';
+  static const String ai_chat_screen = '/ai_chat';
 
 
   static final pages = [
-    GetPage( name: navbar_screen, binding: InitialBinding(), page: () => navbar()),
+    GetPage( name: navbar_screen, binding: InitialBinding(), page: () => Navbar()),
     GetPage( name: addTranscations_screen, binding: InitialBinding(), page: () => addTranscations()),
     GetPage( name: splash_screen, binding: InitialBinding(), page: () => Splash()),
     GetPage( name: login_screen, binding: InitialBinding(), page: () => login()),
@@ -43,14 +51,13 @@ class routes {
     GetPage( name: HelpSupportPage_screen, binding: InitialBinding(), page: () => HelpSupportPage()),
     GetPage( name: categories_screen, binding: InitialBinding(), page: () => categories()),
     GetPage( name: saving_screen, binding: InitialBinding(), page: () => saving()),
+    GetPage( name: budgets_screen, binding: InitialBinding(), page: () => const BudgetsScreen()),
+    GetPage( name: add_budget_screen, binding: InitialBinding(), page: () => const AddBudgetScreen()),
     GetPage( name: signup_screen, binding: InitialBinding(), page: () => signup()),
     GetPage( name: ForgotPasswordScreen_screen, binding: InitialBinding(), page: () => ForgotPasswordScreen()),
     GetPage( name: MakePermanentDialog_screen, binding: InitialBinding(), page: () => MakePermanentDialog()),
     GetPage( name: backgroundSelection_screen, binding: InitialBinding(), page: () => backgroundSelection()),
-
-
-
+    GetPage( name: visual_representation_screen, binding: InitialBinding(), page: () => VisualRepresentationPage()),
+    GetPage( name: ai_chat_screen, binding: InitialBinding(), page: () => AiChatPage()),
   ];
 }
-
-

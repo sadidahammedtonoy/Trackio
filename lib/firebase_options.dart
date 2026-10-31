@@ -59,11 +59,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyC1oVhLJQ_COXOdOQLrfZwhr3k24pJiHtI',
-    appId: '1:735067811724:ios:7734b4e473f43789c630a9',
+    appId: '1:735067811724:ios:c307e24a30a8315bc630a9',
     messagingSenderId: '735067811724',
     projectId: 'sadid-3ab64',
     storageBucket: 'sadid-3ab64.firebasestorage.app',
-    iosClientId: '735067811724-57n1jkigks0bp8363inc2qrdg7qe6u5l.apps.googleusercontent.com',
-    iosBundleId: 'com.example.sadid',
+    androidClientId: '735067811724-bh53qdmvltg382qqrkdhkv8jrskr6eud.apps.googleusercontent.com',
+    iosClientId: '735067811724-koj8c1jq4iv7i9a329m3shcjebihcse6.apps.googleusercontent.com',
+    iosBundleId: 'com.trackio.finance',
   );
 }

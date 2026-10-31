@@ -3,6 +3,7 @@ class assets_path {
   static String logo = "assets/icons/logo.png";
   static String calculator = "assets/json/Calculator.json";
   static String background = "assets/background.jpeg";
+  static String cat = "assets/json/cat.json";
 
 
 }

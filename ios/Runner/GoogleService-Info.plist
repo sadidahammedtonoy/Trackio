@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>735067811724-57n1jkigks0bp8363inc2qrdg7qe6u5l.apps.googleusercontent.com</string>
+	<string>735067811724-koj8c1jq4iv7i9a329m3shcjebihcse6.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.735067811724-57n1jkigks0bp8363inc2qrdg7qe6u5l</string>
+	<string>com.googleusercontent.apps.735067811724-koj8c1jq4iv7i9a329m3shcjebihcse6</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>735067811724-bh53qdmvltg382qqrkdhkv8jrskr6eud.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyC1oVhLJQ_COXOdOQLrfZwhr3k24pJiHtI</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.sadid</string>
+	<string>com.trackio.finance</string>
 	<key>PROJECT_ID</key>
 	<string>sadid-3ab64</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:735067811724:ios:7734b4e473f43789c630a9</string>
+	<string>1:735067811724:ios:c307e24a30a8315bc630a9</string>
 </dict>
 </plist>
