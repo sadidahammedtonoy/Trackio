@@ -467,39 +467,55 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tablet = isTablet || _isTablet(context);
-    return _GlassCard(
-      padding: EdgeInsets.all(tablet ? 12.0 : 15.r),
-      borderColor: color.withAlpha(102),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.all(tablet ? 8.0 : 10.r),
-            decoration: BoxDecoration(
-              color: color.withAlpha(26),
-              shape: BoxShape.circle,
+    return SizedBox(
+      width: tablet ? null : 126.w,
+      height: tablet ? null : 122.h,
+      child: _GlassCard(
+        padding: EdgeInsets.all(tablet ? 12.0 : 12.r),
+        borderColor: color.withAlpha(102),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: EdgeInsets.all(tablet ? 8.0 : 8.r),
+              decoration: BoxDecoration(
+                color: color.withAlpha(26),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: tablet ? 20.0 : 20.sp, color: color),
             ),
-            child: Icon(icon, size: tablet ? 20.0 : 28.sp, color: color),
-          ),
-          SizedBox(height: tablet ? 10.0 : 16.h),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: tablet ? 12.0 : 14.sp,
-              fontWeight: FontWeight.w500,
-              color: Colors.black54,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: tablet ? 12.0 : 12.sp,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black54,
+                  ),
+                ),
+                SizedBox(height: tablet ? 2.0 : 2.h),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "৳${numberTranslation.toBnDigits(amount.toStringAsFixed(amount % 1 == 0 ? 0 : 1))}",
+                    style: TextStyle(
+                      fontSize: tablet ? 15.0 : 15.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: tablet ? 2.0 : 4.h),
-          Text(
-            "৳${numberTranslation.toBnDigits(amount.toStringAsFixed(amount % 1 == 0 ? 0 : 1))}",
-            style: TextStyle(
-              fontSize: tablet ? 15.0 : 20.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

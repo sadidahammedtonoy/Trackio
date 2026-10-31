@@ -867,10 +867,20 @@ class _InputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+    final mediaQuery = MediaQuery.of(context);
+    final isKeyboardOpen = mediaQuery.viewInsets.bottom > 0;
+    final bottomInset = mediaQuery.padding.bottom;
+
+    // Ensure comfortable bottom padding on web / mobile so the input never clips with safe area / home bar
+    final double bottomPadding = isKeyboardOpen
+        ? (isTab ? 8.0 : 6.h)
+        : (bottomInset > 16.0 
+            ? bottomInset + (isTab ? 8.0 : 4.h)
+            : (isTab ? 16.0 : 28.0));
 
     return SafeArea(
       top: false,
+      bottom: false,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -927,9 +937,9 @@ class _InputBar extends StatelessWidget {
           Container(
             padding: EdgeInsets.fromLTRB(
               isTab ? 20.0 : 16.w,
-              isTab ? 4.0 : 2.h,
+              isTab ? 6.0 : 4.h,
               isTab ? 20.0 : 16.w,
-              isTab ? 10.0 : 8.h,
+              bottomPadding,
             ),
             decoration: const BoxDecoration(
               color: Colors.transparent,
