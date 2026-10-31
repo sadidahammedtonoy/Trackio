@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sadid/App/routes.dart';
@@ -105,6 +106,8 @@ class SplashController extends GetxController {
       AppSnackbar.show("You're using Trackio offline. Please connect to the internet.");
       return;
     }
+
+    if (kIsWeb) return;
 
     final hasInternet = await InternetConnectionChecker().hasConnection;
     if (!hasInternet) {

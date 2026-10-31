@@ -62,6 +62,7 @@ dependencies:
   hugeicons: ^1.1.7
   percent_indicator: ^4.2.3
   flutter_slidable: ^3.1.0
+  web: ^1.1.2
 
 
 
