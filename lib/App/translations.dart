@@ -39,6 +39,9 @@ class AppTranslations extends Translations {
       'Total Budget': 'Total Budget',
       'Spent': 'Spent',
       'No budgets added for this month.': 'No budgets added for this month.',
+      'No budgets set for this month. Showing budgets from previous months.':
+          'No budgets set for this month. Showing budgets from previous months.',
+      'No budgets found.': 'No budgets found.',
       'Delete Budget': 'Delete Budget',
       'Are you sure you want to delete this budget?':
           'Are you sure you want to delete this budget?',
@@ -511,6 +514,9 @@ class AppTranslations extends Translations {
       'Spent': 'ব্যয় হয়েছে',
       'No budgets added for this month.':
           'এই মাসের জন্য কোনো বাজেট যোগ করা হয়নি।',
+      'No budgets set for this month. Showing budgets from previous months.':
+          'এই মাসের জন্য কোনো বাজেট নেই। পূর্ববর্তী মাসগুলোর বাজেট দেখানো হচ্ছে।',
+      'No budgets found.': 'কোনো বাজেট পাওয়া যায়নি।',
       'Delete Budget': 'বাজেট মুছুন',
       'Are you sure you want to delete this budget?':
           'আপনি কি নিশ্চিত যে এই বাজেটটি মুছতে চান?',

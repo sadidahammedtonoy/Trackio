@@ -52,9 +52,49 @@ class BudgetsScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: tablet ? 20.0 : 20.h),
+          Obx(() {
+            if (controller.isShowingPreviousMonths.value && controller.budgets.isNotEmpty) {
+              return Container(
+                margin: EdgeInsets.only(top: tablet ? 8.0 : 8.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: tablet ? 12.0 : 12.w,
+                  vertical: tablet ? 8.0 : 8.h,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(tablet ? 10.0 : 10.r),
+                  border: Border.all(color: Colors.amber.shade300),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.history_rounded,
+                      size: tablet ? 18.0 : 18.sp,
+                      color: Colors.amber.shade800,
+                    ),
+                    SizedBox(width: tablet ? 8.0 : 8.w),
+                    Expanded(
+                      child: Text(
+                        'No budgets set for this month. Showing budgets from previous months.'.tr,
+                        style: TextStyle(
+                          fontSize: tablet ? 12.0 : 12.sp,
+                          color: Colors.amber.shade900,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+          SizedBox(height: tablet ? 16.0 : 16.h),
           Expanded(
             child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(child: CupertinoActivityIndicator());
+              }
               if (controller.budgets.isEmpty) {
                 return Center(child: Text("No budgets added for this month.".tr));
               }
@@ -122,7 +162,7 @@ class BudgetsScreen extends StatelessWidget {
               ),
               CupertinoDialogAction(
                 onPressed: () {
-                  controller.deleteBudget(budget.id);
+                  controller.deleteBudget(budget.id, budget.month);
                   Get.back();
                 },
                 isDestructiveAction: true,
@@ -136,9 +176,11 @@ class BudgetsScreen extends StatelessWidget {
       Get.dialog(
         AlertDialog(
           backgroundColor: Colors.white,
+          constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
           title: Text("Delete Budget".tr),
           content: Text("Are you sure you want to delete this budget?".tr),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(tablet ? 12.0 : 12.r)),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           actions: [
             TextButton(
               onPressed: () => Get.back(),
@@ -146,7 +188,7 @@ class BudgetsScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                controller.deleteBudget(budget.id);
+                controller.deleteBudget(budget.id, budget.month);
                 Get.back();
               },
               child: Text("Delete".tr, style: const TextStyle(color: Colors.red)),
@@ -164,6 +206,16 @@ class BudgetsScreen extends StatelessWidget {
         ? Colors.red
         : (percentage >= 0.8 ? Colors.orange : AppColors.primary);
 
+    String formattedMonth = '';
+    if (budget.month != null) {
+      try {
+        final parsed = DateFormat('yyyy-MM').parse(budget.month!);
+        formattedMonth = DateFormat('MMM yyyy').format(parsed);
+      } catch (_) {
+        formattedMonth = budget.month!;
+      }
+    }
+
     return Padding(
       padding: EdgeInsets.only(bottom: tablet ? 16.0 : 16.h),
       child: Slidable(
@@ -173,7 +225,12 @@ class BudgetsScreen extends StatelessWidget {
           children: [
             SlidableAction(
               onPressed: (_) {
-                Get.toNamed(routes.add_budget_screen, arguments: {'budgetId': budget.id, 'category': budget.groupName, 'amount': budget.budget});
+                Get.toNamed(routes.add_budget_screen, arguments: {
+                  'budgetId': budget.id,
+                  'category': budget.groupName,
+                  'amount': budget.budget,
+                  'month': budget.month,
+                });
               },
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -222,9 +279,39 @@ class BudgetsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(budget.groupName,
-                        style: TextStyle(
-                            fontSize: tablet ? 16.0 : 18.sp, fontWeight: FontWeight.bold)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            budget.groupName,
+                            style: TextStyle(
+                              fontSize: tablet ? 16.0 : 18.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (formattedMonth.isNotEmpty && controller.isShowingPreviousMonths.value)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: tablet ? 8.0 : 8.w,
+                              vertical: tablet ? 2.0 : 2.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurple.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(tablet ? 6.0 : 6.r),
+                              border: Border.all(color: Colors.deepPurple.withOpacity(0.2)),
+                            ),
+                            child: Text(
+                              formattedMonth,
+                              style: TextStyle(
+                                fontSize: tablet ? 11.0 : 11.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                     if (budget.isGrouped)
                       Padding(
                         padding: EdgeInsets.only(top: tablet ? 4.0 : 4.h),

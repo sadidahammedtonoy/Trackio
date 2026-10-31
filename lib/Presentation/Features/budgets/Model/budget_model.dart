@@ -4,6 +4,7 @@ class BudgetModel {
   final List<String> categories;
   final double budget;
   double spent;
+  final String? month;
 
   BudgetModel({
     required this.id,
@@ -11,6 +12,7 @@ class BudgetModel {
     required this.categories,
     required this.budget,
     this.spent = 0.0,
+    this.month,
   });
 
   bool get isGrouped => categories.length > 1;

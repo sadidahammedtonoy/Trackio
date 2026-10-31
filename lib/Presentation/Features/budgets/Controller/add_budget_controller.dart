@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:sadid/Core/loading.dart';
+import 'package:sadid/Presentation/Features/budgets/Controller/controller.dart';
 import '../../../../Core/snakbar.dart';
 
 class AddBudgetController extends GetxController {
@@ -23,13 +25,20 @@ class AddBudgetController extends GetxController {
     super.onInit();
     fetchCategories();
     if (Get.arguments != null) {
-      budgetId.value = Get.arguments['budgetId'];
+      budgetId.value = Get.arguments['budgetId'] ?? '';
       final categoryArg = Get.arguments['category'];
       if (categoryArg is String) {
         selectedCategories.add(categoryArg);
         groupNameController.text = categoryArg;
       }
-      amountController.text = Get.arguments['amount'].toString();
+      if (Get.arguments['amount'] != null) {
+        amountController.text = Get.arguments['amount'].toString();
+      }
+      if (Get.arguments['month'] != null) {
+        try {
+          selectedMonth.value = DateFormat('yyyy-MM').parse(Get.arguments['month']);
+        } catch (_) {}
+      }
     }
   }
 
@@ -72,18 +81,18 @@ class AddBudgetController extends GetxController {
       if (user == null) throw Exception("User not logged in");
 
       final String monthStr = DateFormat('yyyy-MM').format(selectedMonth.value);
-      final budgetCollection = FirebaseFirestore.instance
+      final monthlyDoc = FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .collection('monthly_transactions')
-          .doc(monthStr)
-          .collection('budgets');
+          .doc(monthStr);
+      await monthlyDoc.set({"updatedAt": FieldValue.serverTimestamp()}, SetOptions(merge: true));
+      final budgetCollection = monthlyDoc.collection('budgets');
 
       if (budgetId.value.isEmpty) {
         final allBudgetsSnapshot = await budgetCollection.get();
         for (var doc in allBudgetsSnapshot.docs) {
           final data = doc.data();
-          if (data == null) continue;
 
           final List<String> existingCategories = [];
           if (data['categories'] is List) {
@@ -119,6 +128,9 @@ class AddBudgetController extends GetxController {
       }
 
       // --- SUCCESS PATH ---
+      if (Get.isRegistered<BudgetsController>()) {
+        Get.find<BudgetsController>().fetchBudgetAndSpending();
+      }
       AppLoader.hide();
       Get.back();
       final successMessage = budgetId.value.isNotEmpty ? "Budget updated successfully" : "Budget added successfully";
@@ -133,7 +145,7 @@ class AddBudgetController extends GetxController {
   }
 
   void selectMonth(BuildContext context) {
-    if (Get.theme.platform == TargetPlatform.iOS) {
+    if (!kIsWeb && Get.theme.platform == TargetPlatform.iOS) {
       _showIOSMonthPicker(context);
     } else {
       _showAndroidMonthPicker(context);
