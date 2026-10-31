@@ -581,10 +581,12 @@ Future<bool> _showDeleteDialog(BuildContext context) async {
           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: AlertDialog(
             backgroundColor: Colors.white.withOpacity(0.9),
+            constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.r)),
             title: Text("Delete Transaction".tr),
             content: Text("Are you sure you want to delete this transaction?".tr),
+            actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             actions: [
               TextButton(
                   onPressed: () => Get.back(result: false),

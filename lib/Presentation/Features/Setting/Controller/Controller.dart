@@ -104,6 +104,7 @@ class settingController extends GetxController {
       await Get.dialog(
         AlertDialog(
           backgroundColor: Colors.white,
+          constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
           title: Text("Logout".tr),
           content: Text(
             isGuestUser()
@@ -114,6 +115,7 @@ class settingController extends GetxController {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           actions: [
             TextButton(
               onPressed: () => Get.back(),
@@ -299,11 +301,13 @@ class settingController extends GetxController {
       await Get.dialog(
         AlertDialog(
           backgroundColor: Colors.white,
+          constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
           title: Text("Delete Account".tr),
           content: buildContent(),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           actions: [
             TextButton(
               onPressed: () => Get.back(),

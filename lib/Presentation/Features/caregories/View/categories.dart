@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -319,7 +320,7 @@ class categories extends StatelessWidget {
   void _openAddDialog({required bool tablet}) {
     final tc = TextEditingController();
 
-    if (Platform.isIOS) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
       // 🍎 iOS Dialog
       Get.dialog(
         CupertinoAlertDialog(
@@ -356,6 +357,7 @@ class categories extends StatelessWidget {
       // 🤖 Android Dialog
       Get.dialog(
         AlertDialog(
+          constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(tablet ? 20.0 : 16.0),
           ),
@@ -373,6 +375,7 @@ class categories extends StatelessWidget {
               ),
             ),
           ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           actions: [
             TextButton(
               onPressed: () => Get.back(),
@@ -437,6 +440,7 @@ class categories extends StatelessWidget {
       Get.dialog(
         AlertDialog(
           backgroundColor: Colors.white,
+          constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
           title: Text("Edit Category".tr),
           content: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: tablet ? 400.0 : double.infinity),
@@ -451,6 +455,7 @@ class categories extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           actions: [
             TextButton(
               onPressed: () => Get.back(),
@@ -511,6 +516,7 @@ class categories extends StatelessWidget {
       return Get.dialog<bool>(
         AlertDialog(
           backgroundColor: Colors.white,
+          constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
           title: Text("Delete Category?".tr),
           content: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: tablet ? 400.0 : double.infinity),
@@ -521,6 +527,7 @@ class categories extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           actions: [
             TextButton(
               onPressed: () => Get.back(result: false),

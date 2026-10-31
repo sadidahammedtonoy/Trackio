@@ -54,10 +54,14 @@ class setting_page extends StatelessWidget {
     }
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: content),
-        ],
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        bottom: false,
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: content),
+          ],
+        ),
       ),
     );
   }
@@ -357,6 +361,7 @@ class setting_page extends StatelessWidget {
       Get.dialog(
         AlertDialog(
           backgroundColor: Colors.white,
+          constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.r),
           ),
@@ -373,6 +378,7 @@ class setting_page extends StatelessWidget {
                   borderSide: BorderSide(color: AppColors.primary)),
             ),
           ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           actions: [
             TextButton(
               onPressed: () => Get.back(),

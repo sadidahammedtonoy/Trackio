@@ -1309,6 +1309,7 @@ class _TransactionTile extends StatelessWidget {
               filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
               child: AlertDialog(
                 backgroundColor: Colors.white,
+                constraints: const BoxConstraints(minWidth: 320, maxWidth: 400),
                 title: Text("Delete Transaction".tr),
                 content: Text(
                   "Are you sure you want to delete this transaction?".tr,
@@ -1316,6 +1317,7 @@ class _TransactionTile extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
+                actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 actions: [
                   TextButton(
                     onPressed: () => Get.back(result: false),
